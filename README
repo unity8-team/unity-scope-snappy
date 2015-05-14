@@ -1,0 +1,7 @@
+Snappy Scope
+============
+
+Setup up your GOPATH and then:
+
+$ go get launchpad.net/unity-scope-snappy/snappy-scope
+$ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/snappy-scope/snappy-scope.ini

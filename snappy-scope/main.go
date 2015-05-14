@@ -1,12 +1,12 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-type SnappyScope struct {}
+type SnappyScope struct{}
 
 func (scope SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
 	// Do nothing

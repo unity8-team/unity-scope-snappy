@@ -225,7 +225,7 @@ func TestGetPackages_onlyInstalled(t *testing.T) {
 	setup()
 	defer teardown()
 
-	packages, err := client.GetPackages(true)
+	packages, err := client.GetInstalledPackages()
 	if err != nil {
 		t.Log("Error: ", err)
 	}
@@ -261,7 +261,7 @@ func TestGetStorePackages(t *testing.T) {
 	setup()
 	defer teardown()
 
-	packages, err := client.GetPackages(false)
+	packages, err := client.GetStorePackages()
 	if err != nil {
 		t.Log("Error: ", err)
 	}

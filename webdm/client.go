@@ -54,7 +54,36 @@ func NewClient() *Client {
 	return client
 }
 
-// GetPackages sends a request to the API for a package list.
+// GetInstalledPackages sends an API request for a list of installed packages.
+//
+// Returns:
+// - Slice of Packags structs
+// - Error (nil of none)
+func (client Client) GetInstalledPackages() ([]Package, error) {
+	packages, err := client.getPackages(true)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error getting installed packages: %s", err)
+	}
+
+	return packages, nil
+}
+
+// GetStorePackages sends an API request for a list of all packages in the
+// store (including installed packages).
+//
+// Returns:
+// - Slice of Packags structs
+// - Error (nil of none)
+func (client Client) GetStorePackages() ([]Package, error) {
+	packages, err := client.getPackages(false)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error getting store packages: %s", err)
+	}
+
+	return packages, nil
+}
+
+// getPackages sends a request to the API for a package list.
 //
 // Parameters:
 // installedOnly: Whether the list should only contain installed packages.
@@ -62,7 +91,7 @@ func NewClient() *Client {
 // Returns:
 // - Slice of Package structs
 // - Error (nil if none)
-func (client Client) GetPackages(installedOnly bool) ([]Package, error) {
+func (client Client) getPackages(installedOnly bool) ([]Package, error) {
 	data := url.Values{}
 	if installedOnly {
 		data.Set("installed_only", "true")
@@ -70,13 +99,13 @@ func (client Client) GetPackages(installedOnly bool) ([]Package, error) {
 
 	request, err := client.newRequest("GET", webdmListPackagesPath, data)
 	if err != nil {
-		return nil, fmt.Errorf("webdm: Error creating API request: %s", err)
+		return nil, fmt.Errorf("Error creating API request: %s", err)
 	}
 
 	var apiPackages []apiPackage
 	_, err = client.do(request, &apiPackages)
 	if err != nil {
-		return nil, fmt.Errorf("webdm: Error making API request: %s", err)
+		return nil, fmt.Errorf("Error making API request: %s", err)
 	}
 
 	return convertApiResponse(apiPackages), nil

@@ -31,7 +31,7 @@ func setup() {
 	// Setup a handler function to respond to requests to
 	// `webdmListPackagesPath`. Our database contains two packages: one
 	// installed, one not installed.
-	mux.HandleFunc(webdmListPackagesPath,
+	mux.HandleFunc(apiListPackagesPath,
 		func(writer http.ResponseWriter, request *http.Request) {
 			jsonString := `[
 		               {
@@ -89,16 +89,18 @@ func testMethod(t *testing.T, request *http.Request, expected string) {
 func TestNewClient(t *testing.T) {
 	client := NewClient()
 
-	if client.BaseUrl.Scheme != defaultWebdmScheme {
+	expectedUrl, _ := url.Parse(defaultApiUrl)
+
+	if client.BaseUrl.Scheme != expectedUrl.Scheme {
 		t.Errorf("NewClient BaseUrl.Scheme was %s, expected %s",
 			client.BaseUrl.Scheme,
-			defaultWebdmScheme)
+			expectedUrl.Scheme)
 	}
 
-	if client.BaseUrl.Host != defaultWebdmHost {
+	if client.BaseUrl.Host != expectedUrl.Host {
 		t.Errorf("NewClient BaseUrl.Host was %s, expected %s",
 			client.BaseUrl.Host,
-			defaultWebdmHost)
+			expectedUrl.Host)
 	}
 
 	if client.UserAgent != defaultUserAgent {
@@ -116,12 +118,9 @@ func TestNewRequest(t *testing.T) {
 
 	path := "foo"
 
-	expectedUrl := url.URL{
-		Scheme:   defaultWebdmScheme,
-		Host:     defaultWebdmHost,
-		Path:     "foo",
-		RawQuery: data.Encode(),
-	}
+	expectedUrl, _ := url.Parse(defaultApiUrl)
+	expectedUrl.Path = path
+	expectedUrl.RawQuery = data.Encode()
 
 	request, _ := client.newRequest("GET", path, data)
 
@@ -145,7 +144,7 @@ func TestNewRequest(t *testing.T) {
 }
 
 // Test handling of a bad URL
-func TestNewRequest_badURL(t *testing.T) {
+func TestNewRequest_badUrl(t *testing.T) {
 	client := NewClient()
 
 	// ":" is obviously an invalid URL

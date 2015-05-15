@@ -8,10 +8,14 @@ import (
 )
 
 const (
-	defaultUserAgent      = "unity-scope-snappy"
-	defaultWebdmScheme    = "http"
-	defaultWebdmHost      = "127.0.0.1:4200" // where webdm is listening
-	webdmListPackagesPath = "/api/v2/packages"
+	// User-agent to use when communicating with webdm API
+	defaultUserAgent = "unity-scope-snappy"
+
+	// Where webdm is listening
+	defaultApiUrl = "http://127.0.0.1:4200"
+
+	// webdm API path to use to obtain a list of packages
+	apiListPackagesPath = "/api/v2/packages"
 )
 
 // Package contains information about a given package available from the store
@@ -46,10 +50,7 @@ func NewClient() *Client {
 	client := new(Client)
 	client.client = http.DefaultClient
 	client.UserAgent = defaultUserAgent
-	client.BaseUrl = &url.URL{
-		Scheme: defaultWebdmScheme,
-		Host:   defaultWebdmHost,
-	}
+	client.BaseUrl, _ = url.Parse(defaultApiUrl)
 
 	return client
 }
@@ -97,7 +98,7 @@ func (client Client) getPackages(installedOnly bool) ([]Package, error) {
 		data.Set("installed_only", "true")
 	}
 
-	request, err := client.newRequest("GET", webdmListPackagesPath, data)
+	request, err := client.newRequest("GET", apiListPackagesPath, data)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating API request: %s", err)
 	}
@@ -116,16 +117,15 @@ func (client Client) getPackages(installedOnly bool) ([]Package, error) {
 // Parameters:
 // method: HTTP method (e.g. GET, POST, etc.)
 // path: API path relative to BaseUrl
-// data: key-values which will be included in the request URL
+// query: key-values which will be included in the request URL as a query
 //
 // Returns:
 // - Pointer to created HTTP request
 // - Error (nil if none)
-func (client *Client) newRequest(method string, path string,
-	data url.Values) (*http.Request, error) {
+func (client *Client) newRequest(method string, path string, query url.Values) (*http.Request, error) {
 	relativeUrl, err := url.Parse(path)
 	if err != nil {
-		return nil, fmt.Errorf("webdm: Eror parsing path %s: %s", path, err)
+		return nil, fmt.Errorf("Eror parsing path %s: %s", path, err)
 	}
 
 	requestUrl := client.BaseUrl.ResolveReference(relativeUrl)
@@ -133,10 +133,10 @@ func (client *Client) newRequest(method string, path string,
 	// Create the request. The current webdm API doesn't support bodies
 	request, err := http.NewRequest(method, requestUrl.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("webdm: Error creating request: %s", err)
+		return nil, fmt.Errorf("Error creating request: %s", err)
 	}
 
-	request.URL.RawQuery = data.Encode() // Add the desired URL data
+	request.URL.RawQuery = query.Encode() // Add the desired URL query
 
 	// Add the configured user agent to the request
 	request.Header.Add("User-Agent", client.UserAgent)

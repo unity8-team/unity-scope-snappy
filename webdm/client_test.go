@@ -350,9 +350,9 @@ func TestCheckResponse(t *testing.T) {
 
 // Test UnmarshalJSON dies when called on nil object
 func TestStatusUnmarshalNil(t *testing.T) {
-    var nilStatus *Status = nil
-    err := nilStatus.UnmarshalJSON([]byte("this is fake json"))
-    if err == nil {
-        t.Error("Expected error when Status is nil")
-    }
+	var nilStatus *Status = nil
+	err := nilStatus.UnmarshalJSON([]byte("this is fake json"))
+	if err == nil {
+		t.Error("Expected error when Status is nil")
+	}
 }

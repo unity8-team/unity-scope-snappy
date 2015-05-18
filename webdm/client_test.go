@@ -28,6 +28,17 @@ func setup() {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 
+	// webdm client configured to use test server
+	client = NewClient()
+	client.BaseUrl, _ = url.Parse(server.URL)
+}
+
+// setupMockListPackagesApi sets up a test HTTP server along with a webdm.Client
+// that is configured to talk to that test server. It also registers a handler
+// for the "list packages" API URL which returns a valid package list.
+func setupMockListPackagesApi() {
+	setup()
+
 	// Setup a handler function to respond to requests to
 	// `webdmListPackagesPath`. Our database contains two packages: one
 	// installed, one not installed.
@@ -67,10 +78,18 @@ func setup() {
 
 			fmt.Fprint(writer, jsonString)
 		})
+}
 
-	// webdm client configured to use test server
-	client = NewClient()
-	client.BaseUrl, _ = url.Parse(server.URL)
+// setupBrokenMockListPackagesApi sets up a test HTTP server along with a
+// webdm.Client that is configured to talk to that test server. It also
+// registers a handler for the "list packages" API URL which returns a code 500.
+func setupBrokenMockListPackagesApi() {
+	setup()
+
+	mux.HandleFunc(apiListPackagesPath,
+		func(writer http.ResponseWriter, request *http.Request) {
+			http.Error(writer, "Internal Server Error", 500)
+		})
 }
 
 // teardown closes the test HTTP server.
@@ -147,10 +166,17 @@ func TestNewRequest(t *testing.T) {
 func TestNewRequest_badUrl(t *testing.T) {
 	client := NewClient()
 
-	// ":" is obviously an invalid URL
+	// Test a bad relative URL first-- ":" is obviously invalid
 	_, err := client.newRequest("GET", ":", nil)
 	if err == nil {
-		t.Error("Expected an error to be returned")
+		t.Error("Expected an error to be returned due to invalid relative URL")
+	}
+
+	// Now test a bad base URL
+	client.BaseUrl.Host = "%20bar"
+	_, err = client.newRequest("GET", "foo", nil)
+	if err == nil {
+		t.Error("Expected an error to be returned due to invalid base URL")
 	}
 }
 
@@ -177,6 +203,32 @@ func TestDo(t *testing.T) {
 	expected := &Body{Foo: "bar"}
 	if !reflect.DeepEqual(body, expected) {
 		t.Errorf("Response body was %v, expected %v", body, expected)
+	}
+}
+
+// Test decoding into incorrect JSON
+func TestDo_incorrectJson(t *testing.T) {
+	// Run test server
+	setup()
+	defer teardown()
+
+	// Expect an int, even though the server responds with a string
+	type BadBody struct {
+		Foo int
+	}
+
+	// Setup a handler function to respond to requests to the root url
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		testMethod(t, request, "GET")
+		fmt.Fprint(writer, `{"Foo":"bar"}`) // Respond with a string
+	})
+
+	request, _ := client.newRequest("GET", "/", nil)
+	body := new(BadBody)
+	_, err := client.do(request, body)
+
+	if err == nil {
+		t.Errorf("Expected an error due to parsing a string into a int")
 	}
 }
 
@@ -218,10 +270,31 @@ func TestDo_redirectLoop(t *testing.T) {
 	}
 }
 
-// Test querying for only installed packages
-func TestGetPackages_onlyInstalled(t *testing.T) {
+// Test getting packages with an invalid URL
+func TestGetPackages_invalidUrl(t *testing.T) {
+	client.BaseUrl.Host = "%20bar"
+	_, err := client.getPackages(false)
+	if err == nil {
+		t.Error("Expected error to be returned due to invalid URL")
+	}
+}
+
+// Test getting packages from an API that returns an error
+func TestGetPackages_invalidResponse(t *testing.T) {
 	// Run test server
-	setup()
+	setupBrokenMockListPackagesApi()
+	defer teardown()
+
+	_, err := client.getPackages(false)
+	if err == nil {
+		t.Error("Expected error to be returned due to broken server")
+	}
+}
+
+// Test querying for only installed packages
+func TestGetInstalledPackages(t *testing.T) {
+	// Run test server
+	setupMockListPackagesApi()
 	defer teardown()
 
 	packages, err := client.GetInstalledPackages()
@@ -254,10 +327,22 @@ func TestGetPackages_onlyInstalled(t *testing.T) {
 	}
 }
 
+// Test querying for only installed packages with a server that returns an error
+func TestGetInstalledPackages_brokenServer(t *testing.T) {
+	// Run test server
+	setupBrokenMockListPackagesApi()
+	defer teardown()
+
+	_, err := client.GetInstalledPackages()
+	if err == nil {
+		t.Log("Expected error to be returned due to broken server")
+	}
+}
+
 // Test querying for all packages
 func TestGetStorePackages(t *testing.T) {
 	// Run test server
-	setup()
+	setupMockListPackagesApi()
 	defer teardown()
 
 	packages, err := client.GetStorePackages()
@@ -319,31 +404,42 @@ func TestGetStorePackages(t *testing.T) {
 	}
 }
 
+// Test querying for all packages with a server that returns an error
+func TestGetStorePackages_brokenServer(t *testing.T) {
+	// Run test server
+	setupBrokenMockListPackagesApi()
+	defer teardown()
+
+	_, err := client.GetStorePackages()
+	if err == nil {
+		t.Log("Expected error to be returned due to broken server")
+	}
+}
+
+// Data for TestCheckResponse
+var checkResponseTests = []struct{
+	shouldAccept bool
+	responseCode int
+}{
+	{true, 200}, // OK
+	{true, 226}, // Fulfilled request
+	{false, 122}, // URI too long
+	{false, 300}, // Redirection
+}
+
 // Test the response checker is only good with 2xx values
 func TestCheckResponse(t *testing.T) {
-	response := new(http.Response)
-
-	// Test OK
-	response.StatusCode = 200
-	if checkResponse(response) != nil {
-		t.Error("Expected 200 to be acceptable")
-	}
-
-	// Test fulfilled request
-	response.StatusCode = 226
-	if checkResponse(response) != nil {
-		t.Error("Expected 226 to be acceptable")
-	}
-
-	// Test URI too long
-	response.StatusCode = 122
-	if checkResponse(response) == nil {
-		t.Error("Expected 122 to cause an error")
-	}
-
-	// Test a redirection
-	response.StatusCode = 300
-	if checkResponse(response) == nil {
-		t.Error("Expected 300 to cause an error")
+	for _, test := range checkResponseTests {
+		response := &http.Response{StatusCode: test.responseCode}
+		checkError := checkResponse(response)
+		if test.shouldAccept {
+			if checkError != nil {
+				t.Errorf("Expected %d to be acceptable", test.responseCode)
+			}
+		} else {
+			if checkError == nil {
+				t.Errorf("Expected %d to cause an error", test.responseCode)
+			}
+		}
 	}
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 type SnappyScope struct{}
@@ -31,7 +30,7 @@ func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.Sear
 	categoryTitle := "cat title"
 	category := reply.RegisterCategory("current", categoryTitle, "", template)
 	result := scopes.NewCategorisedResult(category)
-	result.SetTitle(client.GetSomethingUseful())
+	result.SetTitle("Something Useful")
 	result.Set("subtitle", "fake subtitle")
 	result.Set("description", "A description of the result")
 	result.SetURI("http://fake")

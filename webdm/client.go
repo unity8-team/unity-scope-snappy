@@ -19,7 +19,7 @@ const (
 	apiListPackagesPath = "/api/v2/packages"
 )
 
-// Unmarshall the Status field in the json into a "Installed" boolean
+// UnmarshallJSON exists to decode the Status field in the json into an "Installed" boolean
 func (s *Status) UnmarshalJSON(data []byte) error {
 	if s == nil {
 		return errors.New("Status: UnmarshalJSON on nil pointer")
@@ -174,6 +174,30 @@ func (client *Client) do(request *http.Request, value interface{}) (*http.Respon
 	}
 
 	return response, nil
+}
+
+// fixIconUrl checks the package's icon URL to ensure it's pointing to a valid
+// icon.
+//
+// Invalid icon URLs can occur in two cases:
+//
+// 1) The app is installed, in which case the API provides an icon URL
+//    that is relative to webdm's base URL.
+// 2) The icon URL is actually invalid in the store database.
+//
+// If (1), we can turn it into a valid URL using webdm's base URL. If
+// (2), we'll need to use a default icon.
+//
+// Parameters:
+// apiPackage: Package containing icon URL to be fixed.
+func (client Client) fixIconUrl(apiPackage *Package) {
+	iconUrl, err := url.Parse(apiPackage.IconUrl)
+	if err != nil {
+		log.Printf("Invalid icon URL for \"%s\"... using default",
+		           apiPackage.Id)
+	}
+
+
 }
 
 // convertApiResponse is a simple helper to convert from the JSON API-specific

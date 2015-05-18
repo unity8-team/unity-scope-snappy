@@ -1,9 +1,9 @@
 package webdm
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
+	"errors"
+	"encoding/json"
 	"net/http"
 	"net/url"
 )
@@ -55,7 +55,7 @@ func NewClient() *Client {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client Client) GetInstalledPackages() ([]Package, error) {
+func (client *Client) GetInstalledPackages() ([]Package, error) {
 	packages, err := client.getPackages(true)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting installed packages: %s", err)
@@ -70,7 +70,7 @@ func (client Client) GetInstalledPackages() ([]Package, error) {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client Client) GetStorePackages() ([]Package, error) {
+func (client *Client) GetStorePackages() ([]Package, error) {
 	packages, err := client.getPackages(false)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting store packages: %s", err)
@@ -87,7 +87,7 @@ func (client Client) GetStorePackages() ([]Package, error) {
 // Returns:
 // - Slice of Package structs
 // - Error (nil if none)
-func (client Client) getPackages(installedOnly bool) ([]Package, error) {
+func (client *Client) getPackages(installedOnly bool) ([]Package, error) {
 	data := url.Values{}
 	if installedOnly {
 		data.Set("installed_only", "true")
@@ -175,6 +175,81 @@ func (client *Client) do(request *http.Request, value interface{}) (*http.Respon
 
 	return response, nil
 }
+
+// convertApiResponse is a simple helper to convert from the JSON API-specific
+// response into our prettied-up library response.
+//
+// Parameters:
+// apiPackages: Slice of apiPackage structs to convert.
+//
+// Returns:
+// Slice of Package structs to give to client.
+func (client Client) convertApiResponse(apiPackages []apiPackage) []Package {
+	packages := make([]Package, len(apiPackages))
+
+	for index, thisApiPackage := range apiPackages {
+//		thisIconUrl, err := url.Parse(thisApiPackage.Icon)
+//		if err != nil {
+//			log.Printf("Invalid icon URL for \"%s\"... using default",
+//			           thisApiPackage.Id)
+//			thisIconUrl
+//		}
+
+
+		newPackage := Package{
+			Id:           thisApiPackage.Id,
+			Name:         thisApiPackage.Name,
+			Origin:       thisApiPackage.Origin,
+			Version:      thisApiPackage.Version,
+			Vendor:       thisApiPackage.Vendor,
+			Description:  thisApiPackage.Description,
+			Installed:    thisApiPackage.Status == "installed",
+			DownloadSize: thisApiPackage.DownloadSize,
+			Type:         thisApiPackage.Type,
+
+			// If the app is installed, the API provides an icon URL relative
+			// to webdm's base URL, thus the use of ResolveReference(). Note
+			// that if the icon URL is already absolute, ResolveReference() will
+			// not change it.
+//			IconUrl:      client.BaseUrl.ResolveReference(thisApiPackage.Icon),
+		}
+
+		packages[index] = newPackage
+	}
+
+	return packages
+}
+
+// ensureAbsoluteUrl checks the package's icon URL to ensure it's pointing to
+// a valid icon.
+//
+// Invalid icon URLs can occur in two cases:
+//
+// 1) The app is installed, in which case the API provides an icon URL
+//    that is relative to webdm's base URL.
+// 2) The icon URL is actually invalid in the database
+//
+// If (1), we can turn it into a valid URL using webdm's base URL. If
+// (2), we'll need to use a default icon.
+//
+// Parameters:
+// newPackage: Package containing icon URL to be validated
+// baseUrl: Base URL to use in case an icon URL is missing one
+//func absoluteUrl(newPackage *Package, baseUrl url.URL) {
+//	// Get rid of any whitespace in the URL that would get encoded
+//	thisIconUrl, err := url.Parse(strings.Trim(newPackage.IconUrl, " "))
+//	if err != nil {
+//		log.Printf("Invalid package icon: %s", thisApiPackage.Icon)
+//		return // Nothing more we can do here
+//	}
+
+//	// An "invalid icon URL" is determined by whether or not it's absolute
+//	if !thisIconUrl.IsAbs() {
+//		if thisIconUrl.Host == "" {
+//			thisIconUrl.Host = client.BaseUrl
+//		}
+//	}
+//}
 
 // checkResponse ensures the server response means it's okay to continue.
 //

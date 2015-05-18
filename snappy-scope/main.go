@@ -2,12 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"flag"
 	"launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-type SnappyScope struct{}
+type SnappyScope struct {
+	webdmClient *webdm.Client
+}
 
-func (scope SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
+func (scope *SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
 	// Do nothing
 }
 
@@ -15,7 +20,7 @@ const template = `{
 	"schema-version": 1,
 	"template": {
 		"category-layout": "grid",
-		"card-size": "medium"
+		"card-size": "small"
 	},
 	"components": {
 		"title": "title",
@@ -27,18 +32,30 @@ const template = `{
 }`
 
 func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
-	categoryTitle := "cat title"
-	category := reply.RegisterCategory("current", categoryTitle, "", template)
-	result := scopes.NewCategorisedResult(category)
-	result.SetTitle("Something Useful")
-	result.Set("subtitle", "fake subtitle")
-	result.Set("description", "A description of the result")
-	result.SetURI("http://fake")
-	result.SetArt("file:/usr/share/icons/Humanity/apps/48/system-software-install.svg")
+	packages, err := scope.webdmClient.GetStorePackages()
+	log.Println("1")
+	if err != nil {
+		log.Println("Unable to retrieve store packages: ", err)
+	}
 
-	if reply.Push(result) != nil {
-		// If the push fails, the query was cancelled. No need to continue.
-		return nil
+	//file:/usr/share/icons/Humanity/apps/48/system-software-install.svg
+
+	log.Println("2")
+
+	category := reply.RegisterCategory("store_packages", "Store Packages", "", template)
+log.Println("3")
+	for _, thisPackage := range packages {
+		result := scopes.NewCategorisedResult(category)
+
+		result.SetTitle(thisPackage.Name)
+		result.Set("subtitle", thisPackage.Description)
+		result.SetURI("snappy:" + thisPackage.Id)
+		result.SetArt(thisPackage.IconUrl)
+
+		if reply.Push(result) != nil {
+			// If the push fails, the query was cancelled. No need to continue.
+			return nil
+		}
 	}
 
 	return nil
@@ -76,6 +93,12 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 }
 
 func main() {
+	webdmAddressParameter := flag.String("webdm", "192.168.1.165:4200", "WebDM address[:port]")
+	scope := &SnappyScope{webdmClient: webdm.NewClient()}
+
+	fmt.Println("ADDR:", *webdmAddressParameter)
+
+	scope.webdmClient.BaseUrl.Host = *webdmAddressParameter
 	err := scopes.Run(&SnappyScope{})
 	if err != nil {
 		fmt.Println(err)

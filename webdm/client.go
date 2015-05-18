@@ -24,7 +24,7 @@ func (s *Status) UnmarshalJSON(data []byte) error {
 	if s == nil {
 		return errors.New("Status: UnmarshalJSON on nil pointer")
 	}
-	*s = string(data) == `"installed"`
+	*s = string(data) == "installed"
 	return nil
 }
 

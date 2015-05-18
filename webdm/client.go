@@ -19,6 +19,7 @@ const (
 	apiListPackagesPath = "/api/v2/packages"
 )
 
+// Unmarshall the Status field in the json into a "Installed" boolean
 func (s *Status) UnmarshalJSON(data []byte) error {
 	if s == nil {
 		return errors.New("Status: UnmarshalJSON on nil pointer")

@@ -2,6 +2,7 @@ package webdm
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,19 +19,13 @@ const (
 	apiListPackagesPath = "/api/v2/packages"
 )
 
-// Package contains information about a given package available from the store
-// or already installed.
-type apiPackage struct {
-	Id           string
-	Name         string
-	Origin       string
-	Version      string
-	Vendor       string
-	Description  string
-	Icon         string
-	Status       string
-	DownloadSize int `json:"download_size"`
-	Type         string
+// Unmarshall the Status field in the json into a "Installed" boolean
+func (s *Status) UnmarshalJSON(data []byte) error {
+	if s == nil {
+		return errors.New("Status: UnmarshalJSON on nil pointer")
+	}
+	*s = string(data) == `"installed"`
+	return nil
 }
 
 // Client is the main struct allowing for communication with the webdm API.
@@ -103,13 +98,13 @@ func (client Client) getPackages(installedOnly bool) ([]Package, error) {
 		return nil, fmt.Errorf("Error creating API request: %s", err)
 	}
 
-	var apiPackages []apiPackage
-	_, err = client.do(request, &apiPackages)
+	var packages []Package
+	_, err = client.do(request, &packages)
 	if err != nil {
 		return nil, fmt.Errorf("Error making API request: %s", err)
 	}
 
-	return convertApiResponse(apiPackages), nil
+	return packages, nil
 }
 
 // newRequest creates an API request.
@@ -179,41 +174,6 @@ func (client *Client) do(request *http.Request, value interface{}) (*http.Respon
 	}
 
 	return response, nil
-}
-
-// convertApiResponse is a simple helper to convert from the JSON API-specific
-// response into our prettied-up library response.
-//
-// Parameters:
-// apiPackages: Slice of apiPackage structs to convert.
-//
-// Returns:
-// Slice of Package structs to give to client.
-func convertApiResponse(apiPackages []apiPackage) []Package {
-	packages := make([]Package, len(apiPackages))
-
-	for index, thisApiPackage := range apiPackages {
-		newPackage := Package{
-			Id:           thisApiPackage.Id,
-			Name:         thisApiPackage.Name,
-			Origin:       thisApiPackage.Origin,
-			Version:      thisApiPackage.Version,
-			Vendor:       thisApiPackage.Vendor,
-			Description:  thisApiPackage.Description,
-			IconUrl:      thisApiPackage.Icon,
-			Installed:    false,
-			DownloadSize: thisApiPackage.DownloadSize,
-			Type:         thisApiPackage.Type,
-		}
-
-		if thisApiPackage.Status == "installed" {
-			newPackage.Installed = true
-		}
-
-		packages[index] = newPackage
-	}
-
-	return packages
 }
 
 // checkResponse ensures the server response means it's okay to continue.

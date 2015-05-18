@@ -1,5 +1,7 @@
 package webdm
 
+type Status bool
+
 // Package contains information about a given package available from the store
 // or already installed.
 type Package struct {
@@ -9,8 +11,8 @@ type Package struct {
 	Version      string
 	Vendor       string
 	Description  string
-	IconUrl      string
-	Installed    bool
-	DownloadSize int
+	IconUrl      string `json:"icon"`
+	Installed    Status `json:"status"`
+	DownloadSize int    `json:"download_size"`
 	Type         string
 }

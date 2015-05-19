@@ -416,29 +416,57 @@ func TestGetStorePackages_brokenServer(t *testing.T) {
 	}
 }
 
+// Data for TestFixIconUrl
+var fixIconUrlTests = []struct {
+	baseUrl         string
+	iconUrl         string
+	expectedIconUrl string
+}{
+	{"http://example.com", "http://icon.com/icon", "http://icon.com/icon"},
+	{"http://example.com", "/icon", "http://example.com/icon"},
+	{"http://example.com", "", "http://example.com" + apiDefaultIconPath},
+}
+
+// Test that the icon URL fixer works for our cases
+func TestFixIconUrl(t *testing.T) {
+	for i, test := range fixIconUrlTests {
+		client = NewClient()
+		client.BaseUrl, _ = url.Parse(test.baseUrl)
+		fixedUrl := client.fixIconUrl(test.iconUrl)
+
+		if fixedUrl != test.expectedIconUrl {
+			t.Errorf("Test case %d: Fixed url was %s, expected %s", i,
+				fixedUrl,
+				test.expectedIconUrl)
+		}
+	}
+}
+
 // Data for TestCheckResponse
-var checkResponseTests = []struct{
+var checkResponseTests = []struct {
 	shouldAccept bool
 	responseCode int
 }{
-	{true, 200}, // OK
-	{true, 226}, // Fulfilled request
+	{true, 200},  // OK
+	{true, 226},  // Fulfilled request
 	{false, 122}, // URI too long
 	{false, 300}, // Redirection
 }
 
 // Test the response checker is only good with 2xx values
 func TestCheckResponse(t *testing.T) {
-	for _, test := range checkResponseTests {
+	for i, test := range checkResponseTests {
 		response := &http.Response{StatusCode: test.responseCode}
 		checkError := checkResponse(response)
 		if test.shouldAccept {
 			if checkError != nil {
-				t.Errorf("Expected %d to be acceptable", test.responseCode)
+				t.Errorf("Test case %d: Expected %d to be acceptable", i,
+					test.responseCode)
 			}
 		} else {
 			if checkError == nil {
-				t.Errorf("Expected %d to cause an error", test.responseCode)
+				t.Errorf("Test case %d: Expected %d to cause an error", i,
+					test.responseCode)
 			}
 		}
 	}

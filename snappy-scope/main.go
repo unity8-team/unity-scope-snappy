@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"flag"
+	"fmt"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
+	"log"
 )
 
 type SnappyScope struct {
@@ -33,17 +33,17 @@ const template = `{
 
 func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
 	packages, err := scope.webdmClient.GetStorePackages()
-	log.Println("1")
 	if err != nil {
-		log.Println("Unable to retrieve store packages: ", err)
+		errorString := fmt.Sprintf("unity-scope-snappy: Unable to retrieve store packages: %s",
+			err)
+
+		// Log to stderr as well, since nothing seems to do anything with
+		// returned error (yet)
+		log.Println(errorString)
+		return fmt.Errorf(errorString)
 	}
 
-	//file:/usr/share/icons/Humanity/apps/48/system-software-install.svg
-
-	log.Println("2")
-
 	category := reply.RegisterCategory("store_packages", "Store Packages", "", template)
-log.Println("3")
 	for _, thisPackage := range packages {
 		result := scopes.NewCategorisedResult(category)
 
@@ -96,10 +96,9 @@ func main() {
 	webdmAddressParameter := flag.String("webdm", "192.168.1.165:4200", "WebDM address[:port]")
 	scope := &SnappyScope{webdmClient: webdm.NewClient()}
 
-	fmt.Println("ADDR:", *webdmAddressParameter)
-
 	scope.webdmClient.BaseUrl.Host = *webdmAddressParameter
-	err := scopes.Run(&SnappyScope{})
+
+	err := scopes.Run(scope)
 	if err != nil {
 		fmt.Println(err)
 	}

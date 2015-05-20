@@ -29,8 +29,7 @@ func setup() {
 	server = httptest.NewServer(mux)
 
 	// webdm client configured to use test server
-	client = NewClient()
-	client.BaseUrl, _ = url.Parse(server.URL)
+	client, _ = NewClient(server.URL)
 }
 
 // setupMockListPackagesApi sets up a test HTTP server along with a webdm.Client
@@ -106,9 +105,9 @@ func testMethod(t *testing.T, request *http.Request, expected string) {
 
 // Test typical NewClient() usage.
 func TestNewClient(t *testing.T) {
-	client := NewClient()
+	client, _ := NewClient("")
 
-	expectedUrl, _ := url.Parse(defaultApiUrl)
+	expectedUrl, _ := url.Parse(DefaultApiUrl)
 
 	if client.BaseUrl.Scheme != expectedUrl.Scheme {
 		t.Errorf("NewClient BaseUrl.Scheme was %s, expected %s",
@@ -128,16 +127,24 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
+// Test NewClient() with an invalid API URL.
+func TestNewClient_invalidApiUrl(t *testing.T) {
+	_, err := NewClient(":")
+	if err == nil {
+		t.Error("Expected an error to be returned due to invalid URL")
+	}
+}
+
 // Test typical newRequest() usage.
 func TestNewRequest(t *testing.T) {
-	client := NewClient()
+	client, _ := NewClient("")
 
 	data := url.Values{}
 	data.Set("foo", "bar")
 
 	path := "foo"
 
-	expectedUrl, _ := url.Parse(defaultApiUrl)
+	expectedUrl, _ := url.Parse(DefaultApiUrl)
 	expectedUrl.Path = path
 	expectedUrl.RawQuery = data.Encode()
 
@@ -164,7 +171,7 @@ func TestNewRequest(t *testing.T) {
 
 // Test handling of a bad URL
 func TestNewRequest_badUrl(t *testing.T) {
-	client := NewClient()
+	client, _ := NewClient("")
 
 	// Test a bad relative URL first-- ":" is obviously invalid
 	_, err := client.newRequest("GET", ":", nil)
@@ -430,14 +437,12 @@ var fixIconUrlTests = []struct {
 // Test that the icon URL fixer works for our cases
 func TestFixIconUrl(t *testing.T) {
 	for i, test := range fixIconUrlTests {
-		client = NewClient()
-		client.BaseUrl, _ = url.Parse(test.baseUrl)
+		client, _ = NewClient(test.baseUrl)
 		fixedUrl := client.fixIconUrl(test.iconUrl)
 
 		if fixedUrl != test.expectedIconUrl {
 			t.Errorf("Test case %d: Fixed url was %s, expected %s", i,
-				fixedUrl,
-				test.expectedIconUrl)
+				fixedUrl, test.expectedIconUrl)
 		}
 	}
 }
@@ -460,8 +465,8 @@ func TestCheckResponse(t *testing.T) {
 		checkError := checkResponse(response)
 		if test.shouldAccept {
 			if checkError != nil {
-				t.Errorf("Test case %d: Expected %d to be acceptable", i,
-					test.responseCode)
+				t.Errorf("Test case %d: Expected %d to be acceptable, got \"%s\"",
+					i, test.responseCode, checkError)
 			}
 		} else {
 			if checkError == nil {

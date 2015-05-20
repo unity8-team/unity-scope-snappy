@@ -93,13 +93,18 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 }
 
 func main() {
-	webdmAddressParameter := flag.String("webdm", "127.0.0.1:4200", "WebDM address[:port]")
+	webdmAddressParameter := flag.String("webdm", webdm.DefaultApiUrl, "WebDM address[:port]")
 	flag.Parse()
 
-	scope := &SnappyScope{webdmClient: webdm.NewClient()}
-	scope.webdmClient.BaseUrl.Host = *webdmAddressParameter
+	scope := new(SnappyScope)
+	var err error
+	scope.webdmClient, err = webdm.NewClient(*webdmAddressParameter)
+	if err != nil {
+		log.Printf("unity-scope-snappy: Unable to create webdm client: %s", err)
+		return
+	}
 
-	err := scopes.Run(scope)
+	err = scopes.Run(scope)
 	if err != nil {
 		log.Printf("unity-scope-snappy: Unable to run scope: %s", err)
 	}

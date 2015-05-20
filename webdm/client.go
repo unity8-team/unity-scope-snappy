@@ -10,11 +10,11 @@ import (
 )
 
 const (
+	// Where webdm is listening
+	DefaultApiUrl = "http://webdm.local:4200"
+
 	// User-agent to use when communicating with webdm API
 	defaultUserAgent = "unity-scope-snappy"
-
-	// Where webdm is listening
-	defaultApiUrl = "http://127.0.0.1:4200"
 
 	// webdm API path to use to obtain a list of packages
 	apiListPackagesPath = "/api/v2/packages"
@@ -46,13 +46,22 @@ type Client struct {
 }
 
 // NewClient creates a new client for communicating with the webdm API
-func NewClient() *Client {
+func NewClient(apiUrl string) (*Client, error) {
 	client := new(Client)
 	client.client = http.DefaultClient
 	client.UserAgent = defaultUserAgent
-	client.BaseUrl, _ = url.Parse(defaultApiUrl)
 
-	return client
+	if apiUrl == "" {
+		apiUrl = DefaultApiUrl
+	}
+
+	var err error
+	client.BaseUrl, err = url.Parse(apiUrl)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error parsing URL \"%s\": %s", apiUrl, err)
+	}
+
+	return client, nil
 }
 
 // GetInstalledPackages sends an API request for a list of installed packages.
@@ -63,8 +72,7 @@ func NewClient() *Client {
 func (client *Client) GetInstalledPackages() ([]Package, error) {
 	packages, err := client.getPackages(true)
 	if err != nil {
-		return nil, fmt.Errorf("webdm: Error getting installed packages: %s",
-			err)
+		return nil, fmt.Errorf("webdm: Error getting installed packages: %s", err)
 	}
 
 	return packages, nil
@@ -162,7 +170,7 @@ func (client *Client) newRequest(method string, path string, query url.Values) (
 func (client *Client) do(request *http.Request, value interface{}) (*http.Response, error) {
 	response, err := client.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("Error making API request: %s", err)
+		return nil, err
 	}
 
 	defer response.Body.Close()

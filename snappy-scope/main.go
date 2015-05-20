@@ -1,13 +1,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/webdm"
+	"log"
 )
 
-type SnappyScope struct{}
+type SnappyScope struct {
+	webdmClient *webdm.Client
+}
 
-func (scope SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
+func (scope *SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
 	// Do nothing
 }
 
@@ -15,7 +20,7 @@ const template = `{
 	"schema-version": 1,
 	"template": {
 		"category-layout": "grid",
-		"card-size": "medium"
+		"card-size": "small"
 	},
 	"components": {
 		"title": "title",
@@ -27,18 +32,30 @@ const template = `{
 }`
 
 func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
-	categoryTitle := "cat title"
-	category := reply.RegisterCategory("current", categoryTitle, "", template)
-	result := scopes.NewCategorisedResult(category)
-	result.SetTitle("Something Useful")
-	result.Set("subtitle", "fake subtitle")
-	result.Set("description", "A description of the result")
-	result.SetURI("http://fake")
-	result.SetArt("file:/usr/share/icons/Humanity/apps/48/system-software-install.svg")
+	packages, err := scope.webdmClient.GetStorePackages()
+	if err != nil {
+		errorString := fmt.Sprintf("unity-scope-snappy: Unable to retrieve store packages: %s",
+			err)
 
-	if reply.Push(result) != nil {
-		// If the push fails, the query was cancelled. No need to continue.
-		return nil
+		// Log to stderr as well, since nothing seems to do anything with
+		// returned error (yet)
+		log.Println(errorString)
+		return fmt.Errorf(errorString)
+	}
+
+	category := reply.RegisterCategory("store_packages", "Store Packages", "", template)
+	for _, thisPackage := range packages {
+		result := scopes.NewCategorisedResult(category)
+
+		result.SetTitle(thisPackage.Name)
+		result.Set("subtitle", thisPackage.Description)
+		result.SetURI("snappy:" + thisPackage.Id)
+		result.SetArt(thisPackage.IconUrl)
+
+		if reply.Push(result) != nil {
+			// If the push fails, the query was cancelled. No need to continue.
+			return nil
+		}
 	}
 
 	return nil
@@ -76,8 +93,19 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 }
 
 func main() {
-	err := scopes.Run(&SnappyScope{})
+	webdmAddressParameter := flag.String("webdm", webdm.DefaultApiUrl, "WebDM address[:port]")
+	flag.Parse()
+
+	scope := new(SnappyScope)
+	var err error
+	scope.webdmClient, err = webdm.NewClient(*webdmAddressParameter)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("unity-scope-snappy: Unable to create webdm client: %s", err)
+		return
+	}
+
+	err = scopes.Run(scope)
+	if err != nil {
+		log.Printf("unity-scope-snappy: Unable to run scope: %s", err)
 	}
 }

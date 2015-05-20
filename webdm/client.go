@@ -4,22 +4,27 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 )
 
 const (
+	// Where webdm is listening
+	DefaultApiUrl = "http://webdm.local:4200"
+
 	// User-agent to use when communicating with webdm API
 	defaultUserAgent = "unity-scope-snappy"
 
-	// Where webdm is listening
-	defaultApiUrl = "http://127.0.0.1:4200"
-
 	// webdm API path to use to obtain a list of packages
 	apiListPackagesPath = "/api/v2/packages"
+
+	// webdm default icon path
+	apiDefaultIconPath = "/public/images/default-package-icon.svg"
 )
 
-// Unmarshall the Status field in the json into a "Installed" boolean
+// UnmarshallJSON exists to decode the Status field in the json into an
+// "Installed" boolean
 func (s *Status) UnmarshalJSON(data []byte) error {
 	if s == nil {
 		return errors.New("Status: UnmarshalJSON on nil pointer")
@@ -41,13 +46,22 @@ type Client struct {
 }
 
 // NewClient creates a new client for communicating with the webdm API
-func NewClient() *Client {
+func NewClient(apiUrl string) (*Client, error) {
 	client := new(Client)
 	client.client = http.DefaultClient
 	client.UserAgent = defaultUserAgent
-	client.BaseUrl, _ = url.Parse(defaultApiUrl)
 
-	return client
+	if apiUrl == "" {
+		apiUrl = DefaultApiUrl
+	}
+
+	var err error
+	client.BaseUrl, err = url.Parse(apiUrl)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error parsing URL \"%s\": %s", apiUrl, err)
+	}
+
+	return client, nil
 }
 
 // GetInstalledPackages sends an API request for a list of installed packages.
@@ -55,7 +69,7 @@ func NewClient() *Client {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client Client) GetInstalledPackages() ([]Package, error) {
+func (client *Client) GetInstalledPackages() ([]Package, error) {
 	packages, err := client.getPackages(true)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting installed packages: %s", err)
@@ -70,7 +84,7 @@ func (client Client) GetInstalledPackages() ([]Package, error) {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client Client) GetStorePackages() ([]Package, error) {
+func (client *Client) GetStorePackages() ([]Package, error) {
 	packages, err := client.getPackages(false)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting store packages: %s", err)
@@ -87,7 +101,7 @@ func (client Client) GetStorePackages() ([]Package, error) {
 // Returns:
 // - Slice of Package structs
 // - Error (nil if none)
-func (client Client) getPackages(installedOnly bool) ([]Package, error) {
+func (client *Client) getPackages(installedOnly bool) ([]Package, error) {
 	data := url.Values{}
 	if installedOnly {
 		data.Set("installed_only", "true")
@@ -102,6 +116,10 @@ func (client Client) getPackages(installedOnly bool) ([]Package, error) {
 	_, err = client.do(request, &packages)
 	if err != nil {
 		return nil, fmt.Errorf("Error making API request: %s", err)
+	}
+
+	for i, thisPackage := range packages {
+		packages[i].IconUrl = client.fixIconUrl(thisPackage.IconUrl)
 	}
 
 	return packages, nil
@@ -152,7 +170,7 @@ func (client *Client) newRequest(method string, path string, query url.Values) (
 func (client *Client) do(request *http.Request, value interface{}) (*http.Response, error) {
 	response, err := client.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("Error making API request: %s", err)
+		return nil, err
 	}
 
 	defer response.Body.Close()
@@ -168,12 +186,41 @@ func (client *Client) do(request *http.Request, value interface{}) (*http.Respon
 		err = json.NewDecoder(response.Body).Decode(value)
 		if err != nil {
 			// Still return the response in case the caller is interested
-			return response, fmt.Errorf("Error decoding response: %s",
-				err)
+			return response, fmt.Errorf("Error decoding response: %s", err)
 		}
 	}
 
 	return response, nil
+}
+
+// fixIconUrl checks an icon URL to ensure it's pointing to a valid icon.
+//
+// Invalid icon URLs can occur in two cases:
+//
+// 1) The app is installed, in which case the API provides an icon URL
+//    that is relative to webdm's base URL.
+// 2) The icon URL is actually invalid in the store database.
+//
+// If (1), we can turn it into a valid URL using webdm's base URL. If
+// (2), we'll need to use a default icon.
+//
+// Parameters:
+// iconUrlString: Icon URL to be (potentially) fixed.
+//
+// Returns:
+// - Fixed icon URL. Note that if the original didn't need to be fixed, the
+//   original is returned.
+func (client Client) fixIconUrl(iconUrlString string) string {
+	iconUrl, err := url.Parse(iconUrlString)
+	if err != nil || (!iconUrl.IsAbs() && iconUrl.Path == "") {
+		log.Printf("Invalid icon URL: \"%s\", using default", iconUrlString)
+
+		iconUrl, _ = url.Parse(apiDefaultIconPath)
+	}
+
+	// Note that if the icon URL is already absolute, ResolveReference() won't
+	// change it.
+	return client.BaseUrl.ResolveReference(iconUrl).String()
 }
 
 // checkResponse ensures the server response means it's okay to continue.

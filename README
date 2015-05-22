@@ -1,7 +1,34 @@
 Snappy Scope
 ============
 
+The Snappy Scope provides the ability to install and launch snap packages. It
+gets the list of available snap packages from the Ubuntu Store, and lets the
+user see the details of each application or scope before installing. The details
+include screenshots, rating and reviews. It can also be used to launch installed
+applications.
+
+
+Current Status
+--------------
+
+The Snappy Scope is under heavy development. Currently, its functionality is
+limited to simply listing all snap packages available in the Ubuntu Store.
+
+
+How to use
+----------
+
 Setup up your GOPATH and then:
 
-$ go get launchpad.net/unity-scope-snappy/snappy-scope
-$ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/snappy-scope/snappy-scope.ini
+    $ go get launchpad.net/unity-scope-snappy/snappy-scope
+    $ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/snappy-scope/snappy-scope.ini
+
+
+External Dependencies
+---------------------
+
+The Snappy Scope has a number of dependencies that are not available as .deb
+packages. Therefore, in order to facilitate packaging, its dependencies are
+vendored using the Vendor tool[1].
+
+[1]: https://github.com/kardianos/vendor

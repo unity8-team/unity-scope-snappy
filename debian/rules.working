@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+export DH_GOPKG := launchpad.net/unity-scope-snappy
+# Tell dh-golang that we DO need subpackages
+export DH_GOLANG_INSTALL_ALL := 1
+
+export GOPATH := $(CURDIR)/obj-$(DEB_BUILD_GNU_TYPE)
+export PATH := ${GOPATH}/bin:${PATH}
+
+#export DH_GOLANG_EXCLUDES := internal
+
+override_dh_auto_build:
+	go install -v ${DH_GOPKG}/snappy-scope
+	go install -v ${DH_GOPKG}/internal/github.com/axw/gocov/gocov
+	go install -v ${DH_GOPKG}/internal/github.com/AlekSi/gocov-xml
+
+override_dh_auto_test:
+	gocov test ${DH_GOPKG}/webdm | gocov-xml > coverage.xml
+
+%:
+	dh $@ --buildsystem=golang --with=golang

@@ -1,0 +1,22 @@
+Source: unity-scope-snappy
+Section: net
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Build-Depends: debhelper (>= 9),
+               dh-golang,
+               golang-go,
+               golang-go.tools,
+               libunity-scopes-dev,
+               pkg-config,
+Standards-Version: 3.9.5
+Homepage: https://launchpad.net/unity-scope-snappy
+Vcs-Bzr: lp:unity-scope-snappy
+Vcs-Browser: http://bazaar.launchpad.net/~alecu/unity-scope-snappy/trunk/files
+
+Package: snappy-scope
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Built-Using: ${misc:Built-Using}
+Description: Install and launch snap packages
+ This scope gets the list of available snap packages from the Ubuntu Store, and lets the user see the details of each application or scope before installing. The details include screenshots, rating and reviews. It can also be used to launch installed applications.

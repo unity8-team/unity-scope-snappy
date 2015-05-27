@@ -78,6 +78,8 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 
 	reply.PushWidgets(packageHeaderWidget(*snap))
 	reply.PushWidgets(packageActionWidget(*snap))
+	reply.PushWidgets(packageInfoWidget(*snap))
+	reply.PushWidgets(packageUpdatesWidget(*snap))
 
 	return nil
 }
@@ -195,15 +197,10 @@ func packageResult(category *scopes.Category, snap webdm.Package) (*scopes.Categ
 	result := scopes.NewCategorisedResult(category)
 
 	result.SetTitle(snap.Name)
-	result.Set("subtitle", snap.Description)
+	result.Set("subtitle", snap.Vendor)
 	result.SetURI("snappy:" + snap.Id)
 	result.SetArt(snap.IconUrl)
-
-	// The preview needs access to the ID
-	err := result.Set("id", snap.Id)
-	if err != nil {
-		return nil, fmt.Errorf(`Unable to set ID for package "%s": %s`, snap.Name, err)
-	}
+	result.Set("id", snap.Id)
 
 	return result, nil
 }
@@ -216,21 +213,21 @@ func packageResult(category *scopes.Category, snap webdm.Package) (*scopes.Categ
 // Returns:
 // - Header preview widget for the given snap.
 func packageHeaderWidget(snap webdm.Package) scopes.PreviewWidget {
-	header := scopes.NewPreviewWidget("header", "header")
+	widget := scopes.NewPreviewWidget("header", "header")
 
-	header.AddAttributeMapping("title", "title")
-	header.AddAttributeMapping("subtitle", "subtitle")
-	header.AddAttributeMapping("mascot", "art")
+	widget.AddAttributeMapping("title", "title")
+	widget.AddAttributeMapping("subtitle", "subtitle")
+	widget.AddAttributeMapping("mascot", "art")
 
 	// According to the store design, the price is only displayed if the app
 	// isn't installed.
 	if !snap.Installed() && !snap.Installing() {
 		priceAttribute := make(map[string]interface{})
 		priceAttribute["value"] = "FREE" // All the snaps are currently free
-		header.AddAttributeValue("attributes", []interface{}{priceAttribute})
+		widget.AddAttributeValue("attributes", []interface{}{priceAttribute})
 	}
 
-	return header
+	return widget
 }
 
 // packageActionWidget is used to create an action widget to install/uninstall/open a snap.
@@ -241,7 +238,7 @@ func packageHeaderWidget(snap webdm.Package) scopes.PreviewWidget {
 // Returns:
 // - Action preview widget for the given snap.
 func packageActionWidget(snap webdm.Package) scopes.PreviewWidget {
-	actions := scopes.NewPreviewWidget("actions", "actions")
+	widget := scopes.NewPreviewWidget("actions", "actions")
 
 	// The buttons need to provide the options to open and uninstall if the
 	// app is installed. Otherwise, just provide the option to install.
@@ -254,16 +251,49 @@ func packageActionWidget(snap webdm.Package) scopes.PreviewWidget {
 		uninstallAction["id"] = "uninstall"
 		uninstallAction["label"] = "Uninstall"
 
-		actions.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})
+		widget.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})
 	} else {
 		installAction := make(map[string]interface{})
 		installAction["id"] = "install"
 		installAction["label"] = "Install"
 
-		actions.AddAttributeValue("actions", []interface{}{installAction})
+		widget.AddAttributeValue("actions", []interface{}{installAction})
 	}
 
-	return actions
+	return widget
+}
+
+// packageInfoWidget is used to create a text widget holding snap information.
+//
+// Parameters:
+// snap: webdm.Package representing snap.
+//
+// Returns:
+// - Text preview widget for the given snap.
+func packageInfoWidget(snap webdm.Package) scopes.PreviewWidget {
+	widget := scopes.NewPreviewWidget("summary", "text")
+	widget.AddAttributeValue("title", "Info")
+	widget.AddAttributeValue("text", snap.Description)
+
+	return widget
+}
+
+// packageUpdatesWidget is used to create a table widget holding snap information.
+//
+// Parameters:
+// snap: webdm.Package representing snap.
+//
+// Returns:
+// - Table widget for the given snap.
+func packageUpdatesWidget(snap webdm.Package) scopes.PreviewWidget {
+	widget := scopes.NewPreviewWidget("updates_table", "table")
+	widget.AddAttributeValue("title", "Updates")
+
+	versionRow := []string{"Version number", snap.Version}
+
+	widget.AddAttributeValue("values", []interface{}{versionRow})
+
+	return widget
 }
 
 // scopeError prints an error to stderr as well as returning an actual error.

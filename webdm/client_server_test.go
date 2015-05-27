@@ -1,11 +1,11 @@
 package webdm
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"net/http/httptest"
-	"encoding/json"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -121,18 +121,18 @@ func setupHandlers(t *testing.T) {
 			// resource path: return a 404
 			if strings.Contains(packageName, "/") {
 				http.Error(writer, "404 page not found", http.StatusNotFound)
-		        return
+				return
 			}
 
 			switch request.Method {
-				case "GET":
-					handleQueryRequest(t, writer, packageName)
-				case "PUT":
-					handleInstallRequest(t, writer, packageName)
-				case "DELETE":
-					handleUninstallRequest(t, writer, packageName)
-				default: // Anything else is an error
-					t.Error("Unexpected HTTP method: %s", request.Method)
+			case "GET":
+				handleQueryRequest(t, writer, packageName)
+			case "PUT":
+				handleInstallRequest(t, writer, packageName)
+			case "DELETE":
+				handleUninstallRequest(t, writer, packageName)
+			default: // Anything else is an error
+				t.Error("Unexpected HTTP method: %s", request.Method)
 			}
 		})
 }
@@ -183,8 +183,8 @@ func handleQueryRequest(t *testing.T, writer http.ResponseWriter, packageId stri
 
 	if !packageAvailable {
 		writer.WriteHeader(http.StatusNotFound)
-        encoder.Encode(fmt.Sprintf("snappy package not found %s\n", packageId))
-        return
+		encoder.Encode(fmt.Sprintf("snappy package not found %s\n", packageId))
+		return
 	}
 
 	storePackages[index].Status = finishedOperation(thisPackage.Status)
@@ -305,12 +305,12 @@ func finishOperations() {
 //   was not in a pending state.
 func finishedOperation(status Status) Status {
 	switch status {
-		case StatusInstalling:
-			return StatusInstalled
-		case StatusUninstalling:
-			return StatusNotInstalled
-		default:
-			return status
+	case StatusInstalling:
+		return StatusInstalled
+	case StatusUninstalling:
+		return StatusNotInstalled
+	default:
+		return status
 	}
 }
 
@@ -369,7 +369,7 @@ func TestMockServer_pendingOperationsQuery(t *testing.T) {
 	response := new(MockResponse)
 
 	// Request installation of "package1"
-	err := runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err := runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
@@ -383,13 +383,13 @@ func TestMockServer_pendingOperationsQuery(t *testing.T) {
 	}
 
 	// Query "package1." Don't care about the response.
-	err = runApiRequest("GET", apiPackagesPath + "package1", nil)
+	err = runApiRequest("GET", apiPackagesPath+"package1", nil)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
 
 	// Request installation of "package1" again
-	err = runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err = runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
@@ -415,7 +415,7 @@ func TestMockServer_pendingOperationsList(t *testing.T) {
 	response := new(MockResponse)
 
 	// Request installation of "package1"
-	err := runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err := runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
@@ -435,7 +435,7 @@ func TestMockServer_pendingOperationsList(t *testing.T) {
 	}
 
 	// Request installation of "package1" again
-	err = runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err = runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
@@ -461,7 +461,7 @@ func TestMockServer_twoInstallRequests(t *testing.T) {
 	response := new(MockResponse)
 
 	// Request installation of "package1"
-	err := runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err := runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}
@@ -475,7 +475,7 @@ func TestMockServer_twoInstallRequests(t *testing.T) {
 	}
 
 	// Request installation of "package1" again
-	err = runApiRequest("PUT", apiPackagesPath + "package1", response)
+	err = runApiRequest("PUT", apiPackagesPath+"package1", response)
 	if err != nil {
 		t.Errorf("Unexpected error running API request: %s", err)
 	}

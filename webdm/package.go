@@ -38,17 +38,17 @@ func (status *Status) UnmarshalJSON(data []byte) error {
 
 	dataString := string(data)
 	switch dataString {
-		case `"uninstalled"`:
-			*status = StatusNotInstalled
-		case `"installed"`:
-			*status = StatusInstalled
-		case `"installing"`:
-			*status = StatusInstalling
-		case `"uninstalling"`:
-			*status = StatusUninstalling
-		default:
-			*status = StatusUndefined
-			return fmt.Errorf("UnmarshalJSON: Unhandled Status type: %s", dataString)
+	case `"uninstalled"`:
+		*status = StatusNotInstalled
+	case `"installed"`:
+		*status = StatusInstalled
+	case `"installing"`:
+		*status = StatusInstalling
+	case `"uninstalling"`:
+		*status = StatusUninstalling
+	default:
+		*status = StatusUndefined
+		return fmt.Errorf("UnmarshalJSON: Unhandled Status type: %s", dataString)
 	}
 
 	return nil
@@ -57,16 +57,16 @@ func (status *Status) UnmarshalJSON(data []byte) error {
 // MarshalJSON exists to encode the Status enum to JSON.
 func (status Status) MarshalJSON() ([]byte, error) {
 	switch status {
-		case StatusNotInstalled:
-			return []byte(`"uninstalled"`), nil
-		case StatusInstalled:
-			return []byte(`"installed"`), nil
-		case StatusInstalling:
-			return []byte(`"installing"`), nil
-		case StatusUninstalling:
-			return []byte(`"uninstalling"`), nil
-		default:
-			return nil, fmt.Errorf("MarshalJSON: Unhandled Status type: %d", status)
+	case StatusNotInstalled:
+		return []byte(`"uninstalled"`), nil
+	case StatusInstalled:
+		return []byte(`"installed"`), nil
+	case StatusInstalling:
+		return []byte(`"installing"`), nil
+	case StatusUninstalling:
+		return []byte(`"uninstalling"`), nil
+	default:
+		return nil, fmt.Errorf("MarshalJSON: Unhandled Status type: %d", status)
 	}
 }
 

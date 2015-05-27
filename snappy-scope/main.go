@@ -90,20 +90,20 @@ func (scope *SnappyScope) PerformAction(result *scopes.Result, metadata *scopes.
 	}
 
 	switch actionId {
-		case "install":
-			err = scope.webdmClient.Install(snapId)
-			if err != nil {
-				return nil, scopeError(`unity-scope-snappy: Unable to install package "%s": %s`, result.Title(), err)
-			}
+	case "install":
+		err = scope.webdmClient.Install(snapId)
+		if err != nil {
+			return nil, scopeError(`unity-scope-snappy: Unable to install package "%s": %s`, result.Title(), err)
+		}
 
-		case "uninstall":
-			err = scope.webdmClient.Uninstall(snapId)
-			if err != nil {
-				return nil, scopeError(`unity-scope-snappy: Unable to uninstall package "%s": %s`, result.Title(), err)
-			}
+	case "uninstall":
+		err = scope.webdmClient.Uninstall(snapId)
+		if err != nil {
+			return nil, scopeError(`unity-scope-snappy: Unable to uninstall package "%s": %s`, result.Title(), err)
+		}
 
-		case "open":
-			return nil, scopeError(`unity-scope-snappy: Unable to open package "%s": Opening snaps is not yet supported`, result.Title())
+	case "open":
+		return nil, scopeError(`unity-scope-snappy: Unable to open package "%s": Opening snaps is not yet supported`, result.Title())
 	}
 
 	return scopes.NewActivationResponse(scopes.ActivationShowPreview), nil
@@ -122,17 +122,17 @@ func (scope SnappyScope) getPackageList(department string) ([]webdm.Package, err
 	var err error
 
 	switch department {
-		case "installed":
-			packages, err = scope.webdmClient.GetInstalledPackages()
-			if err != nil {
-				return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
-			}
+	case "installed":
+		packages, err = scope.webdmClient.GetInstalledPackages()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
+		}
 
-		default:
-			packages, err = scope.webdmClient.GetStorePackages()
-			if err != nil {
-				return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
-			}
+	default:
+		packages, err = scope.webdmClient.GetStorePackages()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
+		}
 	}
 
 	return packages, nil

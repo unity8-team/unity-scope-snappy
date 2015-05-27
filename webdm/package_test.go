@@ -6,8 +6,8 @@ import (
 
 // Data for TestMarshalJSON
 var marshalJSONTests = []struct {
-	status Status
-	expected string
+	status      Status
+	expected    string
 	shouldError bool
 }{
 	{StatusUndefined, "", true},
@@ -38,8 +38,8 @@ func TestMarshalJSON(t *testing.T) {
 
 // Data for TestUnmarshalJSON
 var unmarshalJSONTests = []struct {
-	json string
-	expected Status
+	json        string
+	expected    Status
 	shouldError bool
 }{
 	{`"uninstalled"`, StatusNotInstalled, false},

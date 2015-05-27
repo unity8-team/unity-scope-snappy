@@ -99,7 +99,7 @@ func (client *Client) GetStorePackages() ([]Package, error) {
 // - Pointer to resulting Package struct.
 // - Error (nil if none)
 func (client *Client) Query(packageId string) (*Package, error) {
-	request, err := client.newRequest("GET", apiPackagesPath + packageId, nil)
+	request, err := client.newRequest("GET", apiPackagesPath+packageId, nil)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error creating API request: %s", err)
 	}
@@ -124,7 +124,7 @@ func (client *Client) Query(packageId string) (*Package, error) {
 // - Error (nil if none). Note that installing a package that is already
 //   installed is not considered an error.
 func (client *Client) Install(packageId string) error {
-	request, err := client.newRequest("PUT", apiPackagesPath + packageId, nil)
+	request, err := client.newRequest("PUT", apiPackagesPath+packageId, nil)
 	if err != nil {
 		return fmt.Errorf("webdm: Error creating API request: %s", err)
 	}
@@ -149,7 +149,7 @@ func (client *Client) Install(packageId string) error {
 // - Error (nil if none). Note that uninstalling a package that is not installed
 //   is not considered an error.
 func (client *Client) Uninstall(packageId string) error {
-	request, err := client.newRequest("DELETE", apiPackagesPath + packageId, nil)
+	request, err := client.newRequest("DELETE", apiPackagesPath+packageId, nil)
 	if err != nil {
 		return fmt.Errorf("webdm: Error creating API request: %s", err)
 	}

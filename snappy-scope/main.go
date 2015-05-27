@@ -32,25 +32,25 @@ const template = `{
 }`
 
 func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
-	packages, err := scope.webdmClient.GetStorePackages()
-	if err != nil {
-		errorString := fmt.Sprintf("unity-scope-snappy: Unable to retrieve store packages: %s",
-			err)
+	createDepartments(query, reply)
 
-		// Log to stderr as well, since nothing seems to do anything with
-		// returned error (yet)
-		log.Println(errorString)
-		return fmt.Errorf(errorString)
+	packages, err := scope.getPackageList(query.DepartmentID())
+	if err != nil {
+		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}
 
-	category := reply.RegisterCategory("store_packages", "Store Packages", "", template)
-	for _, thisPackage := range packages {
-		result := scopes.NewCategorisedResult(category)
+	var category *scopes.Category
+	if query.DepartmentID() == "installed" {
+		category = reply.RegisterCategory("installed_packages", "Installed Packages", "", template)
+	} else {
+		category = reply.RegisterCategory("store_packages", "Store Packages", "", template)
+	}
 
-		result.SetTitle(thisPackage.Name)
-		result.Set("subtitle", thisPackage.Description)
-		result.SetURI("snappy:" + thisPackage.Id)
-		result.SetArt(thisPackage.IconUrl)
+	for _, thisPackage := range packages {
+		result, err := packageResult(category, thisPackage)
+		if err != nil {
+			return scopeError(`unity-scope-snappy: Unable to create result for package "%s": %s`, err)
+		}
 
 		if reply.Push(result) != nil {
 			// If the push fails, the query was cancelled. No need to continue.
@@ -62,34 +62,75 @@ func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.Sear
 }
 
 func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionMetadata, reply *scopes.PreviewReply, cancelled <-chan bool) error {
-	layout1Column := scopes.NewColumnLayout(1)
-	layout2Column := scopes.NewColumnLayout(2)
-	layout3Column := scopes.NewColumnLayout(3)
+	var snapId string
+	err := result.Get("id", &snapId)
+	if err != nil {
+		return scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
+	}
 
-	layout1Column.AddColumn("image", "header", "summary")
+	// Need to query the API to make sure we have an up-to-date status,
+	// otherwise we can't refresh the state of the buttons after an install or
+	// uninstall action.
+	snap, err := scope.webdmClient.Query(snapId)
+	if err != nil {
+		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
+	}
 
-	layout2Column.AddColumn("image")
-	layout2Column.AddColumn("header", "summary")
-
-	layout3Column.AddColumn("image")
-	layout3Column.AddColumn("header", "summary")
-	layout3Column.AddColumn("")
-
-	reply.RegisterLayout(layout1Column, layout2Column, layout3Column)
-
-	header := scopes.NewPreviewWidget("header", "header")
-	header.AddAttributeMapping("title", "title")
-	header.AddAttributeMapping("subtitle", "subtitle")
-
-	image := scopes.NewPreviewWidget("image", "image")
-	image.AddAttributeMapping("source", "art")
-
-	description := scopes.NewPreviewWidget("summary", "text")
-	description.AddAttributeMapping("text", "description")
-
-	reply.PushWidgets(image, header, description)
+	reply.PushWidgets(packageHeaderWidget(*snap))
+	reply.PushWidgets(packageActionWidget(*snap))
 
 	return nil
+}
+
+func (scope *SnappyScope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
+	var snapId string
+	err := result.Get("id", &snapId)
+	if err != nil {
+		return nil, scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
+	}
+
+	if actionId == "install" {
+		err = scope.webdmClient.Install(snapId)
+		if err != nil {
+			return nil, scopeError(`unity-scope-snappy: Unable to install package "%s": %s`, result.Title(), err)
+		}
+	} else if actionId == "uninstall" {
+		err = scope.webdmClient.Uninstall(snapId)
+		if err != nil {
+			return nil, scopeError(`unity-scope-snappy: Unable to uninstall package "%s": %s`, result.Title(), err)
+		}
+	} else if actionId == "open" {
+		return nil, scopeError(`unity-scope-snappy: Unable to open package "%s": Opening snaps is not yet supported`, result.Title())
+	}
+
+	return scopes.NewActivationResponse(scopes.ActivationShowPreview), nil
+}
+
+// getPackageList is used to obtain a package list for a specific department.
+//
+// Parameters:
+// department: The department whose packages should be listed.
+//
+// Returns:
+// - List of WebDM Package structs
+// - Error (nil if none)
+func (scope SnappyScope) getPackageList(department string) ([]webdm.Package, error) {
+	var packages []webdm.Package
+	var err error
+
+	if department == "installed" {
+		packages, err = scope.webdmClient.GetInstalledPackages()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
+		}
+	} else {
+		packages, err = scope.webdmClient.GetStorePackages()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
+		}
+	}
+
+	return packages, nil
 }
 
 func main() {
@@ -108,4 +149,122 @@ func main() {
 	if err != nil {
 		log.Printf("unity-scope-snappy: Unable to run scope: %s", err)
 	}
+}
+
+// createDepartments is used to create a set of static departments for the scope.
+//
+// Parameters:
+// query: Query to be executed when the department is selected.
+// reply: Reply onto which the departments will be registered
+//
+// Returns:
+// - Error (nil if none)
+func createDepartments(query *scopes.CannedQuery, reply *scopes.SearchReply) error {
+	rootDepartment, err := scopes.NewDepartment("", query, "All Categories")
+	if err != nil {
+		return fmt.Errorf(`Unable to create "All Categories" department: %s`, err)
+	}
+
+	installedDepartment, err := scopes.NewDepartment("installed", query, "My Snaps")
+	if err != nil {
+		return fmt.Errorf(`Unable to create "My Snaps" department: %s`, err)
+	}
+
+	rootDepartment.SetSubdepartments([]*scopes.Department{installedDepartment})
+	reply.RegisterDepartments(rootDepartment)
+
+	return nil
+}
+
+// packageResult is used to create a scopes.CategorisedResult from a
+// webdm.Package.
+//
+// Parameters:
+// category: Category in which the result will be created.
+// snap: webdm.Package representing snap.
+//
+// Returns:
+// - Pointer to scopes.CategorisedResult
+// - Error (nil if none)
+func packageResult(category *scopes.Category, snap webdm.Package) (*scopes.CategorisedResult, error) {
+	result := scopes.NewCategorisedResult(category)
+
+	result.SetTitle(snap.Name)
+	result.Set("subtitle", snap.Description)
+	result.SetURI("snappy:" + snap.Id)
+	result.SetArt(snap.IconUrl)
+
+	// The preview needs access to the ID
+	err := result.Set("id", snap.Id)
+	if err != nil {
+		return nil, fmt.Errorf(`Unable to set ID for package "%s": %s`, snap.Name, err)
+	}
+
+	return result, nil
+}
+
+// packageHeaderWidget is used to create a header widget to preview a single snap.
+//
+// Parameters:
+// snap: webdm.Package representing the snap.
+//
+// Returns:
+// - Header preview widget for the given snap.
+func packageHeaderWidget(snap webdm.Package) scopes.PreviewWidget {
+	header := scopes.NewPreviewWidget("header", "header")
+
+	header.AddAttributeMapping("title", "title")
+	header.AddAttributeMapping("subtitle", "subtitle")
+	header.AddAttributeMapping("mascot", "art")
+
+	// According to the store design, the price is only displayed if the app
+	// isn't installed.
+	if !snap.Installed() && !snap.Installing() {
+		priceAttribute := make(map[string]interface{})
+		priceAttribute["value"] = "FREE" // All the snaps are currently free
+		header.AddAttributeValue("attributes", []interface{}{priceAttribute})
+	}
+
+	return header
+}
+
+// packageActionWidget is used to create an action widget to install/uninstall/open a snap.
+//
+// Parameters:
+// snap: webdm.Package representing snap.
+//
+// Returns:
+// - Action preview widget for the given snap.
+func packageActionWidget(snap webdm.Package) scopes.PreviewWidget {
+	actions := scopes.NewPreviewWidget("actions", "actions")
+
+	// The buttons need to provide the options to open and uninstall if the
+	// app is installed. Otherwise, just provide the option to install.
+	if snap.Installed() || snap.Installing() {
+		openAction := make(map[string]interface{})
+		openAction["id"] = "open"
+		openAction["label"] = "Open"
+
+		uninstallAction := make(map[string]interface{})
+		uninstallAction["id"] = "uninstall"
+		uninstallAction["label"] = "Uninstall"
+
+		actions.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})
+	} else {
+		installAction := make(map[string]interface{})
+		installAction["id"] = "install"
+		installAction["label"] = "Install"
+
+		actions.AddAttributeValue("actions", []interface{}{installAction})
+	}
+
+	return actions
+}
+
+// scopeError prints an error to stderr as well as returning an actual error.
+// This is used because the errors returned from the scope functions don't seem
+// to be handled, logged, or otherwise displayed to the user in any way.
+func scopeError(format string, a ...interface{}) error {
+	log.Printf(format, a...)
+	return fmt.Errorf(format, a...)
 }

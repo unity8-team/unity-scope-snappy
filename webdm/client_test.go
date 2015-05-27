@@ -3,105 +3,10 @@ package webdm
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
 )
-
-var (
-	// mux is the HTTP request multiplexer used with the test server.
-	mux *http.ServeMux
-
-	// client is the webdm client being tested.
-	client *Client
-
-	// server is a test HTTP server used to provide mock API responses.
-	server *httptest.Server
-)
-
-// setup sets up a test HTTP server along with a webdm.Client that is
-// configured to talk to that test server.  Tests should register handlers on
-// mux which provide mock responses for the API method being tested.
-func setup() {
-	// Test server
-	mux = http.NewServeMux()
-	server = httptest.NewServer(mux)
-
-	// webdm client configured to use test server
-	client, _ = NewClient(server.URL)
-}
-
-// setupMockListPackagesApi sets up a test HTTP server along with a webdm.Client
-// that is configured to talk to that test server. It also registers a handler
-// for the "list packages" API URL which returns a valid package list.
-func setupMockListPackagesApi() {
-	setup()
-
-	// Setup a handler function to respond to requests to
-	// `webdmListPackagesPath`. Our database contains two packages: one
-	// installed, one not installed.
-	mux.HandleFunc(apiListPackagesPath,
-		func(writer http.ResponseWriter, request *http.Request) {
-			jsonString := `[
-		               {
-		                  "id":"package1",
-		                  "name":"package1",
-		                  "origin":"foo",
-		                  "version":"0.1",
-		                  "vendor":"bar",
-		                  "description":"baz",
-		                  "icon":"http://fake",
-		                  "status":"installed",
-		                  "download_size":123456,
-		                  "type":"oem"
-		               }`
-
-			if request.FormValue("installed_only") != "true" {
-				jsonString += `,
-			               {
-			                  "id":"package2",
-			                  "name":"package2",
-			                  "origin":"foo",
-			                  "version":"0.1",
-			                  "vendor":"bar",
-			                  "description":"baz",
-			                  "icon":"http://fake",
-			                  "status":"uninstalled",
-			                  "download_size":123456,
-			                  "type":"app"
-			               }`
-			}
-
-			jsonString += "]"
-
-			fmt.Fprint(writer, jsonString)
-		})
-}
-
-// setupBrokenMockListPackagesApi sets up a test HTTP server along with a
-// webdm.Client that is configured to talk to that test server. It also
-// registers a handler for the "list packages" API URL which returns a code 500.
-func setupBrokenMockListPackagesApi() {
-	setup()
-
-	mux.HandleFunc(apiListPackagesPath,
-		func(writer http.ResponseWriter, request *http.Request) {
-			http.Error(writer, "Internal Server Error", 500)
-		})
-}
-
-// teardown closes the test HTTP server.
-func teardown() {
-	server.Close()
-}
-
-// testMethod ensures the HTTP method used is the one expected
-func testMethod(t *testing.T, request *http.Request, expected string) {
-	if expected != request.Method {
-		t.Errorf("Request method was %s, expected %s", request.Method, expected)
-	}
-}
 
 // Test typical NewClient() usage.
 func TestNewClient(t *testing.T) {
@@ -180,7 +85,7 @@ func TestNewRequest_badUrl(t *testing.T) {
 	}
 
 	// Now test a bad base URL
-	client.BaseUrl.Host = "%20bar"
+	client.BaseUrl.Host = "%20"
 	_, err = client.newRequest("GET", "foo", nil)
 	if err == nil {
 		t.Error("Expected an error to be returned due to invalid base URL")
@@ -190,7 +95,7 @@ func TestNewRequest_badUrl(t *testing.T) {
 // Test typical do() usage.
 func TestDo(t *testing.T) {
 	// Run test server
-	setup()
+	setup(t)
 	defer teardown()
 
 	type Body struct {
@@ -216,7 +121,7 @@ func TestDo(t *testing.T) {
 // Test decoding into incorrect JSON
 func TestDo_incorrectJson(t *testing.T) {
 	// Run test server
-	setup()
+	setup(t)
 	defer teardown()
 
 	// Expect an int, even though the server responds with a string
@@ -242,7 +147,7 @@ func TestDo_incorrectJson(t *testing.T) {
 // Test handling of an HTTP 404 error.
 func TestDo_httpError(t *testing.T) {
 	// Run test server
-	setup()
+	setup(t)
 	defer teardown()
 
 	// Setup a handler function to respond to requests to the root url
@@ -261,7 +166,7 @@ func TestDo_httpError(t *testing.T) {
 // Test handling of an infinite redirect loop.
 func TestDo_redirectLoop(t *testing.T) {
 	// Run test server
-	setup()
+	setup(t)
 	defer teardown()
 
 	// Setup a handler function to respond to requests to the root url
@@ -279,7 +184,7 @@ func TestDo_redirectLoop(t *testing.T) {
 
 // Test getting packages with an invalid URL
 func TestGetPackages_invalidUrl(t *testing.T) {
-	client.BaseUrl.Host = "%20bar"
+	client.BaseUrl.Host = "%20"
 	_, err := client.getPackages(false)
 	if err == nil {
 		t.Error("Expected error to be returned due to invalid URL")
@@ -289,7 +194,7 @@ func TestGetPackages_invalidUrl(t *testing.T) {
 // Test getting packages from an API that returns an error
 func TestGetPackages_invalidResponse(t *testing.T) {
 	// Run test server
-	setupBrokenMockListPackagesApi()
+	setupBroken()
 	defer teardown()
 
 	_, err := client.getPackages(false)
@@ -301,12 +206,19 @@ func TestGetPackages_invalidResponse(t *testing.T) {
 // Test querying for only installed packages
 func TestGetInstalledPackages(t *testing.T) {
 	// Run test server
-	setupMockListPackagesApi()
+	setup(t)
 	defer teardown()
+
+	// Set package1 as "installed"
+	for index, snap := range storePackages {
+		if snap.Id == "package1" {
+			storePackages[index].Status = StatusInstalled
+		}
+	}
 
 	packages, err := client.GetInstalledPackages()
 	if err != nil {
-		t.Log("Error: ", err)
+		t.Errorf("Unexpected error: %s", err)
 	}
 
 	// Expect that only one package will be returned, since only one is
@@ -316,20 +228,7 @@ func TestGetInstalledPackages(t *testing.T) {
 		t.Fatalf("Number of packages: %d, expected: 1", len(packages))
 	}
 
-	package1 := Package{
-		Id:           "package1",
-		Name:         "package1",
-		Origin:       "foo",
-		Version:      "0.1",
-		Vendor:       "bar",
-		Description:  "baz",
-		IconUrl:      "http://fake",
-		Installed:    true,
-		DownloadSize: 123456,
-		Type:         "oem",
-	}
-
-	if !reflect.DeepEqual(packages[0], package1) {
+	if packages[0].Id != "package1" {
 		t.Error("\"package1\" should have been the only package in response")
 	}
 }
@@ -337,54 +236,28 @@ func TestGetInstalledPackages(t *testing.T) {
 // Test querying for only installed packages with a server that returns an error
 func TestGetInstalledPackages_brokenServer(t *testing.T) {
 	// Run test server
-	setupBrokenMockListPackagesApi()
+	setupBroken()
 	defer teardown()
 
 	_, err := client.GetInstalledPackages()
 	if err == nil {
-		t.Log("Expected error to be returned due to broken server")
+		t.Error("Expected error to be returned due to broken server")
 	}
 }
 
 // Test querying for all packages
 func TestGetStorePackages(t *testing.T) {
 	// Run test server
-	setupMockListPackagesApi()
+	setup(t)
 	defer teardown()
 
 	packages, err := client.GetStorePackages()
 	if err != nil {
-		t.Log("Error: ", err)
+		t.Error("Error: ", err)
 	}
 
 	if len(packages) != 2 {
 		t.Errorf("Number of packages: %d, expected: 2", len(packages))
-	}
-
-	package1 := Package{
-		Id:           "package1",
-		Name:         "package1",
-		Origin:       "foo",
-		Version:      "0.1",
-		Vendor:       "bar",
-		Description:  "baz",
-		IconUrl:      "http://fake",
-		Installed:    true,
-		DownloadSize: 123456,
-		Type:         "oem",
-	}
-
-	package2 := Package{
-		Id:           "package2",
-		Name:         "package2",
-		Origin:       "foo",
-		Version:      "0.1",
-		Vendor:       "bar",
-		Description:  "baz",
-		IconUrl:      "http://fake",
-		Installed:    false,
-		DownloadSize: 123456,
-		Type:         "app",
 	}
 
 	foundPackage1 := false
@@ -393,11 +266,11 @@ func TestGetStorePackages(t *testing.T) {
 	// Order is not enforced on the result, so we need to iterate through the
 	// slice checking each item.
 	for _, thisPackage := range packages {
-		if reflect.DeepEqual(thisPackage, package1) {
+		if thisPackage.Id == "package1" {
 			foundPackage1 = true
 		}
 
-		if reflect.DeepEqual(thisPackage, package2) {
+		if thisPackage.Id == "package2" {
 			foundPackage2 = true
 		}
 	}
@@ -414,12 +287,192 @@ func TestGetStorePackages(t *testing.T) {
 // Test querying for all packages with a server that returns an error
 func TestGetStorePackages_brokenServer(t *testing.T) {
 	// Run test server
-	setupBrokenMockListPackagesApi()
+	setupBroken()
 	defer teardown()
 
 	_, err := client.GetStorePackages()
 	if err == nil {
-		t.Log("Expected error to be returned due to broken server")
+		t.Error("Expected error to be returned due to broken server")
+	}
+}
+
+// Test typical query usage
+func TestQuery(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	snap, err := client.Query("package1")
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if snap.Id != "package1" {
+		t.Error("Expected the response to contain \"package1\"")
+	}
+}
+
+// Testing querying with an invalid URL
+func TestQuery_invalidUrl(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	client.BaseUrl.Host = "%20"
+	_, err := client.Query("foo")
+	if err == nil {
+		t.Error("Expected an error due to invalid URL")
+	}
+}
+
+// Test querying for a non-existing package
+func TestQuery_notFound(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	_, err := client.Query("package_not_found")
+	if err == nil {
+		t.Error("Expected an error due to unavailable package.")
+	}
+}
+
+// Test typical package installation
+func TestInstall(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// Request installation of package "package1"
+	err := client.Install("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while installing: %s", err)
+	}
+
+	snap, err := client.Query("package1")
+	if err != nil {
+		// Make this fatal so we don't dereference NULL later
+		t.Fatalf("Unexpected error while querying: %s", err)
+	}
+
+	if !snap.Installed() {
+		t.Error("Expected package to be installed")
+	}
+}
+
+// Test installing with an invalid URL
+func TestInstall_invalidUrl(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	client.BaseUrl.Host = "%20"
+	err := client.Install("foo")
+	if err == nil {
+		t.Error("Expected an error due to invalid URL")
+	}
+}
+
+// Unfortunately we can't test installing a non-existing package, since not
+// even WebDM seems to care about that. So we'll test trying to install a
+// a package with an invalid ID instead.
+func TestInstall_notFound(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// The forward slash should invalidate this request
+	err := client.Install("foo/bar")
+	if err == nil {
+		t.Error("Expected an error due to invalid package ID")
+	}
+}
+
+// Test that our API doesn't complain if asked to install a package that is
+// already installed.
+func TestInstall_redundantInstall(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// Request installation of package "package1"
+	err := client.Install("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while installing: %s", err)
+	}
+
+	// Request installation of "package1" again. The WebDM API will complain,
+	// but ours should handle it.
+	err = client.Install("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while installing again: %s", err)
+	}
+}
+
+// Test typical package uninstallation
+func TestUninstall(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// Set package1 as "installed"
+	for index, snap := range storePackages {
+		if snap.Id == "package1" {
+			storePackages[index].Status = StatusInstalled
+		}
+	}
+
+	// Verify that package1 is actually installed
+	snap, err := client.Query("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while querying: %s", err)
+	}
+
+	if !snap.Installed() {
+		t.Errorf(`Expected "package1" to be installed`)
+	}
+
+	// Request that the package be uninstalled
+	err = client.Uninstall("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while uninstalling: %s", err)
+	}
+
+	snap, err = client.Query("package1")
+	if err != nil {
+		t.Errorf("Unexpected error while querying: %s", err)
+	}
+
+	if !snap.NotInstalled() {
+		t.Error(`Expected "package1" to be uninstalled`)
+	}
+}
+
+// Test uninstalling with an invalid URL
+func TestUninstall_invalidUrl(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	client.BaseUrl.Host = "%20"
+	err := client.Uninstall("foo")
+	if err == nil {
+		t.Error("Expected an error due to invalid URL")
+	}
+}
+
+// Unfortunately we can't test uninstalling a non-existing package, since not
+// even WebDM seems to care about that. So we'll test trying to uninstall a
+// a package with an invalid ID instead.
+func TestUninstall_notFound(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// The forward slash should invalidate this request
+	err := client.Uninstall("foo/bar")
+	if err == nil {
+		t.Error("Expected an error due to invalid package ID")
 	}
 }
 
@@ -474,14 +527,5 @@ func TestCheckResponse(t *testing.T) {
 					test.responseCode)
 			}
 		}
-	}
-}
-
-// Test UnmarshalJSON dies when called on nil object
-func TestStatusUnmarshalNil(t *testing.T) {
-	var nilStatus *Status = nil
-	err := nilStatus.UnmarshalJSON([]byte("this is fake json"))
-	if err == nil {
-		t.Error("Expected error when Status is nil")
 	}
 }

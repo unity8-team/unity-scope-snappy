@@ -2,7 +2,6 @@ package webdm
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,22 +15,13 @@ const (
 	// User-agent to use when communicating with webdm API
 	defaultUserAgent = "unity-scope-snappy"
 
-	// webdm API path to use to obtain a list of packages
-	apiListPackagesPath = "/api/v2/packages"
-
 	// webdm default icon path
 	apiDefaultIconPath = "/public/images/default-package-icon.svg"
-)
 
-// UnmarshallJSON exists to decode the Status field in the json into an
-// "Installed" boolean
-func (s *Status) UnmarshalJSON(data []byte) error {
-	if s == nil {
-		return errors.New("Status: UnmarshalJSON on nil pointer")
-	}
-	*s = string(data) == `"installed"`
-	return nil
-}
+	// webdm API path to use for package-specific requests (e.g. list, query,
+	// install, etc.)
+	apiPackagesPath = "/api/v2/packages/"
+)
 
 // Client is the main struct allowing for communication with the webdm API.
 type Client struct {
@@ -46,6 +36,13 @@ type Client struct {
 }
 
 // NewClient creates a new client for communicating with the webdm API
+//
+// Parameters:
+// apiUrl: URL where WebDM is listening (host[:port])
+//
+// Returns:
+// - Pointer to new client
+// - Error (nil if none)
 func NewClient(apiUrl string) (*Client, error) {
 	client := new(Client)
 	client.client = http.DefaultClient
@@ -93,6 +90,81 @@ func (client *Client) GetStorePackages() ([]Package, error) {
 	return packages, nil
 }
 
+// Query sends an API request for information on a given snappy package.
+//
+// Parameters:
+// packageId: ID of the package of interest (NOT the name).
+//
+// Returns:
+// - Pointer to resulting Package struct.
+// - Error (nil if none)
+func (client *Client) Query(packageId string) (*Package, error) {
+	request, err := client.newRequest("GET", apiPackagesPath + packageId, nil)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error creating API request: %s", err)
+	}
+
+	snap := new(Package)
+	_, err = client.do(request, snap)
+	if err != nil {
+		return nil, fmt.Errorf("webdm: Error making API request: %s", err)
+	}
+
+	snap.IconUrl = client.fixIconUrl(snap.IconUrl)
+
+	return snap, nil
+}
+
+// Install sends an API request for a specific snappy package to be installed.
+//
+// Parameters:
+// packageId: ID of the package to install (NOT the name).
+//
+// Returns:
+// - Error (nil if none). Note that installing a package that is already
+//   installed is not considered an error.
+func (client *Client) Install(packageId string) error {
+	request, err := client.newRequest("PUT", apiPackagesPath + packageId, nil)
+	if err != nil {
+		return fmt.Errorf("webdm: Error creating API request: %s", err)
+	}
+
+	// This could possibly return a 400, which just means that the package is
+	// essentially already installed but hasn't yet been refreshed. No need to
+	// error out if that's the case.
+	response, err := client.do(request, nil)
+	if err != nil && response.StatusCode != http.StatusBadRequest {
+		return fmt.Errorf("webdm: Error making API request: %s", err)
+	}
+
+	return nil
+}
+
+// Uninstall sends an API request for a specific snappy package to be uninstalled.
+//
+// Parameters:
+// packageId: ID of the package to uninstall (NOT the name).
+//
+// Returns:
+// - Error (nil if none). Note that uninstalling a package that is not installed
+//   is not considered an error.
+func (client *Client) Uninstall(packageId string) error {
+	request, err := client.newRequest("DELETE", apiPackagesPath + packageId, nil)
+	if err != nil {
+		return fmt.Errorf("webdm: Error creating API request: %s", err)
+	}
+
+	// This could possibly return a 400, which just means that the package is
+	// essentially already uninstalled but hasn't yet been refreshed. No need to
+	// error out if that's the case.
+	response, err := client.do(request, nil)
+	if err != nil && response.StatusCode != http.StatusBadRequest {
+		return fmt.Errorf("webdm: Error making API request: %s", err)
+	}
+
+	return nil
+}
+
 // getPackages sends a request to the API for a package list.
 //
 // Parameters:
@@ -107,7 +179,7 @@ func (client *Client) getPackages(installedOnly bool) ([]Package, error) {
 		data.Set("installed_only", "true")
 	}
 
-	request, err := client.newRequest("GET", apiListPackagesPath, data)
+	request, err := client.newRequest("GET", apiPackagesPath, data)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating API request: %s", err)
 	}

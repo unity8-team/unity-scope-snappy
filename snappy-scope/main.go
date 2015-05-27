@@ -89,18 +89,21 @@ func (scope *SnappyScope) PerformAction(result *scopes.Result, metadata *scopes.
 		return nil, scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}
 
-	if actionId == "install" {
-		err = scope.webdmClient.Install(snapId)
-		if err != nil {
-			return nil, scopeError(`unity-scope-snappy: Unable to install package "%s": %s`, result.Title(), err)
-		}
-	} else if actionId == "uninstall" {
-		err = scope.webdmClient.Uninstall(snapId)
-		if err != nil {
-			return nil, scopeError(`unity-scope-snappy: Unable to uninstall package "%s": %s`, result.Title(), err)
-		}
-	} else if actionId == "open" {
-		return nil, scopeError(`unity-scope-snappy: Unable to open package "%s": Opening snaps is not yet supported`, result.Title())
+	switch actionId {
+		case "install":
+			err = scope.webdmClient.Install(snapId)
+			if err != nil {
+				return nil, scopeError(`unity-scope-snappy: Unable to install package "%s": %s`, result.Title(), err)
+			}
+
+		case "uninstall":
+			err = scope.webdmClient.Uninstall(snapId)
+			if err != nil {
+				return nil, scopeError(`unity-scope-snappy: Unable to uninstall package "%s": %s`, result.Title(), err)
+			}
+
+		case "open":
+			return nil, scopeError(`unity-scope-snappy: Unable to open package "%s": Opening snaps is not yet supported`, result.Title())
 	}
 
 	return scopes.NewActivationResponse(scopes.ActivationShowPreview), nil
@@ -118,16 +121,18 @@ func (scope SnappyScope) getPackageList(department string) ([]webdm.Package, err
 	var packages []webdm.Package
 	var err error
 
-	if department == "installed" {
-		packages, err = scope.webdmClient.GetInstalledPackages()
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
-		}
-	} else {
-		packages, err = scope.webdmClient.GetStorePackages()
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
-		}
+	switch department {
+		case "installed":
+			packages, err = scope.webdmClient.GetInstalledPackages()
+			if err != nil {
+				return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
+			}
+
+		default:
+			packages, err = scope.webdmClient.GetStorePackages()
+			if err != nil {
+				return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
+			}
 	}
 
 	return packages, nil

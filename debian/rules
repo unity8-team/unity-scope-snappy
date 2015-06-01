@@ -9,10 +9,11 @@ export DH_GOLANG_INSTALL_ALL := 1
 export GOPATH := $(CURDIR)/obj-$(DEB_BUILD_GNU_TYPE)
 export PATH := ${GOPATH}/bin:${PATH}
 
+%:
+	dh $@ --buildsystem=golang --with=golang
+
 # Run the tests and also produce a Cobertura-compatible
 # coverage report.
 override_dh_auto_test:
 	gocov test ${DH_GOPKG}/webdm | gocov-xml > coverage.xml
 
-%:
-	dh $@ --buildsystem=golang --with=golang

@@ -7,7 +7,7 @@ import (
 
 // OpenActionRunner is an ActionRunner to handle the launch of a
 // specific snap.
-type OpenActionRunner struct {}
+type OpenActionRunner struct{}
 
 // NewOpenActionRunner creates a new OpenActionRunner
 //

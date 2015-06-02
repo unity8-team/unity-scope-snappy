@@ -8,7 +8,7 @@ import (
 
 // InstallActionRunner is an ActionRunner to handle the installation of a
 // specific package.
-type InstallActionRunner struct {}
+type InstallActionRunner struct{}
 
 // NewInstallActionRunner creates a new InstallActionRunner.
 //

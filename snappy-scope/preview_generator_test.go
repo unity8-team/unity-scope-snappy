@@ -9,8 +9,8 @@ import (
 
 // Data for TestNewPreview
 var newPreviewTests = []struct {
-	status webdm.Status
-	scopeData *ProgressHack
+	status       webdm.Status
+	scopeData    *ProgressHack
 	expectedType string
 }{
 	{webdm.StatusUndefined, nil, "*main.StorePreview"},

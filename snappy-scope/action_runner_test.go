@@ -7,7 +7,7 @@ import (
 
 // Data for TestNewActionRunner
 var newActionRunnerTests = []struct {
-	actionId ActionId
+	actionId     ActionId
 	expectedType string
 }{
 	{ActionInstall, "*main.InstallActionRunner"},

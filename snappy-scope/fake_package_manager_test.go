@@ -8,7 +8,7 @@ import (
 // FakePackageManager is a fake implementation of the PackageManager interface,
 // for use within tests.
 type FakePackageManager struct {
-	installCalled bool
+	installCalled   bool
 	uninstallCalled bool
 }
 

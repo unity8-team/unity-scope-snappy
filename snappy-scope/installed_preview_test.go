@@ -9,7 +9,7 @@ import (
 // Test typical NewInstalledPreview usage.
 func TestNewInstalledPreview(t *testing.T) {
 	preview, err := NewInstalledPreview(webdm.Package{
-		Id: "package1",
+		Id:     "package1",
 		Status: webdm.StatusInstalled,
 	})
 	if err != nil {

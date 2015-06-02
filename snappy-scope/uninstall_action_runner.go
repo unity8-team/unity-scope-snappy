@@ -8,7 +8,7 @@ import (
 
 // UninstallActionRunner is an ActionRunner to handle the uninstallation of a
 // specific package.
-type UninstallActionRunner struct {}
+type UninstallActionRunner struct{}
 
 // NewUninstallActionRunner creates a new UninstallActionRunner.
 //

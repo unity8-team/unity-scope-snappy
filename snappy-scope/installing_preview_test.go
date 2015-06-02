@@ -9,7 +9,7 @@ import (
 // Test typical NewInstallingPreview usage.
 func TestNewInstallingPreview(t *testing.T) {
 	preview, err := NewInstallingPreview(webdm.Package{
-		Id: "package1",
+		Id:     "package1",
 		Status: webdm.StatusNotInstalled,
 	})
 	if err != nil {
@@ -76,10 +76,10 @@ func TestInstallingPreview_generate(t *testing.T) {
 func TestInstallingPreview_generate_installFailed(t *testing.T) {
 	preview, _ := NewInstallingPreview(
 		webdm.Package{
-			Id:           "package1",
-			Name:         "package1",
-			Status:       webdm.StatusNotInstalled,
-			Message:      "Unable to install", // This indicates failure
+			Id:      "package1",
+			Name:    "package1",
+			Status:  webdm.StatusNotInstalled,
+			Message: "Unable to install", // This indicates failure
 		})
 
 	receiver := new(FakeWidgetReceiver)

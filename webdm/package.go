@@ -25,9 +25,15 @@ type Package struct {
 	Description  string
 	IconUrl      string `json:"icon"`
 	Status       Status
-	DownloadSize int    `json:"download_size"`
-	Message      string // Not always filled
 	Type         string
+
+	// WebDM uses this field to report errors, etc. It's not always filled.
+	Message      string
+
+	// InstalledSize will be filled if the package is installed, otherwise
+	// DownloadSize will be filled.
+	InstalledSize int   `json:"installed_size"`
+	DownloadSize int    `json:"download_size"`
 }
 
 // UnmarshallJSON exists to decode the Status field from JSON to our enum.

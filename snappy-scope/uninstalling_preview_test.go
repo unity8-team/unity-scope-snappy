@@ -9,7 +9,7 @@ import (
 // Test typical NewUninstallingPreview usage.
 func TestNewUninstallingPreview(t *testing.T) {
 	preview, err := NewUninstallingPreview(webdm.Package{
-		Id: "package1",
+		Id:     "package1",
 		Status: webdm.StatusInstalled,
 	})
 	if err != nil {
@@ -76,10 +76,10 @@ func TestUninstallingPreview_generate(t *testing.T) {
 func TestUninstallingPreview_generate_uninstallFailed(t *testing.T) {
 	preview, _ := NewUninstallingPreview(
 		webdm.Package{
-			Id:           "package1",
-			Name:         "package1",
-			Status:       webdm.StatusInstalled,
-			Message:      "Unable to uninstall", // This indicates failure
+			Id:      "package1",
+			Name:    "package1",
+			Status:  webdm.StatusInstalled,
+			Message: "Unable to uninstall", // This indicates failure
 		})
 
 	receiver := new(FakeWidgetReceiver)

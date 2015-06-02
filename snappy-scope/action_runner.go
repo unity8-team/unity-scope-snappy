@@ -7,8 +7,9 @@ import (
 
 // All possible actions in this scope
 type ActionId int
+
 const (
-	ActionInstall ActionId = iota+1
+	ActionInstall ActionId = iota + 1
 	ActionUninstall
 	ActionOpen
 

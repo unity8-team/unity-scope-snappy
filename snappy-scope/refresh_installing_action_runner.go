@@ -8,7 +8,7 @@ import (
 // RefreshInstallingActionRunner is an ActionRunner to handle a manual refresh
 // of the state of a specific package. This is a temporary workaround for the
 // fact that actual progress isn't yet available for this scope.
-type RefreshInstallingActionRunner struct {}
+type RefreshInstallingActionRunner struct{}
 
 // NewRefreshInstallingActionRunner creates a new RefreshInstallingActionRunner.
 //

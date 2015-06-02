@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
+	"log"
 )
 
 // main is the entry point of the scope.

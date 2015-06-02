@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
+	"strconv"
 )
 
 // template for the grid layout of the search results.

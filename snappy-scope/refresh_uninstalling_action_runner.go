@@ -8,7 +8,7 @@ import (
 // RefreshUninstallingActionRunner is an ActionRunner to handle a manual refresh
 // of the state of a specific package. This is a temporary workaround for the
 // fact that actual progress isn't yet available for this scope.
-type RefreshUninstallingActionRunner struct {}
+type RefreshUninstallingActionRunner struct{}
 
 // NewRefreshUninstallingActionRunner creates a new
 // RefreshUninstallingActionRunner.

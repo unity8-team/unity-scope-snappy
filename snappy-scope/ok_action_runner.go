@@ -5,7 +5,7 @@ import (
 )
 
 // OkActionRunner is an ActionRunner to handle the "Ok" button.
-type OkActionRunner struct {}
+type OkActionRunner struct{}
 
 // NewOkActionRunner creates a new OkActionRunner
 //

@@ -10,8 +10,8 @@ import (
 	"testing"
 )
 
-// MockResponse holds the response from the server
-type MockResponse struct {
+// FakeResponse holds the response from the server
+type FakeResponse struct {
 	Package string // Package name
 	Message string // The message associated with the package
 }
@@ -23,16 +23,16 @@ var (
 	// client is the webdm client being tested.
 	client *Client
 
-	// server is a test HTTP server used to provide mock API responses.
+	// server is a test HTTP server used to provide fake API responses.
 	server *httptest.Server
 
 	// storePackages holds all the packages available in the store
 	storePackages []Package
 )
 
-// mockSetup simply sets up a test HTTP server along with a webdm.Client that is
+// fakeSetup simply sets up a test HTTP server along with a webdm.Client that is
 // configured to talk to it.
-func mockSetup() {
+func fakeSetup() {
 	// Test server
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
@@ -43,11 +43,11 @@ func mockSetup() {
 
 // setup sets up a test HTTP server along with a webdm.Client that is configured
 // to talk to that test server. It then initializes the store and configures
-// handlers for the mocked API.
+// handlers for the fake API.
 func setup(t *testing.T) {
-	mockSetup()
+	fakeSetup()
 
-	// Setup mock API
+	// Setup fake API
 	initializeStore()
 	setupHandlers(t)
 }
@@ -56,7 +56,7 @@ func setup(t *testing.T) {
 // to talk to that test server. It then registers a handler for the packages
 // API that simply returns a server error (500).
 func setupBroken() {
-	mockSetup()
+	fakeSetup()
 
 	// Handle anything in the packages API, and return a 500.
 	mux.HandleFunc(apiPackagesPath,
@@ -70,7 +70,7 @@ func teardown() {
 	server.Close()
 }
 
-// initializeStore sets up the mock package store to hold a few packages
+// initializeStore sets up the fake package store to hold a few packages
 func initializeStore() {
 	storePackages = []Package{
 		Package{
@@ -220,12 +220,12 @@ func handleInstallRequest(t *testing.T, writer http.ResponseWriter, packageId st
 				writer.WriteHeader(http.StatusAccepted)
 			}
 
-			mockResponse := &MockResponse{
+			fakeResponse := &FakeResponse{
 				Package: packageId,
 				Message: message,
 			}
 
-			encoder.Encode(mockResponse)
+			encoder.Encode(fakeResponse)
 
 			storePackages[index].Status = StatusInstalling
 			break
@@ -250,12 +250,12 @@ func handleUninstallRequest(t *testing.T, writer http.ResponseWriter, packageId 
 				writer.WriteHeader(http.StatusAccepted)
 			}
 
-			mockResponse := &MockResponse{
+			fakeResponse := &FakeResponse{
 				Package: packageId,
 				Message: message,
 			}
 
-			encoder.Encode(mockResponse)
+			encoder.Encode(fakeResponse)
 
 			storePackages[index].Status = StatusUninstalling
 			break
@@ -359,14 +359,14 @@ func runApiRequest(method string, path string, value interface{}) error {
 	return nil
 }
 
-// Test that the mock server clears pending operations upon a query like the
+// Test that the fake server clears pending operations upon a query like the
 // real server
-func TestMockServer_pendingOperationsQuery(t *testing.T) {
+func TestFakeServer_pendingOperationsQuery(t *testing.T) {
 	// Run test server
 	setup(t)
 	defer teardown()
 
-	response := new(MockResponse)
+	response := new(FakeResponse)
 
 	// Request installation of "package1"
 	err := runApiRequest("PUT", apiPackagesPath+"package1", response)
@@ -405,14 +405,14 @@ func TestMockServer_pendingOperationsQuery(t *testing.T) {
 	}
 }
 
-// Test that the mock server clears pending operations upon a package list like
+// Test that the fake server clears pending operations upon a package list like
 // the real server
-func TestMockServer_pendingOperationsList(t *testing.T) {
+func TestFakeServer_pendingOperationsList(t *testing.T) {
 	// Run test server
 	setup(t)
 	defer teardown()
 
-	response := new(MockResponse)
+	response := new(FakeResponse)
 
 	// Request installation of "package1"
 	err := runApiRequest("PUT", apiPackagesPath+"package1", response)
@@ -451,14 +451,14 @@ func TestMockServer_pendingOperationsList(t *testing.T) {
 	}
 }
 
-// Test that the mock server can deal with two requests to install the same
+// Test that the fake server can deal with two requests to install the same
 // package.
-func TestMockServer_twoInstallRequests(t *testing.T) {
+func TestFakeServer_twoInstallRequests(t *testing.T) {
 	// Run test server
 	setup(t)
 	defer teardown()
 
-	response := new(MockResponse)
+	response := new(FakeResponse)
 
 	// Request installation of "package1"
 	err := runApiRequest("PUT", apiPackagesPath+"package1", response)

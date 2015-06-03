@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+export DH_GOPKG := launchpad.net/unity-scope-snappy
+
+# Tell dh-golang that we need subpackages.
+export DH_GOLANG_INSTALL_ALL := 1
+
+# Setup the paths so we can run gocov and gocov-xml.
+export GOPATH := $(CURDIR)/obj-$(DEB_BUILD_GNU_TYPE)
+export PATH := ${GOPATH}/bin:${PATH}
+
+%:
+	dh $@ --buildsystem=golang --with=golang
+
+# Run the tests and also produce a Cobertura-compatible
+# coverage report.
+override_dh_auto_test:
+	gocov test ${DH_GOPKG}/webdm | gocov-xml > coverage.xml
+

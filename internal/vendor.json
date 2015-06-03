@@ -1,0 +1,41 @@
+{
+	"Tool": "github.com/kardianos/vendor",
+	"Package": [
+		{
+			"Vendor": "github.com/AlekSi/gocov-xml",
+			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/AlekSi/gocov-xml",
+			"Revision": "d2f6da892a0d5e0b587526abf51349ad654ade51",
+			"RevisionTime": "2013-09-03T17:40:06+04:00"
+		},
+		{
+			"Vendor": "github.com/axw/gocov",
+			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov",
+			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"RevisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"Vendor": "github.com/axw/gocov/gocov",
+			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocov",
+			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"RevisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"Vendor": "github.com/axw/gocov/gocovutil",
+			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocovutil",
+			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"RevisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"Vendor": "golang.org/x/tools/cover",
+			"Local": "launchpad.net/unity-scope-snappy/internal/golang.org/x/tools/cover",
+			"Revision": "45716cd4c6ff17c3ef8a40254ab0708bbe35a4ef",
+			"RevisionTime": "2015-05-18T10:59:35-04:00"
+		},
+		{
+			"Vendor": "launchpad.net/go-unityscopes/v2",
+			"Local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
+			"Revision": "68",
+			"RevisionTime": "2015-04-29T15:27:46+01:00"
+		}
+	]
+}

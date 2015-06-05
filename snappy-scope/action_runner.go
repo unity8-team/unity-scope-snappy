@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 )
 
 // All possible actions in this scope

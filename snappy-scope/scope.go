@@ -75,10 +75,7 @@ func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.Sear
 	}
 
 	for _, thisPackage := range packages {
-		result, err := packageResult(category, thisPackage)
-		if err != nil {
-			return fmt.Errorf(`unity-scope-snappy: Unable to create result for package "%s": %s`, err)
-		}
+		result := packageResult(category, thisPackage)
 
 		if reply.Push(result) != nil {
 			// If the push fails, the query was cancelled. No need to continue.
@@ -179,8 +176,7 @@ func createDepartments(query *scopes.CannedQuery, reply *scopes.SearchReply) err
 //
 // Returns:
 // - Pointer to scopes.CategorisedResult
-// - Error (nil if none)
-func packageResult(category *scopes.Category, snap webdm.Package) (*scopes.CategorisedResult, error) {
+func packageResult(category *scopes.Category, snap webdm.Package) *scopes.CategorisedResult {
 	result := scopes.NewCategorisedResult(category)
 
 	result.SetTitle(snap.Name)
@@ -189,7 +185,7 @@ func packageResult(category *scopes.Category, snap webdm.Package) (*scopes.Categ
 	result.SetArt(snap.IconUrl)
 	result.Set("id", snap.Id)
 
-	return result, nil
+	return result
 }
 
 // getPackageList is used to obtain a package list for a specific department.

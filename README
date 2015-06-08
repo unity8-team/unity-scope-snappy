@@ -11,8 +11,12 @@ applications.
 Current Status
 --------------
 
-The Snappy Scope is under heavy development. Currently, its functionality is
-limited to simply listing all snap packages available in the Ubuntu Store.
+The Snappy Scope is still being developed. Currently, it can do the following:
+
+- List packages available in the store.
+- List installed packages.
+- Display preview of both in-store and installed packages.
+- Install/uninstall packages
 
 
 How to use

@@ -57,7 +57,7 @@ func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMeta
 
 	packages, err := getPackageList(scope.webdmClient, query.DepartmentID())
 	if err != nil {
-		return fmt.Errorf("unity-scope-snappy: Unable to get package list: %s", err)
+		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}
 
 	var category *scopes.Category

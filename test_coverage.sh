@@ -18,6 +18,6 @@ cat $coverage_webdm | grep -v "mode: set" >> $coverage_final
 
 if [ "$1" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml
-else
+elif [ "$1" == "html" ]; then
 	go tool cover -html=$coverage_final
 fi

@@ -24,6 +24,13 @@ const template = `{
         }
 }`
 
+// ProgressHack is a workaround for having no concept of progress in this scope.
+// Until a decent method has been devised, this struct holds the information
+// necessary to display a placeholder widget for manual refreshing.
+type ProgressHack struct {
+	DesiredStatus webdm.Status
+}
+
 // Scope is the struct representing the scope itself.
 type Scope struct {
 	webdmClient *webdm.Client
@@ -94,7 +101,7 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	preview, err := NewPreview(*snap)
+	preview, err := NewPreview(*snap, metadata)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
 	}
@@ -184,7 +191,7 @@ func packageResult(category *scopes.Category, snap webdm.Package) *scopes.Catego
 // getPackageList is used to obtain a package list for a specific department.
 //
 // Parameters:
-// webdmClient: Configured WebDM Client to obtain package list.
+// packageManager: Package manager to use to obtain package list.
 // department: The department whose packages should be listed.
 //
 // Returns:

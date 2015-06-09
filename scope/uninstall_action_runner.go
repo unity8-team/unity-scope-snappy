@@ -3,6 +3,7 @@ package scope
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // UninstallActionRunner is an ActionRunner to handle the uninstallation of a
@@ -34,6 +35,9 @@ func (runner UninstallActionRunner) Run(packageManager PackageManager, snapId st
 	}
 
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
+
+	// Tell the preview when to stop showing the refresh page
+	response.SetScopeData(ProgressHack{webdm.StatusNotInstalled})
 
 	return response, nil
 }

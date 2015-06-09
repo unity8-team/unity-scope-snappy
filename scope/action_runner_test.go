@@ -13,9 +13,14 @@ var newActionRunnerTests = []struct {
 	{ActionInstall, "*scope.InstallActionRunner"},
 	{ActionUninstall, "*scope.UninstallActionRunner"},
 	{ActionOpen, "*scope.OpenActionRunner"},
+
+	// Temporary actions for manual refresh
+	{ActionRefreshInstalling, "*scope.RefreshInstallingActionRunner"},
+	{ActionRefreshUninstalling, "*scope.RefreshUninstallingActionRunner"},
+	{ActionOk, "*scope.OkActionRunner"},
 }
 
-// Test typical NewAction usage.
+// Test typical NewActionRunner usage.
 func TestNewActionRunner(t *testing.T) {
 	for i, test := range newActionRunnerTests {
 		actionRunner, err := NewActionRunner(test.actionId)

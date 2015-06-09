@@ -13,11 +13,6 @@ var newActionRunnerTests = []struct {
 	{ActionInstall, "*main.InstallActionRunner"},
 	{ActionUninstall, "*main.UninstallActionRunner"},
 	{ActionOpen, "*main.OpenActionRunner"},
-
-	// Temporary actions for manual refresh
-	{ActionRefreshInstalling, "*main.RefreshInstallingActionRunner"},
-	{ActionRefreshUninstalling, "*main.RefreshUninstallingActionRunner"},
-	{ActionOk, "*main.OkActionRunner"},
 }
 
 // Test typical NewPreview usage.

@@ -21,43 +21,10 @@ type PreviewGenerator interface {
 //
 // Parameters:
 // snap: Snap to be represented by the preview.
-// metadata: Metadata to be used for informing the preview creation.
-func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGenerator, error) {
-	// Temporary hack to provide a manual refresh while support for progrss is
-	// being added.
-	progressHack := &ProgressHack{}
-	if retrieveProgressHack(metadata, progressHack) {
-		// If an operation is still ongoing, show progress
-		if snap.Status != progressHack.DesiredStatus {
-			if progressHack.DesiredStatus == webdm.StatusInstalled {
-				return NewInstallingPreview(snap)
-			} else {
-				return NewUninstallingPreview(snap)
-			}
-		}
-	}
-
+func NewPreview(snap webdm.Package) (PreviewGenerator, error) {
 	if snap.Installed() {
 		return NewInstalledPreview(snap)
 	} else {
 		return NewStorePreview(snap)
 	}
-}
-
-// retrieveProgressHack is used to obtain the ProgressHack struct from
-// ActionMetadata.
-//
-// Parameters:
-// metadata: ActionMetadata potentially containing progress hack
-// progressHack: Retrieved ProgresHack (if any)
-//
-// Returns:
-// - Whether or not a ProgressHack was retrieved.
-func retrieveProgressHack(metadata *scopes.ActionMetadata, progressHack *ProgressHack) bool {
-	if progressHack != nil {
-		err := metadata.ScopeData(progressHack)
-		return (err == nil) && (progressHack.DesiredStatus != webdm.StatusUndefined)
-	}
-
-	return false
 }

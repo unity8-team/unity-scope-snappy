@@ -24,13 +24,6 @@ const template = `{
         }
 }`
 
-// ProgressHack is a workaround for having no concept of progress in this scope.
-// Until a decent method has been devised, this struct holds the information
-// necessary to display a placeholder widget for manual refreshing.
-type ProgressHack struct {
-	DesiredStatus webdm.Status
-}
-
 // SnappyScope is the struct representing the scope itself.
 type SnappyScope struct {
 	webdmClient *webdm.Client
@@ -101,7 +94,7 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	preview, err := NewPreview(*snap, metadata)
+	preview, err := NewPreview(*snap)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
 	}

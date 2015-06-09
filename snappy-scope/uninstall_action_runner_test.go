@@ -2,7 +2,6 @@ package main
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
@@ -24,16 +23,5 @@ func TestUninstallActionRunnerRun(t *testing.T) {
 
 	if response.Status != scopes.ActivationShowPreview {
 		t.Errorf(`Response status was "%d", expected "%d"`, response.Status, scopes.ActivationShowPreview)
-	}
-
-	// Verify progress hack
-	progressHack, ok := response.ScopeData.(ProgressHack)
-	if !ok {
-		// Exit here so we don't dereference nil
-		t.Fatalf("Expected response ScopeData to be a ProgressHack")
-	}
-
-	if progressHack.DesiredStatus != webdm.StatusNotInstalled {
-		t.Errorf(`Desired status was "%d", expected "%d"`, progressHack.DesiredStatus, webdm.StatusNotInstalled)
 	}
 }

@@ -12,11 +12,6 @@ const (
 	ActionInstall ActionId = iota + 1
 	ActionUninstall
 	ActionOpen
-
-	// Temporary actions for manual refresh
-	ActionRefreshInstalling
-	ActionRefreshUninstalling
-	ActionOk
 )
 
 // ActionRunner is an interface for a factory of action handlers.
@@ -37,12 +32,6 @@ func NewActionRunner(actionId ActionId) (ActionRunner, error) {
 		return NewUninstallActionRunner()
 	case ActionOpen:
 		return NewOpenActionRunner()
-	case ActionRefreshInstalling:
-		return NewRefreshInstallingActionRunner()
-	case ActionRefreshUninstalling:
-		return NewRefreshUninstallingActionRunner()
-	case ActionOk:
-		return NewOkActionRunner()
 	default:
 		var actionRunner ActionRunner
 		return actionRunner, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)

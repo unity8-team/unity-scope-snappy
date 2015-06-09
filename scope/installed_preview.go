@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"fmt"
@@ -6,25 +6,25 @@ import (
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-// StorePreview is the preview for a package that isn't installed.
-type StorePreview struct {
+// InstalledPreview is the preview for an installed package.
+type InstalledPreview struct {
 	snap webdm.Package
 }
 
-// NewStorePreview creates a new StorePreview.
+// NewInstalledPreview creates a new InstalledPreview.
 //
 // Parameters:
 // snap: Snap to be represented by this preview.
 //
 // Returns:
-// - Pointer to new StorePreview (nil if error)
+// - Pointer to new InstalledPreview (nil if error)
 // - Error (nil if none)
-func NewStorePreview(snap webdm.Package) (*StorePreview, error) {
-	if snap.Installed() {
-		return nil, fmt.Errorf("Snap is installed")
+func NewInstalledPreview(snap webdm.Package) (*InstalledPreview, error) {
+	if !snap.Installed() {
+		return nil, fmt.Errorf("Snap is not installed")
 	}
 
-	return &StorePreview{snap: snap}, nil
+	return &InstalledPreview{snap: snap}, nil
 }
 
 // Generate pushes the preview widgets onto a WidgetReceiver.
@@ -34,9 +34,9 @@ func NewStorePreview(snap webdm.Package) (*StorePreview, error) {
 //
 // Returns:
 // - Error (nil if none)
-func (preview StorePreview) Generate(receiver WidgetReceiver) error {
-	if preview.snap.Installed() {
-		return fmt.Errorf("Snap is installed")
+func (preview InstalledPreview) Generate(receiver WidgetReceiver) error {
+	if !preview.snap.Installed() {
+		return fmt.Errorf("Snap is not installed")
 	}
 
 	receiver.PushWidgets(preview.headerWidget())
@@ -51,32 +51,32 @@ func (preview StorePreview) Generate(receiver WidgetReceiver) error {
 //
 // Returns:
 // - Header preview widget for the snap.
-func (preview StorePreview) headerWidget() scopes.PreviewWidget {
+func (preview InstalledPreview) headerWidget() scopes.PreviewWidget {
 	widget := scopes.NewPreviewWidget("header", "header")
 
 	widget.AddAttributeMapping("title", "title")
 	widget.AddAttributeMapping("subtitle", "subtitle")
 	widget.AddAttributeMapping("mascot", "art")
 
-	priceAttribute := make(map[string]interface{})
-	priceAttribute["value"] = "FREE" // All the snaps are currently free
-	widget.AddAttributeValue("attributes", []interface{}{priceAttribute})
-
 	return widget
 }
 
-// actionWidget is used to create an action widget to install the snap.
+// actionWidget is used to create an action widget to uninstall/open the snap.
 //
 // Returns:
 // - Action preview widget for the snap.
-func (preview StorePreview) actionWidget() scopes.PreviewWidget {
+func (preview InstalledPreview) actionWidget() scopes.PreviewWidget {
 	widget := scopes.NewPreviewWidget("actions", "actions")
 
-	installAction := make(map[string]interface{})
-	installAction["id"] = ActionInstall
-	installAction["label"] = "Install"
+	openAction := make(map[string]interface{})
+	openAction["id"] = ActionOpen
+	openAction["label"] = "Open"
 
-	widget.AddAttributeValue("actions", []interface{}{installAction})
+	uninstallAction := make(map[string]interface{})
+	uninstallAction["id"] = ActionUninstall
+	uninstallAction["label"] = "Uninstall"
+
+	widget.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})
 
 	return widget
 }
@@ -85,9 +85,8 @@ func (preview StorePreview) actionWidget() scopes.PreviewWidget {
 //
 // Returns:
 // - Text preview widget for the snap.
-func (preview StorePreview) infoWidget() scopes.PreviewWidget {
+func (preview InstalledPreview) infoWidget() scopes.PreviewWidget {
 	widget := scopes.NewPreviewWidget("summary", "text")
-
 	widget.AddAttributeValue("title", "Info")
 	widget.AddAttributeValue("text", preview.snap.Description)
 
@@ -98,7 +97,7 @@ func (preview StorePreview) infoWidget() scopes.PreviewWidget {
 //
 // Returns:
 // - Table widget for the snap.
-func (preview StorePreview) updatesWidget() scopes.PreviewWidget {
+func (preview InstalledPreview) updatesWidget() scopes.PreviewWidget {
 	widget := scopes.NewPreviewWidget("updates_table", "table")
 	widget.AddAttributeValue("title", "Updates")
 

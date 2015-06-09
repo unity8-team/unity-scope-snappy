@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"launchpad.net/unity-scope-snappy/webdm"
@@ -11,11 +11,11 @@ var newPreviewTests = []struct {
 	status       webdm.Status
 	expectedType string
 }{
-	{webdm.StatusUndefined, "*main.StorePreview"},
-	{webdm.StatusInstalled, "*main.InstalledPreview"},
-	{webdm.StatusNotInstalled, "*main.StorePreview"},
-	{webdm.StatusInstalling, "*main.StorePreview"},
-	{webdm.StatusUninstalling, "*main.StorePreview"},
+	{webdm.StatusUndefined, "*scope.StorePreview"},
+	{webdm.StatusInstalled, "*scope.InstalledPreview"},
+	{webdm.StatusNotInstalled, "*scope.StorePreview"},
+	{webdm.StatusInstalling, "*scope.StorePreview"},
+	{webdm.StatusUninstalling, "*scope.StorePreview"},
 }
 
 // Test typical NewPreview usage.

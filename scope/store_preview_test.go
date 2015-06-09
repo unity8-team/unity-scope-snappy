@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-// Test typical NewInstalledPreview usage.
-func TestNewInstalledPreview(t *testing.T) {
-	preview, err := NewInstalledPreview(webdm.Package{
+// Test typical NewStorePreview usage.
+func TestNewStorePreview(t *testing.T) {
+	preview, err := NewStorePreview(webdm.Package{
 		Id:     "package1",
-		Status: webdm.StatusInstalled,
+		Status: webdm.StatusNotInstalled,
 	})
 	if err != nil {
-		t.Error("Unexpected error creating new installed preview: %s", err)
+		t.Error("Unexpected error creating new store preview: %s", err)
 	}
 
 	if preview.snap.Id != "package1" {
@@ -21,18 +21,18 @@ func TestNewInstalledPreview(t *testing.T) {
 	}
 }
 
-// Make sure an error occurs if the package is not installed
-func TestNewInstalledPreview_notInstalled(t *testing.T) {
-	_, err := NewInstalledPreview(webdm.Package{Status: webdm.StatusNotInstalled})
+// Make sure an error occurs if the package is installed
+func TestNewStorePreview_installed(t *testing.T) {
+	_, err := NewStorePreview(webdm.Package{Status: webdm.StatusInstalled})
 	if err == nil {
-		t.Error("Expected an error if the package is not installed")
+		t.Error("Expected an error if the package is installed")
 	}
 }
 
 // Test typical Generate usage. This test is perhaps a bit rigid/fragile, but
 // it's enforcing the store design.
-func TestInstalledPreview_generate(t *testing.T) {
-	preview, _ := NewInstalledPreview(
+func TestStorePreview_generate(t *testing.T) {
+	preview, _ := NewStorePreview(
 		webdm.Package{
 			Id:           "package1",
 			Name:         "package1",
@@ -41,7 +41,7 @@ func TestInstalledPreview_generate(t *testing.T) {
 			Vendor:       "bar",
 			Description:  "baz",
 			IconUrl:      "http://fake",
-			Status:       webdm.StatusInstalled,
+			Status:       webdm.StatusNotInstalled,
 			DownloadSize: 123456,
 			Type:         "oem",
 		})
@@ -60,38 +60,38 @@ func TestInstalledPreview_generate(t *testing.T) {
 
 	widget := receiver.widgets[0]
 	if widget.WidgetType() == "header" {
-		verifyInstalledHeaderWidget(t, widget)
+		verifyStoreHeaderWidget(t, widget)
 	} else {
 		t.Error("Expected header to be first widget")
 	}
 
 	widget = receiver.widgets[1]
 	if widget.WidgetType() == "actions" {
-		verifyInstalledActionsWidget(t, widget)
+		verifyStoreActionsWidget(t, widget)
 	} else {
 		t.Error("Expected actions to be second widget")
 	}
 
 	widget = receiver.widgets[2]
 	if widget.WidgetType() == "text" {
-		verifyInstalledInfoWidget(t, widget, preview.snap.Description)
+		verifyStoreInfoWidget(t, widget, preview.snap.Description)
 	} else {
 		t.Error("Expected info to be the third widget")
 	}
 
 	widget = receiver.widgets[3]
 	if widget.WidgetType() == "table" {
-		verifyInstalledUpdatesWidget(t, widget, preview.snap.Version)
+		verifyStoreUpdatesWidget(t, widget, preview.snap.Version)
 	} else {
 		t.Error("Expected updates table to be the fourth widget")
 	}
 }
 
-// Test that Generate fails if the package is not installed
-func TestInstalledPreview_generate_notInstalled(t *testing.T) {
-	preview := InstalledPreview{
+// Test that Generate fails if the package is installed
+func TestStorePreview_generate_installed(t *testing.T) {
+	preview := StorePreview{
 		snap: webdm.Package{
-			Status: webdm.StatusNotInstalled,
+			Status: webdm.StatusInstalled,
 		},
 	}
 
@@ -99,17 +99,17 @@ func TestInstalledPreview_generate_notInstalled(t *testing.T) {
 
 	err := preview.Generate(receiver)
 	if err == nil {
-		t.Error("Expected an error if the package is not installed")
+		t.Error("Expected an error if the package is installed")
 	}
 }
 
-// verifyInstalledHeaderWidget is used to verify that a header widget matches
-// what we expect.
+// verifyStoreHeaderWidget is used to verify that a header widget matches what
+// we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Header widget to verify.
-func verifyInstalledHeaderWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyStoreHeaderWidget(t *testing.T, widget scopes.PreviewWidget) {
 	// Grab attribute mappings
 	value, ok := widget["components"]
 	if !ok {
@@ -145,15 +145,36 @@ func verifyInstalledHeaderWidget(t *testing.T, widget scopes.PreviewWidget) {
 	if value != "art" {
 		t.Error(`Expected header mascot attribute to be mapped to "art"`)
 	}
+
+	// Check generic attributes
+	value, ok = widget["attributes"]
+	if !ok {
+		t.Error("Expected header attributes to include generic attributes")
+	}
+
+	attributes := value.([]interface{})
+	if len(attributes) != 1 {
+		// Exit here so we don't index out of bounds
+		t.Fatalf("Got %d generic attributes for header, expected 1", len(attributes))
+	}
+
+	attribute := attributes[0].(map[string]interface{})
+	value, ok = attribute["value"]
+	if !ok {
+		t.Error(`Expected generic header attribute to have "value" key`)
+	}
+	if value != "FREE" {
+		t.Error(`Expected generic header attribute "value" to be "FREE"`)
+	}
 }
 
-// verifyInstalledActionsWidget is used to verify that an actions widget
-// matches what we expect.
+// verifyStoreActionsWidget is used to verify that an actions widget matches
+// what we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Actions widget to verify.
-func verifyInstalledActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyStoreActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	value, ok := widget["actions"]
 	if !ok {
 		t.Error("Expected actions widget to include actions")
@@ -161,56 +182,38 @@ func verifyInstalledActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 
 	actionsInterfaces := value.([]interface{})
 
-	if len(actionsInterfaces) != 2 {
+	if len(actionsInterfaces) != 1 {
 		// Exit here so we don't index out of bounds
-		t.Fatalf("Actions widget has %d actions, expected 2", len(actionsInterfaces))
+		t.Fatalf("Actions widget has %d actions, expected 1", len(actionsInterfaces))
 	}
 
-	// Verify the open action
+	// Verify the install action
 	action := actionsInterfaces[0].(map[string]interface{})
 	value, ok = action["id"]
 	if !ok {
-		t.Error("Expected open action to have an id")
+		t.Error("Expected install action to have an id")
 	}
-	if value != ActionOpen {
-		t.Errorf(`Expected open action's ID to be "%d"`, ActionOpen)
-	}
-
-	value, ok = action["label"]
-	if !ok {
-		t.Error("Expected open action to have a label")
-	}
-	if value != "Open" {
-		t.Error(`Expected open action's label to be "Open"`)
-	}
-
-	// Verify the uninstall action
-	action = actionsInterfaces[1].(map[string]interface{})
-	value, ok = action["id"]
-	if !ok {
-		t.Error("Expected uninstall action to have an id")
-	}
-	if value != ActionUninstall {
-		t.Errorf(`Expected uninstall action's ID to be "%d"`, ActionUninstall)
+	if value != ActionInstall {
+		t.Errorf(`Expected install action's ID to be "%d"`, ActionInstall)
 	}
 
 	value, ok = action["label"]
 	if !ok {
-		t.Error("Expected uninstall action to have a label")
+		t.Error("Expected install action to have a label")
 	}
-	if value != "Uninstall" {
-		t.Error(`Expected uninstall action's label to be "Uninstall"`)
+	if value != "Install" {
+		t.Error(`Expected install action's label to be "Install"`)
 	}
 }
 
-// verifyInstalledInfoWidget is used to verify that a text widget containing
-// generic information matches what we expect.
+// verifyStoreInfoWidget is used to verify that a text widget containing generic
+// information matches what we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Text widget to verify.
 // expectedDescription: Description expected in the text widget.
-func verifyInstalledInfoWidget(t *testing.T, widget scopes.PreviewWidget, expectedDescription string) {
+func verifyStoreInfoWidget(t *testing.T, widget scopes.PreviewWidget, expectedDescription string) {
 	// Verify title
 	value, ok := widget["title"]
 	if !ok {
@@ -230,14 +233,14 @@ func verifyInstalledInfoWidget(t *testing.T, widget scopes.PreviewWidget, expect
 	}
 }
 
-// verifyInstalledUpdatesWidget is used to verify that a table widget containing
+// verifyStoreUpdatesWidget is used to verify that a table widget containing
 // update information matches what we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Table widget to verify.
 // expectedVersion: Version expected in the table widget.
-func verifyInstalledUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string) {
+func verifyStoreUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string) {
 	// Verify title
 	value, ok := widget["title"]
 	if !ok {

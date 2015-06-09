@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"fmt"
@@ -24,12 +24,12 @@ const template = `{
         }
 }`
 
-// SnappyScope is the struct representing the scope itself.
-type SnappyScope struct {
+// Scope is the struct representing the scope itself.
+type Scope struct {
 	webdmClient *webdm.Client
 }
 
-// NewSnappyScope creates a new SnappyScope using a specific WebDM API URL.
+// NewScope creates a new Scope using a specific WebDM API URL.
 //
 // Parameters:
 // webdmApiUrl: URL where WebDM is listening.
@@ -37,8 +37,8 @@ type SnappyScope struct {
 // Returns:
 // - Pointer to scope (nil if error).
 // - Error (nil if none).
-func NewSnappyScope(webdmApiUrl string) (*SnappyScope, error) {
-	scope := new(SnappyScope)
+func NewScope(webdmApiUrl string) (*Scope, error) {
+	scope := new(Scope)
 	var err error
 	scope.webdmClient, err = webdm.NewClient(webdmApiUrl)
 	if err != nil {
@@ -48,11 +48,11 @@ func NewSnappyScope(webdmApiUrl string) (*SnappyScope, error) {
 	return scope, nil
 }
 
-func (scope *SnappyScope) SetScopeBase(base *scopes.ScopeBase) {
+func (scope *Scope) SetScopeBase(base *scopes.ScopeBase) {
 	// Do nothing
 }
 
-func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
+func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
 	createDepartments(query, reply)
 
 	packages, err := getPackageList(scope.webdmClient, query.DepartmentID())
@@ -79,7 +79,7 @@ func (scope SnappyScope) Search(query *scopes.CannedQuery, metadata *scopes.Sear
 	return nil
 }
 
-func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionMetadata, reply *scopes.PreviewReply, cancelled <-chan bool) error {
+func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadata, reply *scopes.PreviewReply, cancelled <-chan bool) error {
 	var snapId string
 	err := result.Get("id", &snapId)
 	if err != nil {
@@ -107,7 +107,7 @@ func (scope SnappyScope) Preview(result *scopes.Result, metadata *scopes.ActionM
 	return nil
 }
 
-func (scope *SnappyScope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
+func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
 	// Obtain the ID for this action from the string
 	intActionId, err := strconv.Atoi(actionId)
 	if err != nil {
@@ -190,19 +190,19 @@ func packageResult(category *scopes.Category, snap webdm.Package) *scopes.Catego
 // Returns:
 // - List of WebDM Package structs
 // - Error (nil if none)
-func getPackageList(webdmClient *webdm.Client, department string) ([]webdm.Package, error) {
+func getPackageList(packageManager PackageManager, department string) ([]webdm.Package, error) {
 	var packages []webdm.Package
 	var err error
 
 	switch department {
 	case "installed":
-		packages, err = webdmClient.GetInstalledPackages()
+		packages, err = packageManager.GetInstalledPackages()
 		if err != nil {
 			return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
 		}
 
 	default:
-		packages, err = webdmClient.GetStorePackages()
+		packages, err = packageManager.GetStorePackages()
 		if err != nil {
 			return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
 		}

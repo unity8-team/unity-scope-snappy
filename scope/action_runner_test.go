@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"reflect"
@@ -10,12 +10,12 @@ var newActionRunnerTests = []struct {
 	actionId     ActionId
 	expectedType string
 }{
-	{ActionInstall, "*main.InstallActionRunner"},
-	{ActionUninstall, "*main.UninstallActionRunner"},
-	{ActionOpen, "*main.OpenActionRunner"},
+	{ActionInstall, "*scope.InstallActionRunner"},
+	{ActionUninstall, "*scope.UninstallActionRunner"},
+	{ActionOpen, "*scope.OpenActionRunner"},
 }
 
-// Test typical NewPreview usage.
+// Test typical NewAction usage.
 func TestNewActionRunner(t *testing.T) {
 	for i, test := range newActionRunnerTests {
 		actionRunner, err := NewActionRunner(test.actionId)
@@ -28,5 +28,13 @@ func TestNewActionRunner(t *testing.T) {
 					i, actionRunnerType, test.expectedType)
 			}
 		}
+	}
+}
+
+// Test that an invalid action ID results in an error
+func TestNewActionRunning_invalidAction(t *testing.T) {
+	_, err := NewActionRunner(ActionId(0))
+	if err == nil {
+		t.Error("Expected an error due to invalid action ID")
 	}
 }

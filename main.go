@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/scope"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
 )
@@ -15,7 +16,7 @@ func main() {
 	webdmAddressParameter := flag.String("webdm", webdm.DefaultApiUrl, "WebDM address[:port]")
 	flag.Parse()
 
-	scope, err := NewSnappyScope(*webdmAddressParameter)
+	scope, err := scope.NewScope(*webdmAddressParameter)
 	if err != nil {
 		log.Printf("unity-scope-snappy: Unable to create scope: %s", err)
 		return

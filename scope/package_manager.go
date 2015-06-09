@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"launchpad.net/unity-scope-snappy/webdm"

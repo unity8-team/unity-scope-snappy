@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
@@ -23,5 +23,20 @@ func TestInstallActionRunnerRun(t *testing.T) {
 
 	if response.Status != scopes.ActivationShowPreview {
 		t.Errorf(`Response status was "%d", expected "%d"`, response.Status, scopes.ActivationShowPreview)
+	}
+}
+
+// Test that a failure to install results in an error
+func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
+	actionRunner, _ := NewInstallActionRunner()
+
+	packageManager := &FakePackageManager{failToInstall: true}
+
+	response, err := actionRunner.Run(packageManager, "foo")
+	if err == nil {
+		t.Error("Expected an error due to failure to install")
+	}
+	if response != nil {
+		t.Error("Unexpected response... expected nil")
 	}
 }

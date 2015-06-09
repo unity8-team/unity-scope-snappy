@@ -32,8 +32,8 @@ type Package struct {
 
 	// InstalledSize will be filled if the package is installed, otherwise
 	// DownloadSize will be filled.
-	InstalledSize int `json:"installed_size"`
-	DownloadSize  int `json:"download_size"`
+	InstalledSize int64 `json:"installed_size"`
+	DownloadSize  int64 `json:"download_size"`
 }
 
 // UnmarshallJSON exists to decode the Status field from JSON to our enum.

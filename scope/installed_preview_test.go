@@ -34,16 +34,16 @@ func TestNewInstalledPreview_notInstalled(t *testing.T) {
 func TestInstalledPreview_generate(t *testing.T) {
 	preview, _ := NewInstalledPreview(
 		webdm.Package{
-			Id:           "package1",
-			Name:         "package1",
-			Origin:       "foo",
-			Version:      "0.1",
-			Vendor:       "bar",
-			Description:  "baz",
-			IconUrl:      "http://fake",
-			Status:       webdm.StatusInstalled,
-			DownloadSize: 123456,
-			Type:         "oem",
+			Id:            "package1",
+			Name:          "package1",
+			Origin:        "foo",
+			Version:       "0.1",
+			Vendor:        "bar",
+			Description:   "baz",
+			IconUrl:       "http://fake",
+			Status:        webdm.StatusInstalled,
+			InstalledSize: 123456,
+			Type:          "oem",
 		})
 
 	receiver := new(FakeWidgetReceiver)
@@ -81,7 +81,7 @@ func TestInstalledPreview_generate(t *testing.T) {
 
 	widget = receiver.widgets[3]
 	if widget.WidgetType() == "table" {
-		verifyInstalledUpdatesWidget(t, widget, preview.snap.Version)
+		verifyInstalledUpdatesWidget(t, widget, preview.snap.Version, "124 KB")
 	} else {
 		t.Error("Expected updates table to be the fourth widget")
 	}
@@ -237,7 +237,7 @@ func verifyInstalledInfoWidget(t *testing.T, widget scopes.PreviewWidget, expect
 // t: Testing handle for when errors occur.
 // widget: Table widget to verify.
 // expectedVersion: Version expected in the table widget.
-func verifyInstalledUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string) {
+func verifyInstalledUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string, expectedSize string) {
 	// Verify title
 	value, ok := widget["title"]
 	if !ok {
@@ -255,11 +255,12 @@ func verifyInstalledUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, exp
 
 	rows := value.([]interface{})
 
-	if len(rows) != 1 {
+	if len(rows) != 2 {
 		// Exit now so we don't index out of bounds
-		t.Fatalf("Got %d rows, expected 1", len(rows))
+		t.Fatalf("Got %d rows, expected 2", len(rows))
 	}
 
+	// Verify version
 	versionRow := rows[0].([]string)
 
 	if len(versionRow) != 2 {
@@ -268,9 +269,24 @@ func verifyInstalledUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, exp
 	}
 
 	if versionRow[0] != "Version number" {
-		t.Error(`Expected first column to be "Version number"`)
+		t.Errorf(`First column was "%s", expected "Version number"`, versionRow[0])
 	}
 	if versionRow[1] != expectedVersion {
-		t.Error(`Expeced second column to be "%s"`, expectedVersion)
+		t.Errorf(`Second column was "%s", expected "%s"`, versionRow[1], expectedVersion)
+	}
+
+	// Verify size
+	sizeRow := rows[1].([]string)
+
+	if len(sizeRow) != 2 {
+		// Exit now do we don't index out of bounds
+		t.Fatalf("Got %d columns, expected 2", len(sizeRow))
+	}
+
+	if sizeRow[0] != "Size" {
+		t.Error(`First column was "%s", expected "Size"`, sizeRow[0])
+	}
+	if sizeRow[1] != expectedSize {
+		t.Errorf(`Second column was "%s", expected "%s"`, sizeRow[1], expectedSize)
 	}
 }

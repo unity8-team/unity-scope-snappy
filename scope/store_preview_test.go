@@ -81,7 +81,7 @@ func TestStorePreview_generate(t *testing.T) {
 
 	widget = receiver.widgets[3]
 	if widget.WidgetType() == "table" {
-		verifyStoreUpdatesWidget(t, widget, preview.snap.Version)
+		verifyStoreUpdatesWidget(t, widget, preview.snap.Version, "124 KB")
 	} else {
 		t.Error("Expected updates table to be the fourth widget")
 	}
@@ -240,7 +240,7 @@ func verifyStoreInfoWidget(t *testing.T, widget scopes.PreviewWidget, expectedDe
 // t: Testing handle for when errors occur.
 // widget: Table widget to verify.
 // expectedVersion: Version expected in the table widget.
-func verifyStoreUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string) {
+func verifyStoreUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expectedVersion string, expectedSize string) {
 	// Verify title
 	value, ok := widget["title"]
 	if !ok {
@@ -258,9 +258,9 @@ func verifyStoreUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expecte
 
 	rows := value.([]interface{})
 
-	if len(rows) != 1 {
+	if len(rows) != 2 {
 		// Exit now so we don't index out of bounds
-		t.Fatalf("Got %d rows, expected 1", len(rows))
+		t.Fatalf("Got %d rows, expected 2", len(rows))
 	}
 
 	versionRow := rows[0].([]string)
@@ -275,5 +275,20 @@ func verifyStoreUpdatesWidget(t *testing.T, widget scopes.PreviewWidget, expecte
 	}
 	if versionRow[1] != expectedVersion {
 		t.Error(`Expeced second column to be "%s"`, expectedVersion)
+	}
+
+	// Verify size
+	sizeRow := rows[1].([]string)
+
+	if len(sizeRow) != 2 {
+		// Exit now do we don't index out of bounds
+		t.Fatalf("Got %d columns, expected 2", len(sizeRow))
+	}
+
+	if sizeRow[0] != "Size" {
+		t.Error(`First column was "%s", expected "Size"`, sizeRow[0])
+	}
+	if sizeRow[1] != expectedSize {
+		t.Errorf(`Second column was "%s", expected "%s"`, sizeRow[1], expectedSize)
 	}
 }

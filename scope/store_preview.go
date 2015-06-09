@@ -103,8 +103,9 @@ func (preview StorePreview) updatesWidget() scopes.PreviewWidget {
 	widget.AddAttributeValue("title", "Updates")
 
 	versionRow := []string{"Version number", preview.snap.Version}
+	sizeRow := []string{"Size", humanizeBytes(preview.snap.DownloadSize)}
 
-	widget.AddAttributeValue("values", []interface{}{versionRow})
+	widget.AddAttributeValue("values", []interface{}{versionRow, sizeRow})
 
 	return widget
 }

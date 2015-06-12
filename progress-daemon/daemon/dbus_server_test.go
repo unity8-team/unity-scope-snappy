@@ -93,7 +93,7 @@ func TestExport(t *testing.T) {
 		t.Errorf("Unexpected error while connecting: %s", err)
 	}
 
-	var object struct{Foo string}
+	var object struct{ Foo string }
 	err = server.Export(object, "/foo/bar", "baz")
 	if err != nil {
 		t.Errorf("Unexpected error while exporting: %s", err)
@@ -104,7 +104,7 @@ func TestExport(t *testing.T) {
 func TestExport_beforeConnect(t *testing.T) {
 	server := new(DbusServer)
 
-	var object struct{Foo string}
+	var object struct{ Foo string }
 	err := server.Export(object, "foo", "bar")
 	if err == nil {
 		t.Error("Expected an error due to export before server was connected")
@@ -134,7 +134,7 @@ func TestEmit(t *testing.T) {
 	done := make(chan struct{})
 
 	go func() {
-		signal := <- signals // Wait for the signal
+		signal := <-signals // Wait for the signal
 
 		if signal.Path != "/foo/bar/baz" {
 			t.Error(`Path was "%s", expected "/foo/bar/baz"`, signal.Path)

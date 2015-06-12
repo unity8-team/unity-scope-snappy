@@ -2,6 +2,8 @@ package daemon
 
 import "launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
 
+// DbusWrapper is an interface to be satisfied by any struct that wants to be
+// injectable into this daemon for dbus communication.
 type DbusWrapper interface {
 	Connect() error
 	Names() []string

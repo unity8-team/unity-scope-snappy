@@ -2,18 +2,6 @@
 	"comment": "",
 	"package": [
 		{
-			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov",
-			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
-			"RevisionTime": "2014-11-11T18:30:33+08:00",
-			"Vendor": "github.com/axw/gocov"
-		},
-		{
-			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocov",
-			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
-			"RevisionTime": "2014-11-11T18:30:33+08:00",
-			"Vendor": "github.com/axw/gocov/gocov"
-		},
-		{
 			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocovutil",
 			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
 			"RevisionTime": "2014-11-11T18:30:33+08:00",
@@ -37,6 +25,34 @@
 			"local": "launchpad.net/unity-scope-snappy/internal/github.com/dustin/go-humanize",
 			"revision": "00897f070f09f194c26d65afae734ba4c32404e8",
 			"revisionTime": "2015-04-12T23:07:30-07:00"
+		},
+		{
+			"canonical": "github.com/godbus/dbus",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus",
+			"revision": "a5942dec6340eb0d57f43f2003c190ce06e43dea",
+			"revisionTime": "2015-05-11T12:46:22-07:00"
+		},
+		{
+			"canonical": "github.com/godbus/dbus/introspect",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus/introspect",
+			"revision": "a5942dec6340eb0d57f43f2003c190ce06e43dea",
+			"revisionTime": "2015-05-11T12:46:22-07:00"
+		},
+		{
+			"canonical": "launchpad.net/go-unityscopes/v2",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
+			"revision": "68",
+			"revisionTime": "2015-04-29T15:27:46+01:00"
+		},
+		{
+			"canonical": "launchpad.net/go-unityscopes/v2",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
+			"revision": "68",
+			"revisionTime": "2015-04-29T15:27:46+01:00"
 		},
 		{
 			"canonical": "launchpad.net/go-unityscopes/v2",

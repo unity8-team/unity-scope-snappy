@@ -4,7 +4,6 @@ import (
 	"flag"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/scope"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
 )
 
@@ -13,7 +12,7 @@ import (
 // Command-line parameters:
 // - webdm=address[:port] on which WebDM is listening
 func main() {
-	webdmAddressParameter := flag.String("webdm", webdm.DefaultApiUrl, "WebDM address[:port]")
+	webdmAddressParameter := flag.String("webdm", "", "WebDM address[:port]")
 	flag.Parse()
 
 	scope, err := scope.NewScope(*webdmAddressParameter)

@@ -24,8 +24,10 @@ type Package struct {
 	Vendor      string
 	Description string
 	IconUrl     string `json:"icon"`
-	Status      Status
 	Type        string
+
+	Progress    float64
+	Status      Status
 
 	// WebDM uses this field to report errors, etc. It's not always filled.
 	Message string

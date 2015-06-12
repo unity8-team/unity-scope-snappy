@@ -2,9 +2,9 @@ package daemon
 
 import (
 	"fmt"
-	"time"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"launchpad.net/unity-scope-snappy/webdm"
+	"time"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 
 	progressSignalName = "com.canonical.applications.WebdmPackageManager.progress"
 	finishedSignalName = "com.canonical.applications.WebdmPackageManager.finished"
-	errorSignalName = "com.canonical.applications.WebdmPackageManager.error"
+	errorSignalName    = "com.canonical.applications.WebdmPackageManager.error"
 )
 
 // WebdmPackageManagerInterface implements a DBus interface for managing
@@ -158,7 +158,7 @@ func (manager *WebdmPackageManagerInterface) emitProgress(packageId string, rece
 // Parameters:
 // packageId: ID of the package that just finished an operation.
 func (manager *WebdmPackageManagerInterface) emitFinished(packageId string) {
-	objectPath := dbus.ObjectPath(baseObjectPath+packageId)
+	objectPath := dbus.ObjectPath(baseObjectPath + packageId)
 	manager.dbusConnection.Emit(objectPath, finishedSignalName, objectPath)
 }
 

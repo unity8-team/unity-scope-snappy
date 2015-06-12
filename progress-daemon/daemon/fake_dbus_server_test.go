@@ -8,23 +8,23 @@ import (
 // FakeDbusServer is a fake implementation of the DbusWrapper interface,
 // for use within tests.
 type FakeDbusServer struct {
-	connectCalled bool
-	namesCalled bool
-	requestNameCalled bool
+	connectCalled      bool
+	namesCalled        bool
+	requestNameCalled  bool
 	getNameOwnerCalled bool
-	exportCalled bool
-	emitCalled bool
+	exportCalled       bool
+	emitCalled         bool
 
-	failConnect bool
-	failNames bool
-	failRequestName bool
+	failConnect      bool
+	failNames        bool
+	failRequestName  bool
 	failGetNameOwner bool
-	failExport bool
-	failEmit bool
+	failExport       bool
+	failEmit         bool
 
-	nameAlreadyTaken bool
+	nameAlreadyTaken            bool
 	failSpecificExportInterface string
-	signals chan *dbus.Signal
+	signals                     chan *dbus.Signal
 }
 
 func (server *FakeDbusServer) InitializeSignals() {

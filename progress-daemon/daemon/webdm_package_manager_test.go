@@ -88,14 +88,14 @@ func TestInstall_failure(t *testing.T) {
 }
 
 // Data for TestInstall_inProgressFailure
-var inProgressInstallFailureTests = []*FakePackageManager {
+var inProgressInstallFailureTests = []*FakePackageManager{
 	&FakePackageManager{
 		failInProgressInstall: true,
-		failWithMessage: true,
+		failWithMessage:       true,
 	},
 	&FakePackageManager{
 		failInProgressInstall: true,
-		failWithMessage: false,
+		failWithMessage:       false,
 	},
 }
 
@@ -118,7 +118,7 @@ func TestInstall_inProgressFailure(t *testing.T) {
 			t.Errorf(`Test case %d: Unexpected error while installing "foo": %s`, i, dbusErr)
 		}
 
-		signal := <- dbusServer.signals
+		signal := <-dbusServer.signals
 
 		if signal.Path != reply {
 			t.Fatalf(`Test case %d: Signal path was "%s", expected "%s"`, i, signal.Path, reply)
@@ -148,7 +148,7 @@ func TestInstall_queryFailure(t *testing.T) {
 		t.Errorf(`Unexpected error while installing "foo": %s`, dbusErr)
 	}
 
-	signal := <- dbusServer.signals
+	signal := <-dbusServer.signals
 
 	if signal.Path != reply {
 		t.Fatalf(`Signal path was "%s", expected "%s"`, signal.Path, reply)
@@ -222,14 +222,14 @@ func TestUninstall_failure(t *testing.T) {
 }
 
 // Data for TestUninstall_inProgressFailure
-var inProgressUninstallFailureTests = []*FakePackageManager {
+var inProgressUninstallFailureTests = []*FakePackageManager{
 	&FakePackageManager{
 		failInProgressUninstall: true,
-		failWithMessage: true,
+		failWithMessage:         true,
 	},
 	&FakePackageManager{
 		failInProgressUninstall: true,
-		failWithMessage: false,
+		failWithMessage:         false,
 	},
 }
 
@@ -252,7 +252,7 @@ func TestUninstall_inProgressFailure(t *testing.T) {
 			t.Errorf(`Test case %d: Unexpected error while uninstalling "foo": %s`, i, dbusErr)
 		}
 
-		signal := <- dbusServer.signals
+		signal := <-dbusServer.signals
 
 		if signal.Path != reply {
 			t.Fatalf(`Test case %d: Signal path was "%s", expected "%s"`, i, signal.Path, reply)
@@ -282,7 +282,7 @@ func TestUninstall_queryFailure(t *testing.T) {
 		t.Errorf(`Unexpected error while uninstalling "foo": %s`, dbusErr)
 	}
 
-	signal := <- dbusServer.signals
+	signal := <-dbusServer.signals
 
 	if signal.Path != reply {
 		t.Fatalf(`Signal path was "%s", expected "%s"`, signal.Path, reply)

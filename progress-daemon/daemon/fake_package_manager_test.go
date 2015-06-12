@@ -13,13 +13,13 @@ const (
 // FakePackageManager is a fake implementation of the PackageManager interface,
 // for use within tests.
 type FakePackageManager struct {
-	queryCalled                bool
-	installCalled              bool
-	uninstallCalled            bool
+	queryCalled     bool
+	installCalled   bool
+	uninstallCalled bool
 
-	failQuery                bool
-	failInstall              bool
-	failUninstall            bool
+	failQuery     bool
+	failInstall   bool
+	failUninstall bool
 
 	failInProgressInstall   bool
 	failInProgressUninstall bool
@@ -146,7 +146,7 @@ func TestFakePackageManager_installProgress(t *testing.T) {
 			t.Errorf("Status was %d, expected %d", snap.Status, webdm.StatusInstalling)
 		}
 
-		expected := progressStep*i
+		expected := progressStep * i
 		actual := int(snap.Progress)
 
 		if actual != expected {
@@ -175,7 +175,7 @@ func TestFakePackageManager_uninstallProgress(t *testing.T) {
 			t.Errorf("Status was %d, expected %d", snap.Status, webdm.StatusUninstalling)
 		}
 
-		expected := progressStep*i
+		expected := progressStep * i
 		actual := int(snap.Progress)
 
 		if actual != expected {

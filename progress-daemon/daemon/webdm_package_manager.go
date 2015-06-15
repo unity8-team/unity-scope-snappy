@@ -22,7 +22,7 @@ const (
 type WebdmPackageManagerInterface struct {
 	dbusConnection DbusWrapper
 	packageManager PackageManager
-	operationId uint64
+	operationId    uint64
 }
 
 // NewWebdmPackageManagerInterface creates a new WebdmPackageManagerInterface.
@@ -198,5 +198,5 @@ func (manager *WebdmPackageManagerInterface) newOperationId() uint64 {
 // Returns:
 // - New object path.
 func operationObjectPath(operationId uint64) dbus.ObjectPath {
-	return dbus.ObjectPath(fmt.Sprintf(baseObjectPath + "%d", operationId))
+	return dbus.ObjectPath(fmt.Sprintf(baseObjectPath+"%d", operationId))
 }

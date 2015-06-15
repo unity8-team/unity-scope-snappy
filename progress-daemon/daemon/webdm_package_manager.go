@@ -10,7 +10,7 @@ import (
 const (
 	webdmDefaultApiUrl = webdm.DefaultApiUrl
 
-	baseObjectPath = "/com/canonical/applications/WebdmPackageManager/progress/"
+	baseObjectPath = "/com/canonical/applications/WebdmPackageManager/operation/"
 
 	progressSignalName = "com.canonical.applications.WebdmPackageManager.progress"
 	finishedSignalName = "com.canonical.applications.WebdmPackageManager.finished"
@@ -22,6 +22,7 @@ const (
 type WebdmPackageManagerInterface struct {
 	dbusConnection DbusWrapper
 	packageManager PackageManager
+	operationId uint64
 }
 
 // NewWebdmPackageManagerInterface creates a new WebdmPackageManagerInterface.
@@ -66,9 +67,11 @@ func (manager *WebdmPackageManagerInterface) Install(packageId string) (dbus.Obj
 			[]interface{}{fmt.Sprintf(`Unable to install package "%d": %s`, packageId, err)})
 	}
 
-	go manager.reportProgress(packageId, webdm.StatusInstalling, webdm.StatusInstalled)
+	operationId := manager.newOperationId()
 
-	return dbus.ObjectPath(baseObjectPath + packageId), nil
+	go manager.reportProgress(operationId, packageId, webdm.StatusInstalling, webdm.StatusInstalled)
+
+	return operationObjectPath(operationId), nil
 }
 
 // Uninstall requests that WebDM begin uninstallation of a specific package, and
@@ -88,9 +91,11 @@ func (manager *WebdmPackageManagerInterface) Uninstall(packageId string) (dbus.O
 			[]interface{}{fmt.Sprintf(`Unable to uninstall package "%d": %s`, packageId, err)})
 	}
 
-	go manager.reportProgress(packageId, webdm.StatusUninstalling, webdm.StatusNotInstalled)
+	operationId := manager.newOperationId()
 
-	return dbus.ObjectPath(baseObjectPath + packageId), nil
+	go manager.reportProgress(operationId, packageId, webdm.StatusUninstalling, webdm.StatusNotInstalled)
+
+	return operationObjectPath(operationId), nil
 }
 
 // reportProgress is the "polling job" used by both Install and Uninstall. It
@@ -103,11 +108,11 @@ func (manager *WebdmPackageManagerInterface) Uninstall(packageId string) (dbus.O
 //                 anticipated action.
 // finishedStatus: The status of the package when its finished the anticipated
 //                 action.
-func (manager *WebdmPackageManagerInterface) reportProgress(packageId string, progressStatus webdm.Status, finishedStatus webdm.Status) {
+func (manager *WebdmPackageManagerInterface) reportProgress(operationId uint64, packageId string, progressStatus webdm.Status, finishedStatus webdm.Status) {
 	for {
 		snap, err := manager.packageManager.Query(packageId)
 		if err != nil {
-			manager.emitError(packageId, `Unable to query package "%s": %s`, packageId, err)
+			manager.emitError(operationId, `Unable to query package "%s": %s`, packageId, err)
 			return
 		}
 
@@ -118,12 +123,12 @@ func (manager *WebdmPackageManagerInterface) reportProgress(packageId string, pr
 			// Round the progress to the nearest integer
 			progress := uint64(snap.Progress + .5)
 
-			manager.emitProgress(packageId, progress, 100)
+			manager.emitProgress(operationId, progress, 100)
 
 		// If the package status is what was desired, we can stop polling and
 		// exit the progress loop, reporting success.
 		case finishedStatus:
-			manager.emitFinished(packageId)
+			manager.emitFinished(operationId)
 			return
 
 		// If the package status is anything other than in-progress or desired,
@@ -134,7 +139,7 @@ func (manager *WebdmPackageManagerInterface) reportProgress(packageId string, pr
 				snap.Message = "(no message given)"
 			}
 
-			manager.emitError(packageId, `Failed to install package "%s": %s`, packageId, snap.Message)
+			manager.emitError(operationId, `Failed to install package "%s": %s`, packageId, snap.Message)
 			return
 		}
 
@@ -148,8 +153,8 @@ func (manager *WebdmPackageManagerInterface) reportProgress(packageId string, pr
 // packageId: ID of the package whose progress is being emitted.
 // received: Received count.
 // total: Total count.
-func (manager *WebdmPackageManagerInterface) emitProgress(packageId string, received uint64, total uint64) {
-	manager.dbusConnection.Emit(dbus.ObjectPath(baseObjectPath+packageId),
+func (manager *WebdmPackageManagerInterface) emitProgress(operationId uint64, received uint64, total uint64) {
+	manager.dbusConnection.Emit(operationObjectPath(operationId),
 		progressSignalName, received, total)
 }
 
@@ -157,8 +162,8 @@ func (manager *WebdmPackageManagerInterface) emitProgress(packageId string, rece
 //
 // Parameters:
 // packageId: ID of the package that just finished an operation.
-func (manager *WebdmPackageManagerInterface) emitFinished(packageId string) {
-	objectPath := dbus.ObjectPath(baseObjectPath + packageId)
+func (manager *WebdmPackageManagerInterface) emitFinished(operationId uint64) {
+	objectPath := operationObjectPath(operationId)
 	manager.dbusConnection.Emit(objectPath, finishedSignalName, objectPath)
 }
 
@@ -168,7 +173,30 @@ func (manager *WebdmPackageManagerInterface) emitFinished(packageId string) {
 // packageId: ID of the package that encountered an error.
 // format: Format string of the error.
 // a...: List of values for the placeholders in the `format` string.
-func (manager *WebdmPackageManagerInterface) emitError(packageId string, format string, a ...interface{}) {
-	manager.dbusConnection.Emit(dbus.ObjectPath(baseObjectPath+packageId),
+func (manager *WebdmPackageManagerInterface) emitError(operationId uint64, format string, a ...interface{}) {
+	manager.dbusConnection.Emit(operationObjectPath(operationId),
 		errorSignalName, fmt.Sprintf(format, a...))
+}
+
+// newOperationId is used to generate a unique ID to be used within dbus object
+// paths. Normally we'd just use WebDM's package IDs to create unique dbus
+// object paths, but package IDs can include characters that would be invalid
+// within an object path. So we use this instead.
+//
+// Returns:
+// - Unique number.
+func (manager *WebdmPackageManagerInterface) newOperationId() uint64 {
+	manager.operationId++
+	return manager.operationId
+}
+
+// operationObjectPath is used to generate an object path for a given operation.
+//
+// Parameters:
+// operationId: ID of the operation to be represented by this object path.
+//
+// Returns:
+// - New object path.
+func operationObjectPath(operationId uint64) dbus.ObjectPath {
+	return dbus.ObjectPath(fmt.Sprintf(baseObjectPath + "%d", operationId))
 }

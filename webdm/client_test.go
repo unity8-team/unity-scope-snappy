@@ -373,6 +373,25 @@ func TestInstall_invalidUrl(t *testing.T) {
 	}
 }
 
+// Test installing with a valid, but incorrect, URL
+func TestInstall_incorrectUrl(t *testing.T) {
+	defer func() {
+		if recover() != nil {
+			t.Error("Unexpected panic when attempting install")
+		}
+	}()
+
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	client.BaseUrl.Host = "foo"
+	err := client.Install("foo")
+	if err == nil {
+		t.Error("Expected an error due to incorrect URL")
+	}
+}
+
 // Unfortunately we can't test installing a non-existing package, since not
 // even WebDM seems to care about that. So we'll test trying to install a
 // a package with an invalid ID instead.
@@ -458,6 +477,25 @@ func TestUninstall_invalidUrl(t *testing.T) {
 	err := client.Uninstall("foo")
 	if err == nil {
 		t.Error("Expected an error due to invalid URL")
+	}
+}
+
+// Test uninstalling with a valid, but incorrect, URL
+func TestUnnstall_incorrectUrl(t *testing.T) {
+	defer func() {
+		if recover() != nil {
+			t.Error("Unexpected panic when attempting uninstall")
+		}
+	}()
+
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	client.BaseUrl.Host = "foo"
+	err := client.Install("foo")
+	if err == nil {
+		t.Error("Expected an error due to incorrect URL")
 	}
 }
 

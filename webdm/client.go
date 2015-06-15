@@ -129,12 +129,14 @@ func (client *Client) Install(packageId string) error {
 		return fmt.Errorf("webdm: Error creating API request: %s", err)
 	}
 
-	// This could possibly return a 400, which just means that the package is
-	// essentially already installed but hasn't yet been refreshed. No need to
-	// error out if that's the case.
 	response, err := client.do(request, nil)
-	if err != nil && response.StatusCode != http.StatusBadRequest {
-		return fmt.Errorf("webdm: Error making API request: %s", err)
+	if err != nil {
+		// This could possibly return a 400, which just means that the package
+		// is essentially already installed but hasn't yet been refreshed. No
+		// need to error out if that's the case.
+		if response == nil || (response.StatusCode != http.StatusBadRequest) {
+			return fmt.Errorf("webdm: Error making API request: %s", err)
+		}
 	}
 
 	return nil
@@ -154,12 +156,14 @@ func (client *Client) Uninstall(packageId string) error {
 		return fmt.Errorf("webdm: Error creating API request: %s", err)
 	}
 
-	// This could possibly return a 400, which just means that the package is
-	// essentially already uninstalled but hasn't yet been refreshed. No need to
-	// error out if that's the case.
 	response, err := client.do(request, nil)
-	if err != nil && response.StatusCode != http.StatusBadRequest {
-		return fmt.Errorf("webdm: Error making API request: %s", err)
+	if err != nil {
+		// This could possibly return a 400, which just means that the package
+		// is essentially already uninstalled but hasn't yet been refreshed. No
+		// need to error out if that's the case.
+		if response == nil || (response.StatusCode != http.StatusBadRequest) {
+			return fmt.Errorf("webdm: Error making API request: %s", err)
+		}
 	}
 
 	return nil

@@ -22,9 +22,5 @@ type PreviewGenerator interface {
 // Parameters:
 // snap: Snap to be represented by the preview.
 func NewPreview(snap webdm.Package) (PreviewGenerator, error) {
-	if snap.Installed() {
-		return NewInstalledPreview(snap)
-	} else {
-		return NewStorePreview(snap)
-	}
+	return NewPackagePreview(snap)
 }

@@ -5,16 +5,17 @@ import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 )
 
-// All possible actions in this scope
 type ActionId int
 
+// All possible actions in this scope
 const (
 	ActionInstall ActionId = iota + 1
 	ActionUninstall
 	ActionOpen
 )
 
-// ActionRunner is an interface for a factory of action handlers.
+// ActionRunner is an interface to be implemented by various action handlers
+// throughout the scope.
 type ActionRunner interface {
 	Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error)
 }
@@ -33,7 +34,6 @@ func NewActionRunner(actionId ActionId) (ActionRunner, error) {
 	case ActionOpen:
 		return NewOpenActionRunner()
 	default:
-		var actionRunner ActionRunner
-		return actionRunner, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)
+		return nil, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)
 	}
 }

@@ -8,14 +8,14 @@ import (
 
 // Data for TestNewPreview
 var newPreviewTests = []struct {
-	status       webdm.Status
-	expectedType string
+	status   webdm.Status
+	expected interface{}
 }{
-	{webdm.StatusUndefined, "*scope.StorePreview"},
-	{webdm.StatusInstalled, "*scope.InstalledPreview"},
-	{webdm.StatusNotInstalled, "*scope.StorePreview"},
-	{webdm.StatusInstalling, "*scope.StorePreview"},
-	{webdm.StatusUninstalling, "*scope.StorePreview"},
+	{webdm.StatusUndefined, &PackagePreview{}},
+	{webdm.StatusInstalled, &PackagePreview{}},
+	{webdm.StatusNotInstalled, &PackagePreview{}},
+	{webdm.StatusInstalling, &PackagePreview{}},
+	{webdm.StatusUninstalling, &PackagePreview{}},
 }
 
 // Test typical NewPreview usage.
@@ -29,8 +29,9 @@ func TestNewPreview(t *testing.T) {
 		}
 
 		previewType := reflect.TypeOf(preview)
-		if previewType.String() != test.expectedType {
-			t.Errorf(`Test case %d: Preview type was "%s", expected "%s"`, i, previewType, test.expectedType)
+		expectedType := reflect.TypeOf(test.expected)
+		if previewType != expectedType {
+			t.Errorf(`Test case %d: Preview type was "%s", expected "%s"`, i, previewType, expectedType)
 		}
 	}
 }

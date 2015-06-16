@@ -33,8 +33,12 @@ func TestNewActionRunner(t *testing.T) {
 
 // Test that an invalid action ID results in an error
 func TestNewActionRunning_invalidAction(t *testing.T) {
-	_, err := NewActionRunner(ActionId(0))
+	actionRunner, err := NewActionRunner(ActionId(0))
 	if err == nil {
 		t.Error("Expected an error due to invalid action ID")
+	}
+
+	if actionRunner != nil {
+		t.Error("Expected action runner to be nil due to error")
 	}
 }

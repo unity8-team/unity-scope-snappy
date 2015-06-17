@@ -41,7 +41,8 @@ func TestRequestName(t *testing.T) {
 	// Obtain our own unique name
 	names := server.Names()
 	if len(names) < 1 {
-		t.Errorf("Got %d names, expected at least 1", len(names))
+		// Exit here so we don't index out of bounds
+		t.Fatalf("Got %d names, expected at least 1", len(names))
 	}
 
 	reply, err := server.RequestName("com.example.DbusTest", dbus.NameFlagDoNotQueue)
@@ -50,7 +51,7 @@ func TestRequestName(t *testing.T) {
 	}
 
 	if reply != dbus.RequestNameReplyPrimaryOwner {
-		t.Error("Name was already taken")
+		t.Error("Reply implies that name was unexpectedly already taken")
 	}
 
 	// Make sure we own the name we expect

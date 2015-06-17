@@ -38,7 +38,7 @@ type Package struct {
 	DownloadSize  int64 `json:"download_size"`
 }
 
-// UnmarshallJSON exists to decode the Status field from JSON to our enum.
+// UnmarshalJSON exists to decode the Status field from JSON to our enum.
 func (status *Status) UnmarshalJSON(data []byte) error {
 	if status == nil {
 		return fmt.Errorf("UnmarshalJSON: Called on nil pointer")

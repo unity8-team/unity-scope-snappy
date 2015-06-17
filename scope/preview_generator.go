@@ -1,6 +1,7 @@
 package scope
 
 import (
+	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
@@ -29,19 +30,22 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGen
 	if retrieveProgressHack(metadata, progressHack) {
 		// If an operation is still ongoing, show progress
 		if snap.Status != progressHack.DesiredStatus {
-			if progressHack.DesiredStatus == webdm.StatusInstalled {
+			switch progressHack.DesiredStatus {
+			case webdm.StatusInstalled:
 				return NewInstallingPreview(snap)
-			} else {
+			case webdm.StatusNotInstalled:
 				return NewUninstallingPreview(snap)
+			default:
+				return nil, fmt.Errorf("Unexpected desired status: %d", progressHack.DesiredStatus)
+			}
+		} else {
+			if !snap.Installed() && !snap.NotInstalled() {
+				return nil, fmt.Errorf("Invalid desired status for progress: %d", progressHack.DesiredStatus)
 			}
 		}
 	}
 
-	if snap.Installed() {
-		return NewInstalledPreview(snap)
-	} else {
-		return NewStorePreview(snap)
-	}
+	return NewPackagePreview(snap)
 }
 
 // retrieveProgressHack is used to obtain the ProgressHack struct from
@@ -54,10 +58,6 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGen
 // Returns:
 // - Whether or not a ProgressHack was retrieved.
 func retrieveProgressHack(metadata *scopes.ActionMetadata, progressHack *ProgressHack) bool {
-	if progressHack != nil {
-		err := metadata.ScopeData(progressHack)
-		return (err == nil) && (progressHack.DesiredStatus != webdm.StatusUndefined)
-	}
-
-	return false
+	err := metadata.ScopeData(progressHack)
+	return (err == nil) && (progressHack.DesiredStatus != webdm.StatusUndefined)
 }

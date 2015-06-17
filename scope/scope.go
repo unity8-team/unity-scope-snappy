@@ -9,7 +9,7 @@ import (
 )
 
 // template for the grid layout of the search results.
-const template = `{
+const layout = `{
 	"schema-version": 1,
 	"template": {
 		"category-layout": "grid",
@@ -69,9 +69,9 @@ func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMeta
 
 	var category *scopes.Category
 	if query.DepartmentID() == "installed" {
-		category = reply.RegisterCategory("installed_packages", "Installed Packages", "", template)
+		category = reply.RegisterCategory("installed_packages", "Installed Packages", "", layout)
 	} else {
-		category = reply.RegisterCategory("store_packages", "Store Packages", "", template)
+		category = reply.RegisterCategory("store_packages", "Store Packages", "", layout)
 	}
 
 	for _, thisPackage := range packages {

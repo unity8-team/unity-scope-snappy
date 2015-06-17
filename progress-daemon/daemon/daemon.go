@@ -73,15 +73,6 @@ func (daemon *Daemon) Run() error {
 		return fmt.Errorf("Unable to connect: %s", err)
 	}
 
-	reply, err := daemon.server.RequestName(busName, dbus.NameFlagDoNotQueue)
-	if err != nil {
-		return fmt.Errorf(`Unable to get requested name "%s": %s`, busName, err)
-	}
-
-	if reply != dbus.RequestNameReplyPrimaryOwner {
-		return fmt.Errorf(`Requested name "%s" was already taken`, busName)
-	}
-
 	err = daemon.server.Export(introspect.Introspectable(introspectionXml), "/",
 		"org.freedesktop.DBus.Introspectable")
 	if err != nil {
@@ -91,6 +82,18 @@ func (daemon *Daemon) Run() error {
 	err = daemon.server.Export(daemon.packageManager, "/", "com.canonical.applications.WebdmPackageManager")
 	if err != nil {
 		return fmt.Errorf("Unable to export package manager interface: %s", err)
+	}
+
+	// Now that all interfaces are exported and ready, request our name. Things
+	// are done in this order so that our interfaces aren't called before
+	// they're exported.
+	reply, err := daemon.server.RequestName(busName, dbus.NameFlagDoNotQueue)
+	if err != nil {
+		return fmt.Errorf(`Unable to get requested name "%s": %s`, busName, err)
+	}
+
+	if reply != dbus.RequestNameReplyPrimaryOwner {
+		return fmt.Errorf(`Requested name "%s" was already taken`, busName)
 	}
 
 	return nil

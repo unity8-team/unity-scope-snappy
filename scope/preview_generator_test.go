@@ -13,11 +13,11 @@ var newPreviewTests = []struct {
 	scopeData *ProgressHack
 	expected  interface{}
 }{
-	{webdm.StatusUndefined, nil, &StorePreview{}},
-	{webdm.StatusInstalled, nil, &InstalledPreview{}},
-	{webdm.StatusNotInstalled, nil, &StorePreview{}},
-	{webdm.StatusInstalling, nil, &StorePreview{}},
-	{webdm.StatusUninstalling, nil, &StorePreview{}},
+	{webdm.StatusUndefined, nil, &PackagePreview{}},
+	{webdm.StatusInstalled, nil, &PackagePreview{}},
+	{webdm.StatusNotInstalled, nil, &PackagePreview{}},
+	{webdm.StatusInstalling, nil, &PackagePreview{}},
+	{webdm.StatusUninstalling, nil, &PackagePreview{}},
 }
 
 // Test typical NewPreview usage.
@@ -49,20 +49,20 @@ var progressHackTests = []struct {
 	expectError bool
 }{
 	// Valid ProgressHacks
-	{webdm.StatusUndefined, &ProgressHack{webdm.StatusUndefined}, &StorePreview{}, false},
-	{webdm.StatusNotInstalled, &ProgressHack{webdm.StatusUndefined}, &StorePreview{}, false},
-	{webdm.StatusInstalled, &ProgressHack{webdm.StatusUndefined}, &InstalledPreview{}, false},
-	{webdm.StatusInstalling, &ProgressHack{webdm.StatusUndefined}, &StorePreview{}, false},
-	{webdm.StatusUninstalling, &ProgressHack{webdm.StatusUndefined}, &StorePreview{}, false},
+	{webdm.StatusUndefined, &ProgressHack{webdm.StatusUndefined}, &PackagePreview{}, false},
+	{webdm.StatusNotInstalled, &ProgressHack{webdm.StatusUndefined}, &PackagePreview{}, false},
+	{webdm.StatusInstalled, &ProgressHack{webdm.StatusUndefined}, &PackagePreview{}, false},
+	{webdm.StatusInstalling, &ProgressHack{webdm.StatusUndefined}, &PackagePreview{}, false},
+	{webdm.StatusUninstalling, &ProgressHack{webdm.StatusUndefined}, &PackagePreview{}, false},
 
 	{webdm.StatusUndefined, &ProgressHack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 	{webdm.StatusNotInstalled, &ProgressHack{webdm.StatusInstalled}, &InstallingPreview{}, false},
-	{webdm.StatusInstalled, &ProgressHack{webdm.StatusInstalled}, &InstalledPreview{}, false},
+	{webdm.StatusInstalled, &ProgressHack{webdm.StatusInstalled}, &PackagePreview{}, false},
 	{webdm.StatusInstalling, &ProgressHack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 	{webdm.StatusUninstalling, &ProgressHack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 
 	{webdm.StatusUndefined, &ProgressHack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
-	{webdm.StatusNotInstalled, &ProgressHack{webdm.StatusNotInstalled}, &StorePreview{}, false},
+	{webdm.StatusNotInstalled, &ProgressHack{webdm.StatusNotInstalled}, &PackagePreview{}, false},
 	{webdm.StatusInstalled, &ProgressHack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
 	{webdm.StatusInstalling, &ProgressHack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
 	{webdm.StatusUninstalling, &ProgressHack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},

@@ -45,11 +45,7 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGen
 		}
 	}
 
-	if snap.Installed() {
-		return NewInstalledPreview(snap)
-	} else {
-		return NewStorePreview(snap)
-	}
+	return NewPackagePreview(snap)
 }
 
 // retrieveProgressHack is used to obtain the ProgressHack struct from

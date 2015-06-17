@@ -49,6 +49,6 @@ func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
 		t.Error("Expected an error due to failure to install")
 	}
 	if response != nil {
-		t.Error("Unexpected response... expected nil")
+		t.Error("Expected response to be nil")
 	}
 }

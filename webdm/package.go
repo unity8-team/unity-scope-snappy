@@ -17,20 +17,26 @@ const (
 // Package contains information about a given package available from the store
 // or already installed.
 type Package struct {
-	Id           string
-	Name         string
-	Origin       string
-	Version      string
-	Vendor       string
-	Description  string
-	IconUrl      string `json:"icon"`
-	Status       Status
-	DownloadSize int    `json:"download_size"`
-	Message      string // Not always filled
-	Type         string
+	Id          string
+	Name        string
+	Origin      string
+	Version     string
+	Vendor      string
+	Description string
+	IconUrl     string `json:"icon"`
+	Status      Status
+	Type        string
+
+	// WebDM uses this field to report errors, etc. It's not always filled.
+	Message string
+
+	// InstalledSize will be filled if the package is installed, otherwise
+	// DownloadSize will be filled.
+	InstalledSize int `json:"installed_size"`
+	DownloadSize  int `json:"download_size"`
 }
 
-// UnmarshallJSON exists to decode the Status field from JSON to our enum.
+// UnmarshalJSON exists to decode the Status field from JSON to our enum.
 func (status *Status) UnmarshalJSON(data []byte) error {
 	if status == nil {
 		return fmt.Errorf("UnmarshalJSON: Called on nil pointer")

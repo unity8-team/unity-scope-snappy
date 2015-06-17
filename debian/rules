@@ -15,5 +15,4 @@ export PATH := ${GOPATH}/bin:${PATH}
 # Run the tests and also produce a Cobertura-compatible
 # coverage report.
 override_dh_auto_test:
-	gocov test ${DH_GOPKG}/webdm | gocov-xml > coverage.xml
-
+	$(CURDIR)/test_coverage.sh xml

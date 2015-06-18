@@ -2,22 +2,32 @@
 	"comment": "",
 	"package": [
 		{
-			"Local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocovutil",
-			"Revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
-			"RevisionTime": "2014-11-11T18:30:33+08:00",
-			"Vendor": "github.com/axw/gocov/gocovutil"
+			"canonical": "github.com/AlekSi/gocov-xml",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/AlekSi/gocov-xml",
+			"revision": "d2f6da892a0d5e0b587526abf51349ad654ade51",
+			"revisionTime": "2013-09-03T17:40:06+04:00"
 		},
 		{
-			"Local": "launchpad.net/unity-scope-snappy/internal/golang.org/x/tools/cover",
-			"Revision": "45716cd4c6ff17c3ef8a40254ab0708bbe35a4ef",
-			"RevisionTime": "2015-05-18T10:59:35-04:00",
-			"Vendor": "golang.org/x/tools/cover"
+			"canonical": "github.com/axw/gocov",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
 		},
 		{
-			"Local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
-			"Revision": "68",
-			"RevisionTime": "2015-04-29T15:27:46+01:00",
-			"Vendor": "launchpad.net/go-unityscopes/v2"
+			"canonical": "github.com/axw/gocov/gocov",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocov",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"canonical": "github.com/axw/gocov/gocovutil",
+			"comment": "",
+			"local": "launchpad.net/unity-scope-snappy/internal/github.com/axw/gocov/gocovutil",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
 		},
 		{
 			"canonical": "github.com/dustin/go-humanize",
@@ -41,25 +51,18 @@
 			"revisionTime": "2015-05-11T12:46:22-07:00"
 		},
 		{
-			"canonical": "launchpad.net/go-unityscopes/v2",
+			"canonical": "golang.org/x/tools/cover",
 			"comment": "",
-			"local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
-			"revision": "68",
-			"revisionTime": "2015-04-29T15:27:46+01:00"
+			"local": "launchpad.net/unity-scope-snappy/internal/golang.org/x/tools/cover",
+			"revision": "af817890aa7b628234075a6cb01a3a435fb8317d",
+			"revisionTime": "2015-06-17T17:25:35-07:00"
 		},
 		{
 			"canonical": "launchpad.net/go-unityscopes/v2",
 			"comment": "",
 			"local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
-			"revision": "68",
-			"revisionTime": "2015-04-29T15:27:46+01:00"
-		},
-		{
-			"canonical": "launchpad.net/go-unityscopes/v2",
-			"comment": "",
-			"local": "launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2",
-			"revision": "68",
-			"revisionTime": "2015-04-29T15:27:46+01:00"
+			"revision": "69",
+			"revisionTime": "2015-06-02T10:39:20+02:00"
 		}
 	]
 }

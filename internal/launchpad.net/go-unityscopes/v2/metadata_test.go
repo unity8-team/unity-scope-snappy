@@ -146,3 +146,30 @@ func (s *S) TestActionMetadataHints(c *C) {
 	c.Assert(err, Not(Equals), nil)
 	c.Check(err.Error(), Equals, "json: error calling MarshalJSON for type *scopes_test.unserializable: Can not marshal to JSON")
 }
+
+func (s *S) TestScopeMetadataCreation(c *C) {
+	json_data := "{\"appearance_attributes\":{\"page-header\":{\"background\":\"color:///#ffffff\",\"divider-color\":\"#b31217\",\"logo\":\"unity-scope-youtube/build/src/logo.png\"}},\"art\":\"unity-scope-youtube/build/src/screenshot.jpg\",\"author\":\"Canonical Ltd.\",\"description\":\"Search YouTube for videos and browse channels\",\"display_name\":\"YouTube\",\"icon\":\"unity-scope-youtube/build/src/icon.png\",\"invisible\":false,\"is_aggregator\":false,\"location_data_needed\":true,\"proxy\":{\"endpoint\":\"ipc:///tmp/scope-dev-endpoints.V4gbrE/priv/com.ubuntu.scopes.youtube_youtube\",\"identity\":\"com.ubuntu.scopes.youtube_youtube\"},\"scope_dir\":\"unity-scope-youtube/build/src\",\"scope_id\":\"com.ubuntu.scopes.youtube_youtube\",\"settings_definitions\":[{\"defaultValue\":true,\"displayName\":\"Enable location data\",\"id\":\"internal.location\",\"type\":\"boolean\"}],\"version\":0,\"keywords\":[\"music\",\"video\"]}"
+
+	scopeMetadata := scopes.NewTestingScopeMetadata(json_data)
+	c.Assert(scopeMetadata, Not(Equals), nil)
+
+	c.Check(scopeMetadata.Art, Equals, "unity-scope-youtube/build/src/screenshot.jpg")
+	c.Check(scopeMetadata.Author, Equals, "Canonical Ltd.")
+	c.Check(scopeMetadata.Description, Equals, "Search YouTube for videos and browse channels")
+	c.Check(scopeMetadata.DisplayName, Equals, "YouTube")
+	c.Check(scopeMetadata.Icon, Equals, "unity-scope-youtube/build/src/icon.png")
+	c.Check(scopeMetadata.Invisible, Equals, false)
+	c.Check(scopeMetadata.IsAggregator, Equals, false)
+	c.Check(scopeMetadata.LocationDataNeeded, Equals, true)
+	c.Check(scopeMetadata.ScopeDir, Equals, "unity-scope-youtube/build/src")
+	c.Check(scopeMetadata.ScopeId, Equals, "com.ubuntu.scopes.youtube_youtube")
+	c.Check(scopeMetadata.Version, Equals, 0)
+	c.Check(scopeMetadata.Proxy, Equals, scopes.ProxyScopeMetadata{"com.ubuntu.scopes.youtube_youtube", "ipc:///tmp/scope-dev-endpoints.V4gbrE/priv/com.ubuntu.scopes.youtube_youtube"})
+	pageHeader, ok := scopeMetadata.AppearanceAttributes["page-header"].(map[string]interface{})
+	c.Check(ok, Equals, true)
+	c.Check(pageHeader["background"], Equals, "color:///#ffffff")
+	c.Check(pageHeader["divider-color"], Equals, "#b31217")
+	c.Check(pageHeader["logo"], Equals, "unity-scope-youtube/build/src/logo.png")
+
+	c.Check(scopeMetadata.Keywords, DeepEquals, []string{"music", "video"})
+}

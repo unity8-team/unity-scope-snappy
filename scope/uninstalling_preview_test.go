@@ -33,16 +33,16 @@ func TestNewUninstallingPreview_notInstalled(t *testing.T) {
 func TestUninstallingPreview_generate(t *testing.T) {
 	preview, _ := NewUninstallingPreview(
 		webdm.Package{
-			Id:           "package1",
-			Name:         "package1",
-			Origin:       "foo",
-			Version:      "0.1",
-			Vendor:       "bar",
-			Description:  "baz",
-			IconUrl:      "http://fake",
-			Status:       webdm.StatusInstalled,
-			DownloadSize: 123456,
-			Type:         "oem",
+			Id:            "package1",
+			Name:          "package1",
+			Origin:        "foo",
+			Version:       "0.1",
+			Vendor:        "bar",
+			Description:   "baz",
+			IconUrl:       "http://fake",
+			Status:        webdm.StatusInstalled,
+			InstalledSize: 123456,
+			Type:          "oem",
 		})
 
 	receiver := new(FakeWidgetReceiver)

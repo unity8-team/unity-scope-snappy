@@ -51,3 +51,24 @@ func (preview InstalledPackagePreviewTemplate) actionsWidget() scopes.PreviewWid
 
 	return widget
 }
+
+// updatesWidget is used to create a table widget holding snap information.
+//
+// Returns:
+// - Table widget for the snap.
+func (preview InstalledPackagePreviewTemplate) updatesWidget() scopes.PreviewWidget {
+	widget := preview.GenericPackagePreviewTemplate.updatesWidget()
+
+	value, ok := widget["values"]
+	if ok {
+		rows := value.([]interface{})
+		if rows != nil {
+			sizeRow := []string{"Size", humanizeBytes(preview.snap.InstalledSize)}
+			rows = append(rows, sizeRow)
+
+			widget.AddAttributeValue("values", rows)
+		}
+	}
+
+	return widget
+}

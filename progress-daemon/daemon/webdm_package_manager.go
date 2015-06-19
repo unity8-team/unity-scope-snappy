@@ -127,7 +127,6 @@ func (manager *WebdmPackageManagerInterface) Uninstall(packageId string) (dbus.O
 // finishedStatus: The status of the package when its finished the anticipated
 //                 action.
 func (manager *WebdmPackageManagerInterface) reportProgress(operationId uint64, packageId string, progressStatus webdm.Status, finishedStatus webdm.Status) {
-	time.Sleep(time.Second)
 	for {
 		snap, err := manager.packageManager.Query(packageId)
 		if err != nil {

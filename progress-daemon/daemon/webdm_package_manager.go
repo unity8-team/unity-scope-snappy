@@ -9,12 +9,6 @@ import (
 
 const (
 	webdmDefaultApiUrl = webdm.DefaultApiUrl
-
-	baseObjectPath = "/com/canonical/applications/WebdmPackageManager/operation/"
-
-	progressSignalName = "com.canonical.applications.WebdmPackageManager.progress"
-	finishedSignalName = "com.canonical.applications.WebdmPackageManager.finished"
-	errorSignalName    = "com.canonical.applications.WebdmPackageManager.error"
 )
 
 // WebdmPackageManagerInterface implements a DBus interface for managing
@@ -23,18 +17,30 @@ type WebdmPackageManagerInterface struct {
 	dbusConnection DbusWrapper
 	packageManager PackageManager
 	operationId uint64
+
+	pollPeriod time.Duration
+
+	baseObjectPath dbus.ObjectPath
+
+	progressSignalName string
+	finishedSignalName string
+	errorSignalName string
 }
 
 // NewWebdmPackageManagerInterface creates a new WebdmPackageManagerInterface.
 //
 // Parameters:
 // dbusConnection: Connection to the dbus bus.
+// interfaceName: DBus interface name to implement.
+// baseObjectPath: Base object path to use for signals.
 // apiUrl: WebDM API URL.
 //
 // Returns:
 // - New WebdmPackageManagerInterface
 // - Error (nil if none)
-func NewWebdmPackageManagerInterface(dbusConnection DbusWrapper, apiUrl string) (*WebdmPackageManagerInterface, error) {
+func NewWebdmPackageManagerInterface(dbusConnection DbusWrapper,
+	interfaceName string, baseObjectPath dbus.ObjectPath,
+	apiUrl string) (*WebdmPackageManagerInterface, error) {
 	manager := &WebdmPackageManagerInterface{dbusConnection: dbusConnection}
 
 	if apiUrl == "" {
@@ -46,6 +52,18 @@ func NewWebdmPackageManagerInterface(dbusConnection DbusWrapper, apiUrl string) 
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create webcm client: %s", err)
 	}
+
+	if !baseObjectPath.IsValid() {
+		return nil, fmt.Errorf(`Invalid base object path: "%s"`, baseObjectPath)
+	}
+
+	manager.pollPeriod = time.Second
+
+	manager.baseObjectPath = baseObjectPath
+
+	manager.progressSignalName = interfaceName + ".progress"
+	manager.finishedSignalName = interfaceName + ".finished"
+	manager.errorSignalName = interfaceName + ".error"
 
 	return manager, nil
 }
@@ -71,7 +89,7 @@ func (manager *WebdmPackageManagerInterface) Install(packageId string) (dbus.Obj
 
 	go manager.reportProgress(operationId, packageId, webdm.StatusInstalling, webdm.StatusInstalled)
 
-	return operationObjectPath(operationId), nil
+	return manager.operationObjectPath(operationId), nil
 }
 
 // Uninstall requests that WebDM begin uninstallation of a specific package, and
@@ -95,7 +113,7 @@ func (manager *WebdmPackageManagerInterface) Uninstall(packageId string) (dbus.O
 
 	go manager.reportProgress(operationId, packageId, webdm.StatusUninstalling, webdm.StatusNotInstalled)
 
-	return operationObjectPath(operationId), nil
+	return manager.operationObjectPath(operationId), nil
 }
 
 // reportProgress is the "polling job" used by both Install and Uninstall. It
@@ -143,7 +161,7 @@ func (manager *WebdmPackageManagerInterface) reportProgress(operationId uint64, 
 			return
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(manager.pollPeriod)
 	}
 }
 
@@ -154,8 +172,8 @@ func (manager *WebdmPackageManagerInterface) reportProgress(operationId uint64, 
 // received: Received count.
 // total: Total count.
 func (manager *WebdmPackageManagerInterface) emitProgress(operationId uint64, received uint64, total uint64) {
-	manager.dbusConnection.Emit(operationObjectPath(operationId),
-		progressSignalName, received, total)
+	manager.dbusConnection.Emit(manager.operationObjectPath(operationId),
+		manager.progressSignalName, received, total)
 }
 
 // emitFinished emits the `finished` DBus signal.
@@ -163,8 +181,8 @@ func (manager *WebdmPackageManagerInterface) emitProgress(operationId uint64, re
 // Parameters:
 // packageId: ID of the package that just finished an operation.
 func (manager *WebdmPackageManagerInterface) emitFinished(operationId uint64) {
-	objectPath := operationObjectPath(operationId)
-	manager.dbusConnection.Emit(objectPath, finishedSignalName, objectPath)
+	objectPath := manager.operationObjectPath(operationId)
+	manager.dbusConnection.Emit(objectPath, manager.finishedSignalName, objectPath)
 }
 
 // emitError emits the `error` DBus signal.
@@ -174,8 +192,8 @@ func (manager *WebdmPackageManagerInterface) emitFinished(operationId uint64) {
 // format: Format string of the error.
 // a...: List of values for the placeholders in the `format` string.
 func (manager *WebdmPackageManagerInterface) emitError(operationId uint64, format string, a ...interface{}) {
-	manager.dbusConnection.Emit(operationObjectPath(operationId),
-		errorSignalName, fmt.Sprintf(format, a...))
+	manager.dbusConnection.Emit(manager.operationObjectPath(operationId),
+		manager.errorSignalName, fmt.Sprintf(format, a...))
 }
 
 // newOperationId is used to generate a unique ID to be used within dbus object
@@ -197,6 +215,6 @@ func (manager *WebdmPackageManagerInterface) newOperationId() uint64 {
 //
 // Returns:
 // - New object path.
-func operationObjectPath(operationId uint64) dbus.ObjectPath {
-	return dbus.ObjectPath(fmt.Sprintf(baseObjectPath + "%d", operationId))
+func (manager WebdmPackageManagerInterface) operationObjectPath(operationId uint64) dbus.ObjectPath {
+	return dbus.ObjectPath(fmt.Sprintf("%s/%d", manager.baseObjectPath, operationId))
 }

@@ -16,7 +16,7 @@ const (
 type WebdmPackageManagerInterface struct {
 	dbusConnection DbusWrapper
 	packageManager PackageManager
-	operationId uint64
+	operationId    uint64
 
 	pollPeriod time.Duration
 
@@ -24,7 +24,7 @@ type WebdmPackageManagerInterface struct {
 
 	progressSignalName string
 	finishedSignalName string
-	errorSignalName string
+	errorSignalName    string
 }
 
 // NewWebdmPackageManagerInterface creates a new WebdmPackageManagerInterface.

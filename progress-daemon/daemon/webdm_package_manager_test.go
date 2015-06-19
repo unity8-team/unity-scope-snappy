@@ -2,8 +2,8 @@ package daemon
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
-	"time"
 	"testing"
+	"time"
 )
 
 // Test typical NewWebdmPackageManagerInterface usage.

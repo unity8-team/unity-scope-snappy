@@ -33,6 +33,9 @@ get_coverage "launchpad.net/unity-scope-snappy/scope" $coverage_final
 # Add webdm's coverage to the final coverage file
 get_coverage "launchpad.net/unity-scope-snappy/webdm" $coverage_final
 
+# Add progress daemon's coverage to the final coverage file
+get_coverage "launchpad.net/unity-scope-snappy/progress-daemon/daemon" $coverage_final
+
 if [ "$1" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml
 elif [ "$1" == "html" ]; then

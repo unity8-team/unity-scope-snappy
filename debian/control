@@ -2,7 +2,8 @@ Source: unity-scope-snappy
 Section: net
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: debhelper (>= 9),
+Build-Depends: dbus-test-runner,
+               debhelper (>= 9),
                dh-golang,
                golang-go,
                golang-go.tools,

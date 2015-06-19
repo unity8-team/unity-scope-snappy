@@ -135,7 +135,7 @@ func TestRun_packageManagerExportFailure(t *testing.T) {
 	// Use fake server instead of real one
 	daemon.server = &FakeDbusServer{
 		failExport:                  true,
-		failSpecificExportInterface: "com.canonical.applications.WebdmPackageManager",
+		failSpecificExportInterface: interfaceName,
 	}
 
 	err = daemon.Run()

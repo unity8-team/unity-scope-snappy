@@ -10,10 +10,19 @@ const (
 	// busName is the name to be requested from the DBus session bus.
 	busName = "com.canonical.applications.WebdmPackageManager"
 
+	// baseObjectPath is the base object path to use for operation
+	// notifications (dbus signals)
+	baseObjectPath = "/com/canonical/applications/WebdmPackageManager/operation"
+
+	// interfaceName is the name of the interface being implemented here.
+	// The driver for this name is Unity8's QML Progress Widget, which is
+	// hard-coded to look for this interface.
+	interfaceName = "com.canonical.applications.Download"
+
 	// introspectionXml is the XML to be used for the Introspection interface.
 	introspectionXml = `
 		<node>
-			<interface name="com.canonical.applications.WebdmPackageManager">
+			<interface name="` + interfaceName + `">
 				<method name="Install">
 					<arg name="packageId" type="s" direction="in"/>
 				</method>
@@ -54,8 +63,14 @@ func New(webdmApiUrl string) (*Daemon, error) {
 
 	daemon.server = new(DbusServer)
 
+	// dbusConnection: Connection to the dbus bus.
+	// interfaceName: DBus interface name to implement.
+	// baseObjectPath: Base object path to use for signals.
+	// apiUrl: WebDM API URL.
+
 	var err error
-	daemon.packageManager, err = NewWebdmPackageManagerInterface(daemon.server, webdmApiUrl)
+	daemon.packageManager, err = NewWebdmPackageManagerInterface(daemon.server,
+		interfaceName, baseObjectPath, webdmApiUrl)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to create package manager interface with API URL "%s"`, webdmApiUrl)
 	}
@@ -79,7 +94,7 @@ func (daemon *Daemon) Run() error {
 		return fmt.Errorf("Unable to export introspection: %s", err)
 	}
 
-	err = daemon.server.Export(daemon.packageManager, "/", "com.canonical.applications.WebdmPackageManager")
+	err = daemon.server.Export(daemon.packageManager, "/", interfaceName)
 	if err != nil {
 		return fmt.Errorf("Unable to export package manager interface: %s", err)
 	}

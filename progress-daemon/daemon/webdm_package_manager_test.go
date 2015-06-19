@@ -3,23 +3,45 @@ package daemon
 import (
 	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
 	"testing"
+	"time"
 )
 
 // Test typical NewWebdmPackageManagerInterface usage.
 func TestNewWebdmPackageManagerInterface(t *testing.T) {
-	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "")
+	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
 
 	if manager.packageManager == nil {
 		t.Error("Package manager was unexpectedly nil")
 	}
+
+	if manager.progressSignalName != "foo.progress" {
+		t.Errorf(`Progress signal name was "%s", expected "foo.progress"`, manager.progressSignalName)
+	}
+
+	if manager.finishedSignalName != "foo.finished" {
+		t.Errorf(`Finished signal name was "%s", expected "foo.finished"`, manager.finishedSignalName)
+	}
+
+	if manager.errorSignalName != "foo.error" {
+		t.Errorf(`Error signal name was "%s", expected "foo.error"`, manager.errorSignalName)
+	}
 }
 
-// Test that NewWebdmPackageManagerInterface fails with an invalid URL
+// Test that NewWebdmPackageManagerInterface fails with an invalid base object
+// path.
+func TestNewWebdmPackageManagerInterface_invalidBaseObjectPath(t *testing.T) {
+	_, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "foo", "invalid", "")
+	if err == nil {
+		t.Error("Expected an error due to an invalid base object path")
+	}
+}
+
+// Test that NewWebdmPackageManagerInterface fails with an invalid URL.
 func TestNewWebdmPackageManagerInterface_invalidUrl(t *testing.T) {
-	_, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), ":")
+	_, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "foo", "/foo", ":")
 	if err == nil {
 		t.Error("Expected an error due to an invalid API URL")
 	}
@@ -30,10 +52,13 @@ func TestInstall(t *testing.T) {
 	dbusServer := new(FakeDbusServer)
 	dbusServer.InitializeSignals()
 
-	manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+	manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
+
+	// Make the manager poll faster so the tests are more timely
+	manager.pollPeriod = time.Millisecond
 
 	packageManager := new(FakePackageManager)
 
@@ -59,11 +84,11 @@ func TestInstall(t *testing.T) {
 	for signal := range dbusServer.signals {
 		switch signal.Path {
 		case replyFoo:
-			if verifyFeedbackSignal(t, signal, &currentFooProgress) {
+			if verifyFeedbackSignal(t, manager, signal, &currentFooProgress) {
 				return
 			}
 		case replyBar:
-			if verifyFeedbackSignal(t, signal, &currentBarProgress) {
+			if verifyFeedbackSignal(t, manager, signal, &currentBarProgress) {
 				return
 			}
 		default:
@@ -74,9 +99,9 @@ func TestInstall(t *testing.T) {
 
 // Test that failure during Install results in an error
 func TestInstall_failure(t *testing.T) {
-	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "")
+	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
 
 	manager.packageManager = &FakePackageManager{failInstall: true}
@@ -106,9 +131,10 @@ func TestInstall_inProgressFailure(t *testing.T) {
 		dbusServer := new(FakeDbusServer)
 		dbusServer.InitializeSignals()
 
-		manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+		manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error while creating new manager: %s", i, err)
+			continue
 		}
 
 		manager.packageManager = packageManager
@@ -124,8 +150,8 @@ func TestInstall_inProgressFailure(t *testing.T) {
 			t.Fatalf(`Test case %d: Signal path was "%s", expected "%s"`, i, signal.Path, reply)
 		}
 
-		if signal.Name != errorSignalName {
-			t.Fatalf(`Test case %d: Signal name was "%s", expected "%s"`, i, signal.Name, errorSignalName)
+		if signal.Name != manager.errorSignalName {
+			t.Fatalf(`Test case %d: Signal name was "%s", expected "%s"`, i, signal.Name, manager.errorSignalName)
 		}
 	}
 }
@@ -136,9 +162,9 @@ func TestInstall_queryFailure(t *testing.T) {
 	dbusServer := new(FakeDbusServer)
 	dbusServer.InitializeSignals()
 
-	manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+	manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
 
 	manager.packageManager = &FakePackageManager{failQuery: true}
@@ -154,8 +180,8 @@ func TestInstall_queryFailure(t *testing.T) {
 		t.Fatalf(`Signal path was "%s", expected "%s"`, signal.Path, reply)
 	}
 
-	if signal.Name != errorSignalName {
-		t.Fatalf(`Signal name was "%s", expected "%s"`, signal.Name, errorSignalName)
+	if signal.Name != manager.errorSignalName {
+		t.Fatalf(`Signal name was "%s", expected "%s"`, signal.Name, manager.errorSignalName)
 	}
 }
 
@@ -164,10 +190,13 @@ func TestUninstall(t *testing.T) {
 	dbusServer := new(FakeDbusServer)
 	dbusServer.InitializeSignals()
 
-	manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+	manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
+
+	// Make the manager poll faster so the tests are more timely
+	manager.pollPeriod = time.Millisecond
 
 	packageManager := new(FakePackageManager)
 
@@ -193,11 +222,11 @@ func TestUninstall(t *testing.T) {
 	for signal := range dbusServer.signals {
 		switch signal.Path {
 		case replyFoo:
-			if verifyFeedbackSignal(t, signal, &currentFooProgress) {
+			if verifyFeedbackSignal(t, manager, signal, &currentFooProgress) {
 				return
 			}
 		case replyBar:
-			if verifyFeedbackSignal(t, signal, &currentBarProgress) {
+			if verifyFeedbackSignal(t, manager, signal, &currentBarProgress) {
 				return
 			}
 		default:
@@ -208,9 +237,9 @@ func TestUninstall(t *testing.T) {
 
 // Test that failure during Uninstall results in an error
 func TestUninstall_failure(t *testing.T) {
-	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "")
+	manager, err := NewWebdmPackageManagerInterface(new(FakeDbusServer), "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
 
 	manager.packageManager = &FakePackageManager{failUninstall: true}
@@ -240,9 +269,10 @@ func TestUninstall_inProgressFailure(t *testing.T) {
 		dbusServer := new(FakeDbusServer)
 		dbusServer.InitializeSignals()
 
-		manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+		manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error while creating new manager: %s", i, err)
+			continue
 		}
 
 		manager.packageManager = packageManager
@@ -258,8 +288,8 @@ func TestUninstall_inProgressFailure(t *testing.T) {
 			t.Fatalf(`Test case %d: Signal path was "%s", expected "%s"`, i, signal.Path, reply)
 		}
 
-		if signal.Name != errorSignalName {
-			t.Fatalf(`Test case %d: Signal name was "%s", expected "%s"`, i, signal.Name, errorSignalName)
+		if signal.Name != manager.errorSignalName {
+			t.Fatalf(`Test case %d: Signal name was "%s", expected "%s"`, i, signal.Name, manager.errorSignalName)
 		}
 	}
 }
@@ -270,9 +300,9 @@ func TestUninstall_queryFailure(t *testing.T) {
 	dbusServer := new(FakeDbusServer)
 	dbusServer.InitializeSignals()
 
-	manager, err := NewWebdmPackageManagerInterface(dbusServer, "")
+	manager, err := NewWebdmPackageManagerInterface(dbusServer, "foo", "/foo", "")
 	if err != nil {
-		t.Errorf("Unexpected error while creating new manager: %s", err)
+		t.Fatalf("Unexpected error while creating new manager: %s", err)
 	}
 
 	manager.packageManager = &FakePackageManager{failQuery: true}
@@ -288,14 +318,14 @@ func TestUninstall_queryFailure(t *testing.T) {
 		t.Fatalf(`Signal path was "%s", expected "%s"`, signal.Path, reply)
 	}
 
-	if signal.Name != errorSignalName {
-		t.Fatalf(`Signal name was "%s", expected "%s"`, signal.Name, errorSignalName)
+	if signal.Name != manager.errorSignalName {
+		t.Fatalf(`Signal name was "%s", expected "%s"`, signal.Name, manager.errorSignalName)
 	}
 }
 
-func verifyFeedbackSignal(t *testing.T, signal *dbus.Signal, currentProgress *float32) bool {
+func verifyFeedbackSignal(t *testing.T, manager *WebdmPackageManagerInterface, signal *dbus.Signal, currentProgress *float32) bool {
 	switch signal.Name {
-	case progressSignalName:
+	case manager.progressSignalName:
 		if len(signal.Body) != 2 {
 			t.Fatalf("Got %d values, expected 2", len(signal.Body))
 		}
@@ -313,7 +343,7 @@ func verifyFeedbackSignal(t *testing.T, signal *dbus.Signal, currentProgress *fl
 		if *currentProgress < previousProgress {
 			t.Fatal("Installation isn't progressing as expected")
 		}
-	case finishedSignalName:
+	case manager.finishedSignalName:
 		return true
 	default:
 		t.Fatalf("Unexpected signal name: %s", signal.Name)

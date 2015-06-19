@@ -4,6 +4,7 @@
 
 #include <unity/scopes/ActionMetadata.h>
 #include <unity/scopes/SearchMetadata.h>
+#include <unity/scopes/ScopeMetadata.h>
 #include <unity/scopes/ScopeExceptions.h>
 
 extern "C" {
@@ -172,4 +173,13 @@ void *action_metadata_get_hints(_ActionMetadata *metadata, int *length) {
         }
     }
     return as_bytes(Variant(hints).serialize_json(), length);
+}
+
+char *get_scope_metadata_serialized(_ScopeMetadata *metadata) {
+    ScopeMetadata const*api_metadata = reinterpret_cast<ScopeMetadata const*>(metadata);
+    return strdup(Variant(api_metadata->serialize()).serialize_json().c_str());
+}
+
+void destroy_scope_metadata_ptr(_ScopeMetadata *metadata) {
+    delete reinterpret_cast<ScopeMetadata*>(metadata);
 }

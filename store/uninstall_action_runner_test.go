@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestUninstallActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewUninstallActionRunner()
 
-	packageManager := new(FakePackageManager)
+	packageManager := new(packages.FakeManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -18,7 +19,7 @@ func TestUninstallActionRunnerRun(t *testing.T) {
 		t.Fatalf("Unexpected error when attempting to run: %s", err)
 	}
 
-	if !packageManager.uninstallCalled {
+	if !packageManager.UninstallCalled {
 		t.Error("Expected package manager Uninstall() function to be called")
 	}
 
@@ -42,7 +43,7 @@ func TestUninstallActionRunnerRun(t *testing.T) {
 func TestUninstallActionRunnerRun_uninstallationFailure(t *testing.T) {
 	actionRunner, _ := NewUninstallActionRunner()
 
-	packageManager := &FakePackageManager{failToUninstall: true}
+	packageManager := &packages.FakeManager{FailUninstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

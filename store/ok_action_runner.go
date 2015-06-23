@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 )
 
@@ -25,6 +26,6 @@ func NewOkActionRunner() (*OkActionRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview
 // - Error (nil if none)
-func (runner OkActionRunner) Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner OkActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	return scopes.NewActivationResponse(scopes.ActivationShowPreview), nil
 }

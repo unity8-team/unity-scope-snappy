@@ -1,7 +1,7 @@
 package store
 
 import (
-	//"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -32,21 +32,21 @@ func TestNewScope_invalidUrl(t *testing.T) {
 
 // Test getPackageList for installed packages
 func TestGetPackageList_installed(t *testing.T) {
-	packageManager := &FakePackageManager{}
+	packageManager := &packages.FakeManager{}
 
 	_, err := getPackageList(packageManager, "installed")
 	if err != nil {
 		t.Error("Unexpected error while getting installed package list")
 	}
 
-	if !packageManager.getInstalledPackagesCalled {
+	if !packageManager.GetInstalledPackagesCalled {
 		t.Error("Expected GetInstalledPackages() to be called")
 	}
 }
 
 // Test getPackageList failure getting installed packages
 func TestGetPackageList_installed_failure(t *testing.T) {
-	packageManager := &FakePackageManager{failToGetInstalledPackages: true}
+	packageManager := &packages.FakeManager{FailGetInstalledPackages: true}
 
 	packages, err := getPackageList(packageManager, "installed")
 	if err == nil {
@@ -60,21 +60,21 @@ func TestGetPackageList_installed_failure(t *testing.T) {
 
 // Test getPackageList for store packages
 func TestGetPackageList_store(t *testing.T) {
-	packageManager := &FakePackageManager{}
+	packageManager := &packages.FakeManager{}
 
 	_, err := getPackageList(packageManager, "")
 	if err != nil {
 		t.Error("Unexpected error while getting store package list")
 	}
 
-	if !packageManager.getStorePackagesCalled {
+	if !packageManager.GetStorePackagesCalled {
 		t.Error("Expected GetStorePackages() to be called")
 	}
 }
 
 // Test getPackageList failure getting store packages
 func TestGetPackageList_store_failure(t *testing.T) {
-	packageManager := &FakePackageManager{failToGetStorePackages: true}
+	packageManager := &packages.FakeManager{FailGetStorePackages: true}
 
 	packages, err := getPackageList(packageManager, "")
 	if err == nil {

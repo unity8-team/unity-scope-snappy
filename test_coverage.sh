@@ -30,6 +30,9 @@ echo "mode: set" > $coverage_final
 # Add the store scope's coverage to the final coverage file
 get_coverage "launchpad.net/unity-scope-snappy/store" $coverage_final
 
+# Add the package manager's coverage to the final coverage file
+get_coverage "launchpad.net/unity-scope-snappy/store/packages" $coverage_final
+
 # Add webdm's coverage to the final coverage file
 get_coverage "launchpad.net/unity-scope-snappy/webdm" $coverage_final
 

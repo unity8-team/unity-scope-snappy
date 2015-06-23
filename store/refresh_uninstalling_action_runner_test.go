@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
@@ -10,7 +11,7 @@ import (
 func TestRefreshUninstallingActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewRefreshUninstallingActionRunner()
 
-	packageManager := new(FakePackageManager)
+	packageManager := new(packages.FakeManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {

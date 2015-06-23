@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
@@ -28,7 +29,7 @@ func NewRefreshInstallingActionRunner() (*RefreshInstallingActionRunner, error) 
 // Return:
 // - Pointer to an ActivationResponse for showing the preview
 // - Error (nil if none)
-func (runner RefreshInstallingActionRunner) Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner RefreshInstallingActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
 	// Tell the preview when to stop showing the refresh page

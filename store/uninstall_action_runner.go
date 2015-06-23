@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
@@ -28,7 +29,7 @@ func NewUninstallActionRunner() (*UninstallActionRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner UninstallActionRunner) Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner UninstallActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	err := packageManager.Uninstall(snapId)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to uninstall package with ID "%s": %s`, snapId, err)

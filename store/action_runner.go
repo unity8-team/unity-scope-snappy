@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 )
 
@@ -22,7 +23,7 @@ const (
 // ActionRunner is an interface to be implemented by various action handlers
 // throughout the scope.
 type ActionRunner interface {
-	Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error)
+	Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error)
 }
 
 // NewActionRunner is a factory for getting the correct ActionRunner for a given

@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 )
 
@@ -27,6 +28,6 @@ func NewOpenActionRunner() (*OpenActionRunner, error) {
 // Return:
 // - A nil pointer to an ActivationResponse
 // - An error saying that this isn't supported (yet).
-func (runner OpenActionRunner) Run(packageManager PackageManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner OpenActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	return nil, fmt.Errorf(`Unable to open package with ID "%s": Opening snaps is not yet supported`, snapId)
 }

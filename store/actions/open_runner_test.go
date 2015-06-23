@@ -1,4 +1,4 @@
-package store
+package actions
 
 import (
 	"launchpad.net/unity-scope-snappy/store/packages"
@@ -7,7 +7,7 @@ import (
 
 // Test typical Run usage.
 func TestOpenActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewOpenActionRunner()
+	actionRunner, _ := NewOpenRunner()
 
 	packageManager := new(packages.FakeManager)
 

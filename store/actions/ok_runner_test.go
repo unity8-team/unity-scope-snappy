@@ -1,15 +1,16 @@
-package store
+package actions
 
 import (
-	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
 // Test typical Run usage.
 func TestOkActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewOkActionRunner()
+	actionRunner, _ := NewOkRunner()
 
 	packageManager := new(packages.FakeManager)
 
@@ -24,7 +25,7 @@ func TestOkActionRunnerRun(t *testing.T) {
 	}
 
 	// Verify no progress hack
-	progressHack, ok := response.ScopeData.(ProgressHack)
+	progressHack, ok := response.ScopeData.(progress.Hack)
 	if ok {
 		if progressHack.DesiredStatus != webdm.StatusUndefined {
 			t.Errorf("No progress hack should be included")

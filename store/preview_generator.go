@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -26,7 +27,7 @@ type PreviewGenerator interface {
 func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGenerator, error) {
 	// Temporary hack to provide a manual refresh while support for progrss is
 	// being added.
-	progressHack := &ProgressHack{}
+	progressHack := &progress.Hack{}
 	if retrieveProgressHack(metadata, progressHack) {
 		// If an operation is still ongoing, show progress
 		if snap.Status != progressHack.DesiredStatus {
@@ -53,11 +54,11 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGen
 //
 // Parameters:
 // metadata: ActionMetadata potentially containing progress hack
-// progressHack: Retrieved ProgresHack (if any)
+// progressHack: Retrieved progress.Hack (if any)
 //
 // Returns:
-// - Whether or not a ProgressHack was retrieved.
-func retrieveProgressHack(metadata *scopes.ActionMetadata, progressHack *ProgressHack) bool {
+// - Whether or not a progress.Hack was retrieved.
+func retrieveProgressHack(metadata *scopes.ActionMetadata, progressHack *progress.Hack) bool {
 	err := metadata.ScopeData(progressHack)
 	return (err == nil) && (progressHack.DesiredStatus != webdm.StatusUndefined)
 }

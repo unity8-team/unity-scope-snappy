@@ -2,6 +2,7 @@ package store
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -194,8 +195,8 @@ func verifyInstallingActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	if !ok {
 		t.Error("Expected refresh action to have an id")
 	}
-	if value != ActionRefreshInstalling {
-		t.Errorf(`Expected refresh action's ID to be "%d"`, ActionRefreshInstalling)
+	if value != actions.ActionRefreshInstalling {
+		t.Errorf(`Expected refresh action's ID to be "%d"`, actions.ActionRefreshInstalling)
 	}
 
 	value, ok = action["label"]
@@ -232,8 +233,8 @@ func verifyInstallingFailedActionsWidget(t *testing.T, widget scopes.PreviewWidg
 	if !ok {
 		t.Error("Expected okay action to have an id")
 	}
-	if value != ActionOk {
-		t.Errorf(`Expected okay action's ID to be "%d"`, ActionOk)
+	if value != actions.ActionOk {
+		t.Errorf(`Expected okay action's ID to be "%d"`, actions.ActionOk)
 	}
 
 	value, ok = action["label"]

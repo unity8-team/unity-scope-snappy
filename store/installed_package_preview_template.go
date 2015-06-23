@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -40,11 +41,11 @@ func (preview InstalledPackagePreviewTemplate) actionsWidget() scopes.PreviewWid
 	widget := preview.GenericPackagePreviewTemplate.actionsWidget()
 
 	openAction := make(map[string]interface{})
-	openAction["id"] = ActionOpen
+	openAction["id"] = actions.ActionOpen
 	openAction["label"] = "Open"
 
 	uninstallAction := make(map[string]interface{})
-	uninstallAction["id"] = ActionUninstall
+	uninstallAction["id"] = actions.ActionUninstall
 	uninstallAction["label"] = "Uninstall"
 
 	widget.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})

@@ -1,23 +1,24 @@
-package store
+package actions
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-// InstallActionRunner is an ActionRunner to handle the installation of a
-// specific package.
-type InstallActionRunner struct{}
+// InstallRunner is an action Runner to handle the installation of a specific
+// package.
+type InstallRunner struct{}
 
-// NewInstallActionRunner creates a new InstallActionRunner.
+// NewInstallRunner creates a new InstallRunner.
 //
 // Returns:
-// - Pointer to new InstallActionRunner.
+// - Pointer to new InstallRunner.
 // - Error (nil if none).
-func NewInstallActionRunner() (*InstallActionRunner, error) {
-	return new(InstallActionRunner), nil
+func NewInstallRunner() (*InstallRunner, error) {
+	return new(InstallRunner), nil
 }
 
 // Run installs the snap with the given ID.
@@ -29,7 +30,7 @@ func NewInstallActionRunner() (*InstallActionRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner InstallActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner InstallRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	err := packageManager.Install(snapId)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to install package with ID "%s": %s`, snapId, err)
@@ -38,7 +39,7 @@ func (runner InstallActionRunner) Run(packageManager packages.Manager, snapId st
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
 	// Tell the preview when to stop showing the refresh page
-	response.SetScopeData(ProgressHack{webdm.StatusInstalled})
+	response.SetScopeData(progress.Hack{webdm.StatusInstalled})
 
 	return response, nil
 }

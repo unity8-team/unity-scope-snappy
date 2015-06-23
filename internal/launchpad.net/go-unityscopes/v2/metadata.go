@@ -264,3 +264,46 @@ type locationMarshal struct {
 	RegionName         string       `json:"region_name"`
 	ZipPostalCode      string       `json:"zip_postal_code"`
 }
+
+type ProxyScopeMetadata struct {
+	Identity string `json:"identity"`
+	EndPoint string `json:"endpoint"`
+}
+
+// ScopeMetadata holds scope attributes such as name, description, icon etc.
+//
+// The information stored by ScopeMetadata comes from the .ini file for the given scope (for local scopes)
+// or is fetched from the remote server (for scopes running on Smart Scopes Server).
+// Use ListRegistryScopes from ScopeBase to get the metadata for all scopes.
+type ScopeMetadata struct {
+	m                    *C._ScopeMetadata
+	Art                  string                 `json:"art"`
+	Author               string                 `json:"author"`
+	Description          string                 `json:"description"`
+	DisplayName          string                 `json:"display_name"`
+	Icon                 string                 `json:"icon"`
+	Invisible            bool                   `json:"invisible"`
+	IsAggregator         bool                   `json:"is_aggregator"`
+	LocationDataNeeded   bool                   `json:"location_data_needed"`
+	ScopeDir             string                 `json:"scope_dir"`
+	ScopeId              string                 `json:"scope_id"`
+	Version              int                    `json:"version"`
+	Proxy                ProxyScopeMetadata     `json:"proxy"`
+	AppearanceAttributes map[string]interface{} `json:"appearance_attributes"`
+	SettingsDefinitions  []interface{}          `json:"settings_definitions"`
+	Keywords             []string               `json:"keywords"`
+}
+
+func finalizeScopeMetadata(metadata *ScopeMetadata) {
+	C.destroy_scope_metadata_ptr(metadata.m)
+}
+
+func makeScopeMetadata(m *C._ScopeMetadata, json_data string) *ScopeMetadata {
+	metadata := new(ScopeMetadata)
+	if err := json.Unmarshal([]byte(json_data), &metadata); err != nil {
+		panic(err)
+	}
+	metadata.m = m
+	runtime.SetFinalizer(metadata, finalizeScopeMetadata)
+	return metadata
+}

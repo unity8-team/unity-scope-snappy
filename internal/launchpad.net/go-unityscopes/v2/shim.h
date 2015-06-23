@@ -16,6 +16,7 @@ typedef struct _Result _Result;
 typedef struct _Result _CategorisedResult;
 typedef struct _SearchMetadata _SearchMetadata;
 typedef struct _ActionMetadata _ActionMetadata;
+typedef struct _ScopeMetadata _ScopeMetadata;
 typedef struct _QueryMetadata _QueryMetadata;
 typedef struct _ColumnLayout _ColumnLayout;
 typedef void _ScopeBase;
@@ -32,6 +33,7 @@ char *scope_base_scope_directory(_ScopeBase *scope);
 char *scope_base_cache_directory(_ScopeBase *scope);
 char *scope_base_tmp_directory(_ScopeBase *scope);
 void *scope_base_settings(_ScopeBase *scope, int *length);
+_ScopeMetadata **list_registry_scopes_metadata(_ScopeBase *scope, int *n_scopes);
 
 /* SearchReply objects */
 void init_search_reply_ptr(SharedPtrData dest, SharedPtrData src);
@@ -117,6 +119,10 @@ void action_metadata_set_scope_data(_ActionMetadata *metadata, char *json_data, 
 void action_metadata_set_hint(_ActionMetadata *metadata, void *key, char *json_data, int json_data_length, char **error);
 void *action_metadata_get_hint(_ActionMetadata *metadata, void *key, int *data_length, char **error);
 void *action_metadata_get_hints(_ActionMetadata *metadata, int *length);
+
+/* ScopeMetadata objects */
+void destroy_scope_metadata_ptr(_ScopeMetadata *metadata);
+char *get_scope_metadata_serialized(_ScopeMetadata *metadata);
 
 /* ActivationResponse objects */
 void activation_response_init_status(_ActivationResponse *response, int status);

@@ -1,8 +1,8 @@
 package store
 
 import (
-	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 

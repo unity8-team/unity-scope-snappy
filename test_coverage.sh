@@ -27,8 +27,8 @@ function get_coverage
 # Setup final coverage file
 echo "mode: set" > $coverage_final
 
-# Add the scope's coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/scope" $coverage_final
+# Add the store scope's coverage to the final coverage file
+get_coverage "launchpad.net/unity-scope-snappy/store" $coverage_final
 
 # Add webdm's coverage to the final coverage file
 get_coverage "launchpad.net/unity-scope-snappy/webdm" $coverage_final

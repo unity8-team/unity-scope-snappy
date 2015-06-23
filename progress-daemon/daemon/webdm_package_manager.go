@@ -181,8 +181,8 @@ func (manager *WebdmPackageManagerInterface) emitProgress(operationId uint64, re
 // Parameters:
 // packageId: ID of the package that just finished an operation.
 func (manager *WebdmPackageManagerInterface) emitFinished(operationId uint64) {
-	objectPath := manager.operationObjectPath(operationId)
-	manager.dbusConnection.Emit(objectPath, manager.finishedSignalName, objectPath)
+	manager.dbusConnection.Emit(manager.operationObjectPath(operationId),
+		manager.finishedSignalName, "")
 }
 
 // emitError emits the `error` DBus signal.

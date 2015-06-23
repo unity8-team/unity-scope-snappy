@@ -51,3 +51,18 @@ void destroy_category_ptr(SharedPtrData data) {
     destroy_ptr<const Category>(data);
 }
 
+_ScopeMetadata** list_registry_scopes_metadata(_ScopeBase *scope, int *n_scopes) {
+    ScopeBase *s = reinterpret_cast<ScopeBase*>(scope);
+    auto registry = s->registry();
+    auto scopes = registry->list();
+
+    *n_scopes = scopes.size();
+
+    _ScopeMetadata** ret_data = reinterpret_cast<_ScopeMetadata**>(calloc(*n_scopes, sizeof(_ScopeMetadata*)));
+    int i = 0;
+    for( auto item: scopes ) {
+        ret_data[i++] = reinterpret_cast<_ScopeMetadata*>(new ScopeMetadata(item.second));
+    }
+
+    return ret_data;
+}

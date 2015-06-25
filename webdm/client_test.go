@@ -481,7 +481,7 @@ func TestUninstall_invalidUrl(t *testing.T) {
 }
 
 // Test uninstalling with a valid, but incorrect, URL
-func TestUnnstall_incorrectUrl(t *testing.T) {
+func TestUninstall_incorrectUrl(t *testing.T) {
 	defer func() {
 		if recover() != nil {
 			t.Error("Unexpected panic when attempting uninstall")
@@ -493,7 +493,7 @@ func TestUnnstall_incorrectUrl(t *testing.T) {
 	defer teardown()
 
 	client.BaseUrl.Host = "foo"
-	err := client.Install("foo")
+	err := client.Uninstall("foo")
 	if err == nil {
 		t.Error("Expected an error due to incorrect URL")
 	}

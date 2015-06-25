@@ -33,8 +33,8 @@
 			"canonical": "github.com/dustin/go-humanize",
 			"comment": "",
 			"local": "launchpad.net/unity-scope-snappy/internal/github.com/dustin/go-humanize",
-			"revision": "00897f070f09f194c26d65afae734ba4c32404e8",
-			"revisionTime": "2015-04-12T23:07:30-07:00"
+			"revision": "c128122e0b9b93799aef8181a537e5d8fd7081d6",
+			"revisionTime": "2015-06-22T22:54:03-07:00"
 		},
 		{
 			"canonical": "github.com/godbus/dbus",

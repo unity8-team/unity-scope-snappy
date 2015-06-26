@@ -27,6 +27,12 @@ Setup up your GOPATH and then:
     $ go get launchpad.net/unity-scope-snappy
     $ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/scope.ini
 
+Note that the information shown in the scope is retrieved from WebDM. By default
+the scope will use "http://webdm.local:4200", but you can change that with the
+WEBDM_URL environment variable:
+
+    $ WEBDM_URL=http://address:port unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/scope.ini
+
 
 External Dependencies
 ---------------------

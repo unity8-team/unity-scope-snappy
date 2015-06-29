@@ -1,15 +1,16 @@
-package store
+package actions
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
 // Test typical Run usage.
-func TestRefreshInstallingActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewRefreshInstallingActionRunner()
+func TestRefreshUninstallingActionRunnerRun(t *testing.T) {
+	actionRunner, _ := NewRefreshUninstallingRunner()
 
 	packageManager := new(packages.FakeManager)
 
@@ -24,13 +25,13 @@ func TestRefreshInstallingActionRunnerRun(t *testing.T) {
 	}
 
 	// Verify progress hack
-	progressHack, ok := response.ScopeData.(ProgressHack)
+	progressHack, ok := response.ScopeData.(progress.Hack)
 	if !ok {
 		// Exit here so we don't dereference nil
 		t.Fatalf("Expected response ScopeData to be a ProgressHack")
 	}
 
-	if progressHack.DesiredStatus != webdm.StatusInstalled {
-		t.Errorf(`Desired status was "%d", expected "%d"`, progressHack.DesiredStatus, webdm.StatusInstalled)
+	if progressHack.DesiredStatus != webdm.StatusNotInstalled {
+		t.Errorf(`Desired status was "%d", expected "%d"`, progressHack.DesiredStatus, webdm.StatusNotInstalled)
 	}
 }

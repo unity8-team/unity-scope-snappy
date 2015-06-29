@@ -1,15 +1,16 @@
-package store
+package actions
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
 // Test typical Run usage.
 func TestInstallActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewInstallActionRunner()
+	actionRunner, _ := NewInstallRunner()
 
 	packageManager := new(packages.FakeManager)
 
@@ -28,7 +29,7 @@ func TestInstallActionRunnerRun(t *testing.T) {
 	}
 
 	// Verify progress hack
-	progressHack, ok := response.ScopeData.(ProgressHack)
+	progressHack, ok := response.ScopeData.(progress.Hack)
 	if !ok {
 		// Exit here so we don't dereference nil
 		t.Fatalf("Expected response ScopeData to be a ProgressHack")
@@ -41,7 +42,7 @@ func TestInstallActionRunnerRun(t *testing.T) {
 
 // Test that a failure to install results in an error
 func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
-	actionRunner, _ := NewInstallActionRunner()
+	actionRunner, _ := NewInstallRunner()
 
 	packageManager := &packages.FakeManager{FailInstall: true}
 

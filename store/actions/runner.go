@@ -1,4 +1,4 @@
-package store
+package actions
 
 import (
 	"fmt"
@@ -20,31 +20,30 @@ const (
 	ActionOk
 )
 
-// ActionRunner is an interface to be implemented by various action handlers
-// throughout the scope.
-type ActionRunner interface {
+// Runner is an interface to be implemented by the action handlers throughout
+// the scope.
+type Runner interface {
 	Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error)
 }
 
-// NewActionRunner is a factory for getting the correct ActionRunner for a given
-// ActionId.
+// NewRunner is a factory for getting the correct Runner for a given ActionId.
 //
 // Parameters:
 // actionId: The ID of the action needing to be handled.
-func NewActionRunner(actionId ActionId) (ActionRunner, error) {
+func NewRunner(actionId ActionId) (Runner, error) {
 	switch actionId {
 	case ActionInstall:
-		return NewInstallActionRunner()
+		return NewInstallRunner()
 	case ActionUninstall:
-		return NewUninstallActionRunner()
+		return NewUninstallRunner()
 	case ActionOpen:
-		return NewOpenActionRunner()
+		return NewOpenRunner()
 	case ActionRefreshInstalling:
-		return NewRefreshInstallingActionRunner()
+		return NewRefreshInstallingRunner()
 	case ActionRefreshUninstalling:
-		return NewRefreshUninstallingActionRunner()
+		return NewRefreshUninstallingRunner()
 	case ActionOk:
-		return NewOkActionRunner()
+		return NewOkRunner()
 	default:
 		return nil, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)
 	}

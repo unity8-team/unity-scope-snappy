@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -76,10 +77,10 @@ func (preview UninstallingPreview) actionsWidget() scopes.PreviewWidget {
 	// Make sure we show an error if it happens.
 	if preview.snap.Message == "" {
 		action["label"] = "Refresh"
-		action["id"] = ActionRefreshUninstalling
+		action["id"] = actions.ActionRefreshUninstalling
 	} else {
 		action["label"] = "Okay"
-		action["id"] = ActionOk
+		action["id"] = actions.ActionOk
 	}
 
 	widget := scopes.NewPreviewWidget("actions", "actions")

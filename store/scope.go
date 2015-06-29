@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
@@ -24,13 +25,6 @@ const layout = `{
 		"subtitle": "subtitle"
         }
 }`
-
-// ProgressHack is a workaround for having no concept of progress in this scope.
-// Until a decent method has been devised, this struct holds the information
-// necessary to display a placeholder widget for manual refreshing.
-type ProgressHack struct {
-	DesiredStatus webdm.Status
-}
 
 // Scope is the struct representing the scope itself.
 type Scope struct {
@@ -123,7 +117,7 @@ func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.Action
 	}
 
 	// Get the action runner corresponding to this action
-	actionRunner, err := NewActionRunner(ActionId(intActionId))
+	actionRunner, err := actions.NewRunner(actions.ActionId(intActionId))
 	if err != nil {
 		return nil, scopeError(`unity-scope-snappy: Unable to handle action "%s": %s`, actionId, err)
 	}

@@ -1,4 +1,4 @@
-package store
+package actions
 
 import (
 	"fmt"
@@ -6,17 +6,16 @@ import (
 	"launchpad.net/unity-scope-snappy/store/packages"
 )
 
-// OpenActionRunner is an ActionRunner to handle the launch of a
-// specific snap.
-type OpenActionRunner struct{}
+// OpenRunner is an action Runner to handle the launch of a specific snap.
+type OpenRunner struct{}
 
-// NewOpenActionRunner creates a new OpenActionRunner
+// NewOpenRunner creates a new OpenRunner
 //
 // Returns:
-// - Pointer to new OpenActionRunner
+// - Pointer to new OpenRunner
 // - Error (nil if none)
-func NewOpenActionRunner() (*OpenActionRunner, error) {
-	return new(OpenActionRunner), nil
+func NewOpenRunner() (*OpenRunner, error) {
+	return new(OpenRunner), nil
 }
 
 // Run is where a snap would be launched, if such a thing were supported.
@@ -28,6 +27,6 @@ func NewOpenActionRunner() (*OpenActionRunner, error) {
 // Return:
 // - A nil pointer to an ActivationResponse
 // - An error saying that this isn't supported (yet).
-func (runner OpenActionRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner OpenRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
 	return nil, fmt.Errorf(`Unable to open package with ID "%s": Opening snaps is not yet supported`, snapId)
 }

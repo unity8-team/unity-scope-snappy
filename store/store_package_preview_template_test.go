@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -87,8 +88,8 @@ func TestNewStorePackagePreviewTemplate_actionsWidget(t *testing.T) {
 	if !ok {
 		t.Error("Expected install action to have an id")
 	}
-	if value != ActionInstall {
-		t.Errorf(`Expected install action's ID to be "%d"`, ActionInstall)
+	if value != actions.ActionInstall {
+		t.Errorf(`Expected install action's ID to be "%d"`, actions.ActionInstall)
 	}
 
 	value, ok = action["label"]

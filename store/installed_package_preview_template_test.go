@@ -1,6 +1,7 @@
 package store
 
 import (
+	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -57,8 +58,8 @@ func TestNewInstalledPackagePreviewTemplate_actionsWidget(t *testing.T) {
 	if !ok {
 		t.Error("Expected open action to have an id")
 	}
-	if value != ActionOpen {
-		t.Errorf(`Expected open action's ID to be "%d"`, ActionOpen)
+	if value != actions.ActionOpen {
+		t.Errorf(`Expected open action's ID to be "%d"`, actions.ActionOpen)
 	}
 
 	value, ok = action["label"]
@@ -75,8 +76,8 @@ func TestNewInstalledPackagePreviewTemplate_actionsWidget(t *testing.T) {
 	if !ok {
 		t.Error("Expected uninstall action to have an id")
 	}
-	if value != ActionUninstall {
-		t.Errorf(`Expected uninstall action's ID to be "%d"`, ActionUninstall)
+	if value != actions.ActionUninstall {
+		t.Errorf(`Expected uninstall action's ID to be "%d"`, actions.ActionUninstall)
 	}
 
 	value, ok = action["label"]

@@ -9,7 +9,7 @@ import (
 func TestOpenActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewOpenRunner()
 
-	packageManager := new(fakes.FakeManager)
+	packageManager := new(fakes.FakeWebdmManager)
 
 	_, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

@@ -5,9 +5,9 @@ import (
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-// FakeManager is a fake implementation of the Manager interface, for use within
-// tests.
-type FakeManager struct {
+// FakeWebdmManager is a fake implementation of the WebdmManager interface, for
+// use within tests.
+type FakeWebdmManager struct {
 	GetInstalledPackagesCalled bool
 	GetStorePackagesCalled     bool
 	QueryCalled                bool
@@ -21,7 +21,7 @@ type FakeManager struct {
 	FailUninstall            bool
 }
 
-func (manager *FakeManager) GetInstalledPackages() ([]webdm.Package, error) {
+func (manager *FakeWebdmManager) GetInstalledPackages() ([]webdm.Package, error) {
 	manager.GetInstalledPackagesCalled = true
 
 	if manager.FailGetInstalledPackages {
@@ -34,7 +34,7 @@ func (manager *FakeManager) GetInstalledPackages() ([]webdm.Package, error) {
 	return packages, nil
 }
 
-func (manager *FakeManager) GetStorePackages() ([]webdm.Package, error) {
+func (manager *FakeWebdmManager) GetStorePackages() ([]webdm.Package, error) {
 	manager.GetStorePackagesCalled = true
 
 	if manager.FailGetStorePackages {
@@ -47,7 +47,7 @@ func (manager *FakeManager) GetStorePackages() ([]webdm.Package, error) {
 	return packages, nil
 }
 
-func (manager *FakeManager) Query(packageId string) (*webdm.Package, error) {
+func (manager *FakeWebdmManager) Query(packageId string) (*webdm.Package, error) {
 	manager.QueryCalled = true
 
 	if manager.FailQuery {
@@ -57,7 +57,7 @@ func (manager *FakeManager) Query(packageId string) (*webdm.Package, error) {
 	return &webdm.Package{Id: packageId, Status: webdm.StatusNotInstalled}, nil
 }
 
-func (manager *FakeManager) Install(packageId string) error {
+func (manager *FakeWebdmManager) Install(packageId string) error {
 	manager.InstallCalled = true
 
 	if manager.FailInstall {
@@ -67,7 +67,7 @@ func (manager *FakeManager) Install(packageId string) error {
 	return nil
 }
 
-func (manager *FakeManager) Uninstall(packageId string) error {
+func (manager *FakeWebdmManager) Uninstall(packageId string) error {
 	manager.UninstallCalled = true
 
 	if manager.FailUninstall {

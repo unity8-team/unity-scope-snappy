@@ -30,7 +30,7 @@ func NewUninstallRunner() (*UninstallRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner UninstallRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner UninstallRunner) Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error) {
 	err := packageManager.Uninstall(snapId)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to uninstall package with ID "%s": %s`, snapId, err)

@@ -12,7 +12,7 @@ import (
 func TestRefreshUninstallingActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewRefreshUninstallingRunner()
 
-	packageManager := new(fakes.FakeManager)
+	packageManager := new(fakes.FakeWebdmManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {

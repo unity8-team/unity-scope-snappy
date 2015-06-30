@@ -12,7 +12,7 @@ import (
 func TestOkActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewOkRunner()
 
-	packageManager := new(fakes.FakeManager)
+	packageManager := new(fakes.FakeWebdmManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {

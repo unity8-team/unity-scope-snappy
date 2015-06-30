@@ -12,7 +12,7 @@ import (
 func TestInstallActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := new(fakes.FakeManager)
+	packageManager := new(fakes.FakeWebdmManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -44,7 +44,7 @@ func TestInstallActionRunnerRun(t *testing.T) {
 func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := &fakes.FakeManager{FailInstall: true}
+	packageManager := &fakes.FakeWebdmManager{FailInstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

@@ -23,7 +23,7 @@ const (
 // Runner is an interface to be implemented by the action handlers throughout
 // the scope.
 type Runner interface {
-	Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error)
+	Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error)
 }
 
 // NewRunner is a factory for getting the correct Runner for a given ActionId.

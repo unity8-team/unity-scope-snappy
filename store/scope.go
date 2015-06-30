@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
-	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/previews"
+	"launchpad.net/unity-scope-snappy/store/utilities"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
 	"strconv"
@@ -57,7 +58,7 @@ func (scope *Scope) SetScopeBase(base *scopes.ScopeBase) {
 func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
 	createDepartments(query, reply)
 
-	packages, err := getPackageList(scope.webdmClient, query.DepartmentID())
+	packages, err := utilities.GetPackageList(scope.webdmClient, query.DepartmentID())
 	if err != nil {
 		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}
@@ -96,7 +97,7 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	preview, err := NewPreview(*snap, metadata)
+	preview, err := previews.NewPreview(*snap, metadata)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
 	}
@@ -181,36 +182,6 @@ func packageResult(category *scopes.Category, snap webdm.Package) *scopes.Catego
 	result.Set("id", snap.Id)
 
 	return result
-}
-
-// getPackageList is used to obtain a package list for a specific department.
-//
-// Parameters:
-// packageManager: Package manager to use to obtain package list.
-// department: The department whose packages should be listed.
-//
-// Returns:
-// - List of WebDM Package structs
-// - Error (nil if none)
-func getPackageList(packageManager packages.Manager, department string) ([]webdm.Package, error) {
-	var packages []webdm.Package
-	var err error
-
-	switch department {
-	case "installed":
-		packages, err = packageManager.GetInstalledPackages()
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve installed packages: %s", err)
-		}
-
-	default:
-		packages, err = packageManager.GetStorePackages()
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve store packages: %s", err)
-		}
-	}
-
-	return packages, nil
 }
 
 // scopeError prints an error to stderr as well as returning an actual error.

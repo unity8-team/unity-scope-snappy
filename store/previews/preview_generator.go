@@ -1,30 +1,20 @@
-package store
+package previews
 
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
+	"launchpad.net/unity-scope-snappy/store/previews/packages"
 	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
-
-// WidgetReceiver is an interface to be implemented by any struct that supports
-// the type of preview widget interface used by this scope.
-type WidgetReceiver interface {
-	PushWidgets(widgets ...scopes.PreviewWidget) error
-}
-
-// PreviewGenerator is an interface to be implemented by any struct that wishes
-// to provide previews for use in this scope.
-type PreviewGenerator interface {
-	Generate(receiver WidgetReceiver) error
-}
 
 // NewPreview is a factory for getting the correct preview for a given package.
 //
 // Parameters:
 // snap: Snap to be represented by the preview.
 // metadata: Metadata to be used for informing the preview creation.
-func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGenerator, error) {
+func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (interfaces.PreviewGenerator, error) {
 	// Temporary hack to provide a manual refresh while support for progrss is
 	// being added.
 	progressHack := &progress.Hack{}
@@ -46,7 +36,7 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (PreviewGen
 		}
 	}
 
-	return NewPackagePreview(snap)
+	return packages.NewPreview(snap)
 }
 
 // retrieveProgressHack is used to obtain the ProgressHack struct from

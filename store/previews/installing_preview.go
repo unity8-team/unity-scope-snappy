@@ -1,9 +1,10 @@
-package store
+package previews
 
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
+	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -33,11 +34,11 @@ func NewInstallingPreview(snap webdm.Package) (*InstallingPreview, error) {
 // Generate pushes the preview widgets onto a WidgetReceiver.
 //
 // Parameters:
-// receiver: Implementation of the WidgetReceiver interface.
+// receiver: Implementation of the interfaces.WidgetReceiver interface.
 //
 // Returns:
 // - Error (nil if none)
-func (preview InstallingPreview) Generate(receiver WidgetReceiver) error {
+func (preview InstallingPreview) Generate(receiver interfaces.WidgetReceiver) error {
 	if preview.snap.Installed() {
 		return fmt.Errorf("Snap is already installed")
 	}

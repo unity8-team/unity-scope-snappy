@@ -1,33 +1,34 @@
-package store
+package templates
 
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
+	"launchpad.net/unity-scope-snappy/store/previews/humanize"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-// StorePackagePreviewTemplate is a preview template for an in-store package
+// StoreTemplate is a preview template for an in-store package
 // (i.e. not installed).
-type StorePackagePreviewTemplate struct {
-	*GenericPackagePreviewTemplate
+type StoreTemplate struct {
+	*GenericTemplate
 }
 
-// NewStorePackagePreviewTemplate creates a new StorePackagePreviewTemplate.
+// NewStoreTemplate creates a new StoreTemplate.
 //
 // Parameters:
 // snap: Snap to be represented by this template.
 //
 // Returns:
-// - Pointer to new StorePackagePreviewTemplate (nil if error)
+// - Pointer to new StoreTemplate (nil if error)
 // - Error (nil if none)
-func NewStorePackagePreviewTemplate(snap webdm.Package) (*StorePackagePreviewTemplate, error) {
+func NewStoreTemplate(snap webdm.Package) (*StoreTemplate, error) {
 	if snap.Installed() {
 		return nil, fmt.Errorf("Snap is installed")
 	}
 
-	template := new(StorePackagePreviewTemplate)
-	template.GenericPackagePreviewTemplate = NewGenericPackagePreviewTemplate(snap)
+	template := new(StoreTemplate)
+	template.GenericTemplate = NewGenericTemplate(snap)
 
 	return template, nil
 }
@@ -37,8 +38,8 @@ func NewStorePackagePreviewTemplate(snap webdm.Package) (*StorePackagePreviewTem
 //
 // Returns:
 // - Header preview widget for the snap.
-func (preview StorePackagePreviewTemplate) headerWidget() scopes.PreviewWidget {
-	widget := preview.GenericPackagePreviewTemplate.headerWidget()
+func (preview StoreTemplate) HeaderWidget() scopes.PreviewWidget {
+	widget := preview.GenericTemplate.HeaderWidget()
 
 	// WebDM doesn't provide any information about the cost of apps... so all
 	// the snaps are free!
@@ -53,8 +54,8 @@ func (preview StorePackagePreviewTemplate) headerWidget() scopes.PreviewWidget {
 //
 // Returns:
 // - Action preview widget for the snap.
-func (preview StorePackagePreviewTemplate) actionsWidget() scopes.PreviewWidget {
-	widget := preview.GenericPackagePreviewTemplate.actionsWidget()
+func (preview StoreTemplate) ActionsWidget() scopes.PreviewWidget {
+	widget := preview.GenericTemplate.ActionsWidget()
 
 	installAction := make(map[string]interface{})
 	installAction["id"] = actions.ActionInstall
@@ -69,14 +70,14 @@ func (preview StorePackagePreviewTemplate) actionsWidget() scopes.PreviewWidget 
 //
 // Returns:
 // - Table widget for the snap.
-func (preview StorePackagePreviewTemplate) updatesWidget() scopes.PreviewWidget {
-	widget := preview.GenericPackagePreviewTemplate.updatesWidget()
+func (preview StoreTemplate) UpdatesWidget() scopes.PreviewWidget {
+	widget := preview.GenericTemplate.UpdatesWidget()
 
 	value, ok := widget["values"]
 	if ok {
 		rows := value.([]interface{})
 		if rows != nil {
-			sizeRow := []string{"Size", humanizeBytes(preview.snap.DownloadSize)}
+			sizeRow := []string{"Size", humanize.Bytes(preview.snap.DownloadSize)}
 			rows = append(rows, sizeRow)
 
 			widget.AddAttributeValue("values", rows)

@@ -1,9 +1,10 @@
-package store
+package previews
 
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
+	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -37,7 +38,7 @@ func NewUninstallingPreview(snap webdm.Package) (*UninstallingPreview, error) {
 //
 // Returns:
 // - Error (nil if none)
-func (preview UninstallingPreview) Generate(receiver WidgetReceiver) error {
+func (preview UninstallingPreview) Generate(receiver interfaces.WidgetReceiver) error {
 	if preview.snap.NotInstalled() {
 		return fmt.Errorf("Snap isn't installed")
 	}

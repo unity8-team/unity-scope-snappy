@@ -5,6 +5,13 @@ import (
 	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
 )
 
+const (
+	defaultDbusObject = "com.canonical.applications.WebdmPackageManager"
+	defaultDbusObjectInterface = "com.canonical.applications.Download"
+	defaultInstallMethod = defaultDbusObjectInterface + ".Install"
+	defaultUninstallMethod = defaultDbusObjectInterface + ".Uninstall"
+)
+
 // DbusManagerClient is a DBus client for communicating with the WebDM Package
 // Manager DBus service.
 type DbusManagerClient struct {
@@ -21,11 +28,11 @@ type DbusManagerClient struct {
 func NewDbusManagerClient() *DbusManagerClient {
 	client := new(DbusManagerClient)
 
-	client.dbusObject = "com.canonical.applications.WebdmPackageManager"
-	client.dbusObjectInterface = "com.canonical.applications.Download"
+	client.dbusObject = defaultDbusObject
+	client.dbusObjectInterface = defaultDbusObjectInterface
 
-	client.installMethod = client.dbusObjectInterface + ".Install"
-	client.uninstallMethod = client.dbusObjectInterface + ".Uninstall"
+	client.installMethod = defaultInstallMethod
+	client.uninstallMethod = defaultUninstallMethod
 
 	return client
 }

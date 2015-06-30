@@ -17,11 +17,6 @@ var newRunnerTests = []struct {
 	{ActionOpen, &OpenRunner{}},
 	{ActionFinished, &FinishedRunner{}},
 	{ActionError, &ErrorRunner{}},
-
-	// Temporary actions for manual refresh
-	{ActionRefreshInstalling, &RefreshInstallingRunner{}},
-	{ActionRefreshUninstalling, &RefreshUninstallingRunner{}},
-	{ActionOk, &OkRunner{}},
 }
 
 // Test typical NewRunner usage.

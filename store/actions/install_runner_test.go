@@ -1,11 +1,10 @@
 package actions
 
 import (
+	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/packages/fakes"
-	"launchpad.net/unity-scope-snappy/store/progress"
-
-	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
@@ -29,15 +28,19 @@ func TestInstallRunner_run(t *testing.T) {
 		t.Errorf(`Response status was "%d", expected "%d"`, response.Status, scopes.ActivationShowPreview)
 	}
 
-	// Verify progress hack
-	progressHack, ok := response.ScopeData.(progress.Hack)
+	// Verify operation metadata
+	metadata, ok := response.ScopeData.(operation.Metadata)
 	if !ok {
 		// Exit here so we don't dereference nil
-		t.Fatalf("Expected response ScopeData to be a ProgressHack")
+		t.Fatalf("Expected response ScopeData to include operation metadata")
 	}
 
-	if progressHack.DesiredStatus != webdm.StatusInstalled {
-		t.Errorf(`Desired status was "%d", expected "%d"`, progressHack.DesiredStatus, webdm.StatusInstalled)
+	if !metadata.InstallRequested {
+		t.Errorf("Expected metadata to indicate that an installation was requested")
+	}
+
+	if metadata.ObjectPath != dbus.ObjectPath("/foo/1") {
+		t.Errorf(`Metadata object path was "%s", expected "/foo/1"`, metadata.ObjectPath)
 	}
 }
 

@@ -6,149 +6,210 @@ import (
 	"testing"
 )
 
-// Test typical NewInstalledTemplate usage.
-func TestNewInstalledTemplate(t *testing.T) {
-	template, err := NewInstalledTemplate(webdm.Package{
-		Id:     "package1",
-		Status: webdm.StatusInstalled,
-	})
-	if err != nil {
-		t.Errorf("Unexpected error creating new installed preview: %s", err)
-	}
-
-	if template.snap.Id != "package1" {
-		t.Errorf(`Template snap's ID is "%s", expected "package1"`, template.snap.Id)
-	}
+// Data for TestNewInstalledTemplate_notInstalled
+var notInstalledTemplateTests = []struct {
+	status webdm.Status
+}{
+	{webdm.StatusUndefined},
+	{webdm.StatusNotInstalled},
+	{webdm.StatusInstalling},
 }
 
 // Make sure an error occurs if the package is not installed
 func TestNewInstalledTemplate_notInstalled(t *testing.T) {
-	_, err := NewInstalledTemplate(webdm.Package{
-		Status: webdm.StatusNotInstalled,
-	})
+	for i, test := range notInstalledTemplateTests {
+		_, err := NewInstalledTemplate(webdm.Package{
+			Status: test.status,
+		})
 
-	if err == nil {
-		t.Error("Expected an error if the package is not installed")
+		if err == nil {
+			t.Errorf("Test case %d: Expected an error due to invalid status", i)
+		}
+	}
+}
+
+// Data for InstalledTemplate tests
+var installedTemplateTests = []struct {
+	snap webdm.Package
+}{
+	{webdm.Package{Id: "package1", Status: webdm.StatusInstalled, Version: "0.1", InstalledSize: 123456}},
+	{webdm.Package{Id: "package1", Status: webdm.StatusUninstalling, Version: "0.1", InstalledSize: 123456}},
+}
+
+// Test typical NewInstalledTemplate usage.
+func TestNewInstalledTemplate(t *testing.T) {
+	for i, test := range installedTemplateTests {
+		template, err := NewInstalledTemplate(test.snap)
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
+			continue
+		}
+
+		if template.snap.Id != test.snap.Id {
+			t.Errorf(`Test case %d: Template snap's ID is "%s", expected "%s"`, i, template.snap.Id, test.snap.Id)
+		}
+	}
+}
+
+// Test that the header widget conforms to the store design.
+func TestInstalledTemplate_headerWidget(t *testing.T) {
+	for i, test := range installedTemplateTests {
+		template, err := NewInstalledTemplate(test.snap)
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
+			continue
+		}
+
+		widget := template.HeaderWidget()
+
+		// Check generic attributes
+		value, ok := widget["attributes"]
+		if !ok {
+			t.Errorf("Test case %d: Expected header attributes to include generic attributes", i)
+			continue
+		}
+
+		attributes := value.([]interface{})
+		if len(attributes) != 1 {
+			t.Errorf("Test case %d: Got %d generic attributes for header, expected 1", i, len(attributes))
+			continue
+		}
+
+		attribute := attributes[0].(map[string]interface{})
+		value, ok = attribute["value"]
+		if !ok {
+			t.Errorf(`Test case %d: Expected generic header attribute to have "value" key`, i)
+		}
+		if value != "✓ Installed" {
+			t.Errorf(`Test case %d: Generic header attribute "value" was "%s", expected "✓ Installed"`, i, value)
+		}
 	}
 }
 
 // Test that the actions widget conforms to the store design.
 func TestInstalledTemplate_actionsWidget(t *testing.T) {
-	template, _ := NewInstalledTemplate(webdm.Package{
-		Status: webdm.StatusInstalled,
-	})
+	for i, test := range installedTemplateTests {
+		template, err := NewInstalledTemplate(test.snap)
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
+			continue
+		}
 
-	widget := template.ActionsWidget()
+		widget := template.ActionsWidget()
 
-	value, ok := widget["actions"]
-	if !ok {
-		t.Fatal("Expected actions widget to include actions")
-	}
+		value, ok := widget["actions"]
+		if !ok {
+			t.Errorf("Test case %d: Expected actions widget to include actions", i)
+			continue
+		}
 
-	actionsInterfaces := value.([]interface{})
+		actionsInterfaces := value.([]interface{})
 
-	if len(actionsInterfaces) != 2 {
-		// Exit here so we don't index out of bounds
-		t.Fatalf("Actions widget has %d actions, expected 2", len(actionsInterfaces))
-	}
+		if len(actionsInterfaces) != 2 {
+			t.Errorf("Test case %d: Actions widget has %d actions, expected 2", i, len(actionsInterfaces))
+			continue
+		}
 
-	// Verify the open action
-	action := actionsInterfaces[0].(map[string]interface{})
-	value, ok = action["id"]
-	if !ok {
-		t.Error("Expected open action to have an id")
-	}
-	if value != actions.ActionOpen {
-		t.Errorf(`Expected open action's ID to be "%d"`, actions.ActionOpen)
-	}
+		// Verify the open action
+		action := actionsInterfaces[0].(map[string]interface{})
+		value, ok = action["id"]
+		if !ok {
+			t.Errorf("Test case %d: Expected open action to have an id", i)
+		}
+		if value != actions.ActionOpen {
+			t.Errorf(`Test case %d: Open action's ID was "%s", expected "%s"`, i, value, actions.ActionOpen)
+		}
 
-	value, ok = action["label"]
-	if !ok {
-		t.Error("Expected open action to have a label")
-	}
-	if value != "Open" {
-		t.Error(`Expected open action's label to be "Open"`)
-	}
+		value, ok = action["label"]
+		if !ok {
+			t.Errorf("Test case %d: Expected open action to have a label", i)
+		}
+		if value != "Open" {
+			t.Errorf(`Test case %d: Open action's label was "%s", expected "Open"`, i, value)
+		}
 
-	// Verify the uninstall action
-	action = actionsInterfaces[1].(map[string]interface{})
-	value, ok = action["id"]
-	if !ok {
-		t.Error("Expected uninstall action to have an id")
-	}
-	if value != actions.ActionUninstall {
-		t.Errorf(`Expected uninstall action's ID to be "%d"`, actions.ActionUninstall)
-	}
+		// Verify the uninstall action
+		action = actionsInterfaces[1].(map[string]interface{})
+		value, ok = action["id"]
+		if !ok {
+			t.Errorf("Test case %d: Expected uninstall action to have an id", i)
+		}
+		if value != actions.ActionUninstall {
+			t.Errorf(`Test case %d: Uninstall action's ID was "%s", expected "%s"`, i, value, actions.ActionUninstall)
+		}
 
-	value, ok = action["label"]
-	if !ok {
-		t.Error("Expected uninstall action to have a label")
-	}
-	if value != "Uninstall" {
-		t.Error(`Expected uninstall action's label to be "Uninstall"`)
+		value, ok = action["label"]
+		if !ok {
+			t.Errorf("Test case %d: Expected uninstall action to have a label", i)
+		}
+		if value != "Uninstall" {
+			t.Errorf(`Test case %d: Uninstall action's label was "%s", expected "Uninstall"`, i, value)
+		}
 	}
 }
 
 // Test that the updates widget conforms to the store design.
 func TestTestInstalledTemplate_updatesWidget(t *testing.T) {
-	snap := webdm.Package{
-		Version:       "0.1",
-		InstalledSize: 123456,
-		Status:        webdm.StatusInstalled,
-	}
-	template, _ := NewInstalledTemplate(snap)
+	for i, test := range installedTemplateTests {
+		template, err := NewInstalledTemplate(test.snap)
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
+			continue
+		}
 
-	widget := template.UpdatesWidget()
+		widget := template.UpdatesWidget()
 
-	// Verify title
-	value, ok := widget["title"]
-	if !ok {
-		t.Error("Expected updates table to include a title")
-	}
-	if value != "Updates" {
-		t.Error(`Expected updates table's title to be "Updates"`)
-	}
+		// Verify title
+		value, ok := widget["title"]
+		if !ok {
+			t.Errorf("Test case %d: Expected updates table to include a title", i)
+		}
+		if value != "Updates" {
+			t.Errorf(`Test case %d: Updates table's title was "%s", expected "Updates"`, i, value)
+		}
 
-	// Verify table rows
-	value, ok = widget["values"]
-	if !ok {
-		t.Fatal("Expected updates table to include values")
-	}
+		// Verify table rows
+		value, ok = widget["values"]
+		if !ok {
+			t.Errorf("Test case %d: Expected updates table to include values", i)
+			continue
+		}
 
-	rows := value.([]interface{})
+		rows := value.([]interface{})
 
-	if len(rows) != 2 {
-		// Exit now so we don't index out of bounds
-		t.Fatalf("Got %d rows, expected 2", len(rows))
-	}
+		if len(rows) != 2 {
+			t.Errorf("Test case %d: Got %d rows, expected 2", i, len(rows))
+			continue
+		}
 
-	// Verify version
-	versionRow := rows[0].([]string)
+		// Verify version
+		versionRow := rows[0].([]string)
 
-	if len(versionRow) != 2 {
-		// Exit now so we don't index out of bounds
-		t.Fatalf("Got %d columns, expected 2", len(versionRow))
-	}
+		if len(versionRow) != 2 {
+			t.Errorf("Test case %d: Got %d columns, expected 2", i, len(versionRow))
+			continue
+		}
 
-	if versionRow[0] != "Version number" {
-		t.Errorf(`First column was "%s", expected "Version number"`, versionRow[0])
-	}
-	if versionRow[1] != snap.Version {
-		t.Errorf(`Second column was "%s", expected "%s"`, versionRow[1], snap.Version)
-	}
+		if versionRow[0] != "Version number" {
+			t.Errorf(`Test case %d: First column was "%s", expected "Version number"`, i, versionRow[0])
+		}
+		if versionRow[1] != test.snap.Version {
+			t.Errorf(`Test case %d: Second column was "%s", expected "%s"`, i, versionRow[1], test.snap.Version)
+		}
 
-	// Verify size
-	sizeRow := rows[1].([]string)
+		// Verify size
+		sizeRow := rows[1].([]string)
 
-	if len(sizeRow) != 2 {
-		// Exit now do we don't index out of bounds
-		t.Fatalf("Got %d columns, expected 2", len(sizeRow))
-	}
+		if len(sizeRow) != 2 {
+			t.Errorf("Test case %d: Got %d columns, expected 2", i, len(sizeRow))
+			continue
+		}
 
-	if sizeRow[0] != "Size" {
-		t.Error(`First column was "%s", expected "Size"`, sizeRow[0])
-	}
-	if sizeRow[1] != "124 kB" {
-		t.Errorf(`Second column was "%s", expected "124 kB"`, sizeRow[1])
+		if sizeRow[0] != "Size" {
+			t.Errorf(`Test case %d: First column was "%s", expected "Size"`, i, sizeRow[0])
+		}
+		if sizeRow[1] != "124 kB" {
+			t.Errorf(`Test case %d: Second column was "%s", expected "124 kB"`, i, sizeRow[1])
+		}
 	}
 }

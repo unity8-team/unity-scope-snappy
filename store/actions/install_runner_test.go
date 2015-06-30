@@ -4,15 +4,16 @@ import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"launchpad.net/unity-scope-snappy/store/progress"
+
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
 // Test typical Run usage.
-func TestInstallActionRunnerRun(t *testing.T) {
+func TestInstallRunner_run(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := new(fakes.FakeWebdmManager)
+	packageManager := new(fakes.FakeDbusManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -41,10 +42,10 @@ func TestInstallActionRunnerRun(t *testing.T) {
 }
 
 // Test that a failure to install results in an error
-func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
+func TestInstallRunner_run_installationFailure(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := &fakes.FakeWebdmManager{FailInstall: true}
+	packageManager := &fakes.FakeDbusManager{FailInstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

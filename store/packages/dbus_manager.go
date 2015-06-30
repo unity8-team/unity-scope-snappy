@@ -7,7 +7,7 @@ import (
 // DbusManager is an interface to be implemented by any struct that supports
 // asynchronous package installation/uninstallation via dbus in the manner used
 // by this scope.
-type DbusPackageStateManager interface {
+type DbusManager interface {
 	Connect() error
 	Install(packageId string) (dbus.ObjectPath, error)
 	Uninstall(packageId string) (dbus.ObjectPath, error)

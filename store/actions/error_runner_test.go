@@ -8,8 +8,8 @@ import (
 )
 
 // Test typical Run usage.
-func TestOkActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewOkRunner()
+func TestErrorRunner_run(t *testing.T) {
+	actionRunner, _ := NewErrorRunner()
 
 	response, err := actionRunner.Run(&fakes.FakeDbusManager{}, "foo")
 	if err != nil {
@@ -21,9 +21,14 @@ func TestOkActionRunnerRun(t *testing.T) {
 		t.Errorf(`Response status was "%d", expected "%d"`, response.Status, scopes.ActivationShowPreview)
 	}
 
-	// Verify lack of operation metadata
-	_, ok := response.ScopeData.(operation.Metadata)
-	if ok {
-		t.Error("Response ScopeData should not include operation metadata")
+	// Verify operation metadata
+	metadata, ok := response.ScopeData.(operation.Metadata)
+	if !ok {
+		// Exit here so we don't dereference nil
+		t.Fatalf("Expected response ScopeData to include operation metadata")
+	}
+
+	if !metadata.Error {
+		t.Errorf("Expected metadata to indicate that the operation had an error")
 	}
 }

@@ -12,9 +12,7 @@ import (
 func TestRefreshInstallingActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewRefreshInstallingRunner()
 
-	packageManager := new(fakes.FakeWebdmManager)
-
-	response, err := actionRunner.Run(packageManager, "foo")
+	response, err := actionRunner.Run(&fakes.FakeDbusManager{}, "foo")
 	if err != nil {
 		// Exit here so we don't dereference nil
 		t.Fatalf("Unexpected error when attempting to run: %s", err)

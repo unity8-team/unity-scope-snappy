@@ -27,6 +27,6 @@ func NewOpenRunner() (*OpenRunner, error) {
 // Return:
 // - A nil pointer to an ActivationResponse
 // - An error saying that this isn't supported (yet).
-func (runner OpenRunner) Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner OpenRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
 	return nil, fmt.Errorf(`Unable to open package with ID "%s": Opening snaps is not yet supported`, snapId)
 }

@@ -1,7 +1,7 @@
 package packages
 
 import (
-	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
+	"launchpad.net/unity-scope-snappy/store/previews/fakes"
 	"launchpad.net/unity-scope-snappy/store/previews/packages/templates"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"reflect"
@@ -54,7 +54,7 @@ func TestPreview_generate(t *testing.T) {
 			Type:         "oem",
 		})
 
-		receiver := new(interfaces.FakeWidgetReceiver)
+		receiver := new(fakes.FakeWidgetReceiver)
 
 		err := preview.Generate(receiver)
 		if err != nil {

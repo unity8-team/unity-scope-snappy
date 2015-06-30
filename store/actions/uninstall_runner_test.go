@@ -2,7 +2,7 @@ package actions
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
@@ -12,7 +12,7 @@ import (
 func TestUninstallActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewUninstallRunner()
 
-	packageManager := new(packages.FakeManager)
+	packageManager := new(fakes.FakeManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -44,7 +44,7 @@ func TestUninstallActionRunnerRun(t *testing.T) {
 func TestUninstallActionRunnerRun_uninstallationFailure(t *testing.T) {
 	actionRunner, _ := NewUninstallRunner()
 
-	packageManager := &packages.FakeManager{FailUninstall: true}
+	packageManager := &fakes.FakeManager{FailUninstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

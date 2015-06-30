@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"testing"
 )
 
@@ -9,7 +9,7 @@ import (
 func TestOpenActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewOpenRunner()
 
-	packageManager := new(packages.FakeManager)
+	packageManager := new(fakes.FakeManager)
 
 	_, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

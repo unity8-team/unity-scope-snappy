@@ -45,10 +45,10 @@ echo "mode: set" > $coverage_final
 get_coverages $coverage_final \
 	"launchpad.net/unity-scope-snappy/progress-daemon/daemon" \
 	"launchpad.net/unity-scope-snappy/store/actions" \
-	"launchpad.net/unity-scope-snappy/store/packages" \
+	"launchpad.net/unity-scope-snappy/store/packages/fakes" \
 	"launchpad.net/unity-scope-snappy/store/previews" \
 	"launchpad.net/unity-scope-snappy/store/previews/humanize" \
-	"launchpad.net/unity-scope-snappy/store/previews/interfaces" \
+	"launchpad.net/unity-scope-snappy/store/previews/fakes" \
 	"launchpad.net/unity-scope-snappy/store/previews/packages" \
 	"launchpad.net/unity-scope-snappy/store/previews/packages/templates" \
 	"launchpad.net/unity-scope-snappy/store/utilities" \

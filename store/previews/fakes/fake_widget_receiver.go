@@ -1,4 +1,4 @@
-package interfaces
+package fakes
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"

@@ -1,13 +1,13 @@
 package utilities
 
 import (
-	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"testing"
 )
 
 // Test getPackageList for installed packages
 func TestGetPackageList_installed(t *testing.T) {
-	packageManager := &packages.FakeManager{}
+	packageManager := &fakes.FakeManager{}
 
 	_, err := GetPackageList(packageManager, "installed")
 	if err != nil {
@@ -21,7 +21,7 @@ func TestGetPackageList_installed(t *testing.T) {
 
 // Test getPackageList failure getting installed packages
 func TestGetPackageList_installed_failure(t *testing.T) {
-	packageManager := &packages.FakeManager{FailGetInstalledPackages: true}
+	packageManager := &fakes.FakeManager{FailGetInstalledPackages: true}
 
 	packages, err := GetPackageList(packageManager, "installed")
 	if err == nil {
@@ -35,7 +35,7 @@ func TestGetPackageList_installed_failure(t *testing.T) {
 
 // Test getPackageList for store packages
 func TestGetPackageList_store(t *testing.T) {
-	packageManager := &packages.FakeManager{}
+	packageManager := &fakes.FakeManager{}
 
 	_, err := GetPackageList(packageManager, "")
 	if err != nil {
@@ -49,7 +49,7 @@ func TestGetPackageList_store(t *testing.T) {
 
 // Test getPackageList failure getting store packages
 func TestGetPackageList_store_failure(t *testing.T) {
-	packageManager := &packages.FakeManager{FailGetStorePackages: true}
+	packageManager := &fakes.FakeManager{FailGetStorePackages: true}
 
 	packages, err := GetPackageList(packageManager, "")
 	if err == nil {

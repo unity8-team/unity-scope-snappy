@@ -16,7 +16,7 @@ var newRunnerTests = []struct {
 	{ActionUninstallCancel, &CancelUninstallRunner{}},
 	{ActionOpen, &OpenRunner{}},
 	{ActionFinished, &FinishedRunner{}},
-	{ActionError, &ErrorRunner{}},
+	{ActionFailed, &FailedRunner{}},
 }
 
 // Test typical NewRunner usage.

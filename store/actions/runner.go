@@ -18,7 +18,7 @@ const (
 
 	// Actions from the progress widget
 	ActionFinished = "finished"
-	ActionError    = "error"
+	ActionFailed   = "failed"
 )
 
 // Runner is an interface to be implemented by the action handlers throughout
@@ -47,9 +47,9 @@ func NewRunner(actionId ActionId) (Runner, error) {
 	// Actions from the progress widget
 	case ActionFinished:
 		return NewFinishedRunner()
-	case ActionError:
-		return NewErrorRunner()
+	case ActionFailed:
+		return NewFailedRunner()
 	default:
-		return nil, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)
+		return nil, fmt.Errorf(`Unsupported action ID: "%s"`, actionId)
 	}
 }

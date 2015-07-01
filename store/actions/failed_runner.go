@@ -6,20 +6,20 @@ import (
 	"launchpad.net/unity-scope-snappy/store/packages"
 )
 
-// ErrorRunner is an action Runner to handle an error during an install or
-// uninstall operation.
-type ErrorRunner struct{}
+// FailedRunner is an action Runner to handle a failed install or uninstall
+// operation.
+type FailedRunner struct{}
 
-// NewErrorRunner creates a new ErrorRunner.
+// NewFailedRunner creates a new FailedRunner.
 //
 // Returns:
-// - Pointer to new ErrorRunner.
+// - Pointer to new FailedRunner.
 // - Error (nil if none).
-func NewErrorRunner() (*ErrorRunner, error) {
-	return new(ErrorRunner), nil
+func NewFailedRunner() (*FailedRunner, error) {
+	return new(FailedRunner), nil
 }
 
-// Run shoves the error state into the metadata to be passed to the preview.
+// Run shoves the failed state into the metadata to be passed to the preview.
 //
 // Parameters:
 // stateManager: Package state manager (not used).
@@ -28,10 +28,10 @@ func NewErrorRunner() (*ErrorRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner ErrorRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner FailedRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
-	response.SetScopeData(operation.Metadata{Error: true})
+	response.SetScopeData(operation.Metadata{Failed: true})
 
 	return response, nil
 }

@@ -12,7 +12,7 @@ type Metadata struct {
 	UninstallConfirmed bool
 
 	Finished bool
-	Error    bool
+	Failed   bool
 
 	ObjectPath dbus.ObjectPath
 }

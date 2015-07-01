@@ -8,8 +8,8 @@ import (
 )
 
 // Test typical Run usage.
-func TestErrorRunner_run(t *testing.T) {
-	actionRunner, _ := NewErrorRunner()
+func TestFailedRunner_run(t *testing.T) {
+	actionRunner, _ := NewFailedRunner()
 
 	response, err := actionRunner.Run(&fakes.FakeDbusManager{}, "foo")
 	if err != nil {
@@ -28,7 +28,7 @@ func TestErrorRunner_run(t *testing.T) {
 		t.Fatalf("Expected response ScopeData to include operation metadata")
 	}
 
-	if !metadata.Error {
-		t.Errorf("Expected metadata to indicate that the operation had an error")
+	if !metadata.Failed {
+		t.Errorf("Expected metadata to indicate that the operation failed")
 	}
 }

@@ -1,40 +1,15 @@
-package store
+package utilities
 
 import (
-	"launchpad.net/unity-scope-snappy/store/packages"
-	"launchpad.net/unity-scope-snappy/webdm"
+	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"testing"
 )
 
-// Test typical NewScope usage.
-func TestNewScope(t *testing.T) {
-	scope, err := NewScope(webdm.DefaultApiUrl)
-	if err != nil {
-		t.Errorf("Unexpected error creating scope: %s", err)
-	}
-
-	if scope == nil {
-		t.Error("Scope was unexpectedly nil")
-	}
-}
-
-// Test creating new scope with an invalid API URL
-func TestNewScope_invalidUrl(t *testing.T) {
-	scope, err := NewScope(":")
-	if err == nil {
-		t.Errorf("Expected an error creating scope due to invalid URL")
-	}
-
-	if scope != nil {
-		t.Error("Scope should have been nil")
-	}
-}
-
 // Test getPackageList for installed packages
 func TestGetPackageList_installed(t *testing.T) {
-	packageManager := &packages.FakeManager{}
+	packageManager := &fakes.FakeManager{}
 
-	_, err := getPackageList(packageManager, "installed")
+	_, err := GetPackageList(packageManager, "installed")
 	if err != nil {
 		t.Error("Unexpected error while getting installed package list")
 	}
@@ -46,9 +21,9 @@ func TestGetPackageList_installed(t *testing.T) {
 
 // Test getPackageList failure getting installed packages
 func TestGetPackageList_installed_failure(t *testing.T) {
-	packageManager := &packages.FakeManager{FailGetInstalledPackages: true}
+	packageManager := &fakes.FakeManager{FailGetInstalledPackages: true}
 
-	packages, err := getPackageList(packageManager, "installed")
+	packages, err := GetPackageList(packageManager, "installed")
 	if err == nil {
 		t.Error("Expected an error getting installed package list")
 	}
@@ -60,9 +35,9 @@ func TestGetPackageList_installed_failure(t *testing.T) {
 
 // Test getPackageList for store packages
 func TestGetPackageList_store(t *testing.T) {
-	packageManager := &packages.FakeManager{}
+	packageManager := &fakes.FakeManager{}
 
-	_, err := getPackageList(packageManager, "")
+	_, err := GetPackageList(packageManager, "")
 	if err != nil {
 		t.Error("Unexpected error while getting store package list")
 	}
@@ -74,9 +49,9 @@ func TestGetPackageList_store(t *testing.T) {
 
 // Test getPackageList failure getting store packages
 func TestGetPackageList_store_failure(t *testing.T) {
-	packageManager := &packages.FakeManager{FailGetStorePackages: true}
+	packageManager := &fakes.FakeManager{FailGetStorePackages: true}
 
-	packages, err := getPackageList(packageManager, "")
+	packages, err := GetPackageList(packageManager, "")
 	if err == nil {
 		t.Error("Expected an error getting store package list")
 	}

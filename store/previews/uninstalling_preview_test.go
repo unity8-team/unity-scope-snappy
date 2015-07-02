@@ -1,20 +1,21 @@
-package store
+package previews
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
+	"launchpad.net/unity-scope-snappy/store/previews/fakes"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
-// Test typical NewInstallingPreview usage.
-func TestNewInstallingPreview(t *testing.T) {
-	preview, err := NewInstallingPreview(webdm.Package{
+// Test typical NewUninstallingPreview usage.
+func TestNewUninstallingPreview(t *testing.T) {
+	preview, err := NewUninstallingPreview(webdm.Package{
 		Id:     "package1",
-		Status: webdm.StatusNotInstalled,
+		Status: webdm.StatusInstalled,
 	})
 	if err != nil {
-		t.Error("Unexpected error creating new installing preview: %s", err)
+		t.Error("Unexpected error creating new uninstalling preview: %s", err)
 	}
 
 	if preview.snap.Id != "package1" {
@@ -22,117 +23,117 @@ func TestNewInstallingPreview(t *testing.T) {
 	}
 }
 
-// Make sure an error occurs if the package is already installed
-func TestNewInstallingPreview_installed(t *testing.T) {
-	_, err := NewInstallingPreview(webdm.Package{Status: webdm.StatusInstalled})
+// Make sure an error occurs if the package isn't installed
+func TestNewUninstallingPreview_notInstalled(t *testing.T) {
+	_, err := NewUninstallingPreview(webdm.Package{Status: webdm.StatusNotInstalled})
 	if err == nil {
-		t.Error("Expected an error if the package is already installed")
+		t.Error("Expected an error if the package isn't installed")
 	}
 }
 
 // Test typical Generate usage.
-func TestInstallingPreview_generate(t *testing.T) {
-	preview, _ := NewInstallingPreview(
+func TestUninstallingPreview_generate(t *testing.T) {
+	preview, _ := NewUninstallingPreview(
 		webdm.Package{
-			Id:           "package1",
-			Name:         "package1",
-			Origin:       "foo",
-			Version:      "0.1",
-			Vendor:       "bar",
-			Description:  "baz",
-			IconUrl:      "http://fake",
-			Status:       webdm.StatusNotInstalled,
-			DownloadSize: 123456,
-			Type:         "oem",
+			Id:            "package1",
+			Name:          "package1",
+			Origin:        "foo",
+			Version:       "0.1",
+			Vendor:        "bar",
+			Description:   "baz",
+			IconUrl:       "http://fake",
+			Status:        webdm.StatusInstalled,
+			InstalledSize: 123456,
+			Type:          "oem",
 		})
 
-	receiver := new(FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err != nil {
 		t.Errorf("Unexpected error while generating preview: %s", err)
 	}
 
-	if len(receiver.widgets) != 2 {
+	if len(receiver.Widgets) != 2 {
 		// Exit here so we don't index out of bounds later
-		t.Fatalf("Got %d widgets, expected 2", len(receiver.widgets))
+		t.Fatalf("Got %d widgets, expected 2", len(receiver.Widgets))
 	}
 
-	widget := receiver.widgets[0]
+	widget := receiver.Widgets[0]
 	if widget.WidgetType() == "text" {
-		verifyInstallingTextWidget(t, widget)
+		verifyUninstallingTextWidget(t, widget)
 	} else {
 		t.Error("Expected text to be first widget")
 	}
 
-	widget = receiver.widgets[1]
+	widget = receiver.Widgets[1]
 	if widget.WidgetType() == "actions" {
-		verifyInstallingActionsWidget(t, widget)
+		verifyUninstallingActionsWidget(t, widget)
 	} else {
 		t.Error("Expected actions to be second widget")
 	}
 }
 
-// Test that errors are displayed if the snap doesn't successfully install
-func TestInstallingPreview_generate_installFailed(t *testing.T) {
-	preview, _ := NewInstallingPreview(
+// Test that errors are displayed if the snap doesn't successfully uninstall
+func TestUninstallingPreview_generate_uninstallFailed(t *testing.T) {
+	preview, _ := NewUninstallingPreview(
 		webdm.Package{
 			Id:      "package1",
 			Name:    "package1",
-			Status:  webdm.StatusNotInstalled,
-			Message: "Unable to install", // This indicates failure
+			Status:  webdm.StatusInstalled,
+			Message: "Unable to uninstall", // This indicates failure
 		})
 
-	receiver := new(FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err != nil {
 		t.Errorf("Unexpected error while generating preview: %s", err)
 	}
 
-	if len(receiver.widgets) != 2 {
+	if len(receiver.Widgets) != 2 {
 		// Exit here so we don't index out of bounds later
-		t.Fatalf("Got %d widgets, expected 2", len(receiver.widgets))
+		t.Fatalf("Got %d widgets, expected 2", len(receiver.Widgets))
 	}
 
-	widget := receiver.widgets[0]
+	widget := receiver.Widgets[0]
 	if widget.WidgetType() == "text" {
-		verifyInstallingFailedTextWidget(t, widget)
+		verifyUninstallingFailedTextWidget(t, widget)
 	} else {
 		t.Error("Expected text to be first widget")
 	}
 
-	widget = receiver.widgets[1]
+	widget = receiver.Widgets[1]
 	if widget.WidgetType() == "actions" {
-		verifyInstallingFailedActionsWidget(t, widget)
+		verifyUninstallingFailedActionsWidget(t, widget)
 	} else {
 		t.Error("Expected actions to be second widget")
 	}
 }
 
-// Test that Generate fails if the package is already installed
-func TestInstallingPreview_generate_installed(t *testing.T) {
-	preview := InstallingPreview{
+// Test that Generate fails if the package isn't installed
+func TestUninstallingPreview_generate_notInstalled(t *testing.T) {
+	preview := UninstallingPreview{
 		snap: webdm.Package{
-			Status: webdm.StatusInstalled,
+			Status: webdm.StatusNotInstalled,
 		},
 	}
 
-	receiver := new(FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err == nil {
-		t.Error("Expected an error if the package is already installed")
+		t.Error("Expected an error if the package isn't installed")
 	}
 }
 
-// verifyInstallingTextWidget is used to verify that a text widget matches what
-// we expect while a snap is installing.
+// verifyUninstallingTextWidget is used to verify that a text widget matches
+// what we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Text widget to verify.
-func verifyInstallingTextWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyUninstallingTextWidget(t *testing.T, widget scopes.PreviewWidget) {
 	// Verify title presence
 	_, ok := widget["title"]
 	if !ok {
@@ -148,13 +149,13 @@ func verifyInstallingTextWidget(t *testing.T, widget scopes.PreviewWidget) {
 	}
 }
 
-// verifyInstallingFailedTextWidget is used to verify that a text widget
-// matches what we expect when the install fails.
+// verifyUninstallingFailedTextWidget is used to verify that a text widget
+// matches what we expect when the uninstall fails.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Text widget to verify.
-func verifyInstallingFailedTextWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyUninstallingFailedTextWidget(t *testing.T, widget scopes.PreviewWidget) {
 	// Verify title presence
 	_, ok := widget["title"]
 	if !ok {
@@ -170,13 +171,13 @@ func verifyInstallingFailedTextWidget(t *testing.T, widget scopes.PreviewWidget)
 	}
 }
 
-// verifyInstallingActionsWidget is used to verify that an actions widget
-// matches what we expect while a snap is installing.
+// verifyUninstallingActionsWidget is used to verify that an actions widget
+// matches what we expect.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Actions widget to verify.
-func verifyInstallingActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyUninstallingActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	value, ok := widget["actions"]
 	if !ok {
 		t.Error("Expected actions widget to include actions")
@@ -195,8 +196,8 @@ func verifyInstallingActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	if !ok {
 		t.Error("Expected refresh action to have an id")
 	}
-	if value != actions.ActionRefreshInstalling {
-		t.Errorf(`Expected refresh action's ID to be "%d"`, actions.ActionRefreshInstalling)
+	if value != actions.ActionRefreshUninstalling {
+		t.Errorf(`Expected refresh action's ID to be "%d"`, actions.ActionRefreshUninstalling)
 	}
 
 	value, ok = action["label"]
@@ -208,13 +209,13 @@ func verifyInstallingActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	}
 }
 
-// verifyInstallingFailedActionsWidget is used to verify that an actions
-// widget matches what we expect when an install failed.
+// verifyUninstallingFailedActionsWidget is used to verify that an actions
+// widget matches what we expect when an uninstall failed.
 //
 // Parameters:
 // t: Testing handle for when errors occur.
 // widget: Actions widget to verify.
-func verifyInstallingFailedActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
+func verifyUninstallingFailedActionsWidget(t *testing.T, widget scopes.PreviewWidget) {
 	value, ok := widget["actions"]
 	if !ok {
 		t.Error("Expected actions widget to include actions")

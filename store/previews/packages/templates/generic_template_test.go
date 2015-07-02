@@ -1,4 +1,4 @@
-package store
+package templates
 
 import (
 	"launchpad.net/unity-scope-snappy/webdm"
@@ -7,7 +7,7 @@ import (
 
 var (
 	webdmPackage *webdm.Package
-	template     *GenericPackagePreviewTemplate
+	template     *GenericTemplate
 )
 
 func setup() {
@@ -24,11 +24,11 @@ func setup() {
 		Type:         "oem",
 	}
 
-	template = NewGenericPackagePreviewTemplate(*webdmPackage)
+	template = NewGenericTemplate(*webdmPackage)
 }
 
-// Test typical NewGenericPackagePreviewTemplate usage.
-func TestNewGenericPackagePreviewTemplate(t *testing.T) {
+// Test typical NewGenericTemplate usage.
+func TestNewGenericTemplate(t *testing.T) {
 	setup()
 
 	if template.snap.Id != "package1" {
@@ -37,10 +37,10 @@ func TestNewGenericPackagePreviewTemplate(t *testing.T) {
 }
 
 // Test that the header widget conforms to the store design.
-func TestGenericPackagePreviewTemplate_headerWidget(t *testing.T) {
+func TestNewGenericTemplate_headerWidget(t *testing.T) {
 	setup()
 
-	widget := template.headerWidget()
+	widget := template.HeaderWidget()
 
 	if widget.WidgetType() != "header" {
 		t.Fatal(`Expected widget type to be "header"`)
@@ -85,10 +85,10 @@ func TestGenericPackagePreviewTemplate_headerWidget(t *testing.T) {
 
 // Test that the actions widget doesn't actually contain anything, as a generic
 // package doesn't have enough information to fill it out.
-func TestGenericPackagePreviewTemplate_actionsWidget(t *testing.T) {
+func TestNewGenericTemplate_actionsWidget(t *testing.T) {
 	setup()
 
-	widget := template.actionsWidget()
+	widget := template.ActionsWidget()
 
 	if widget.WidgetType() != "actions" {
 		t.Fatal(`Expected widget type to be "actions"`)
@@ -96,10 +96,10 @@ func TestGenericPackagePreviewTemplate_actionsWidget(t *testing.T) {
 }
 
 // Test that the header widget conforms to the store design.
-func TestGenericPackagePreviewTemplate_infoWidget(t *testing.T) {
+func TestNewGenericTemplate_infoWidget(t *testing.T) {
 	setup()
 
-	widget := template.infoWidget()
+	widget := template.InfoWidget()
 
 	if widget.WidgetType() != "text" {
 		t.Fatal(`Expected widget type to be "text"`)
@@ -125,10 +125,10 @@ func TestGenericPackagePreviewTemplate_infoWidget(t *testing.T) {
 }
 
 // Test that the updates widget conforms to the store design.
-func TestGenericPackagePreviewTemplate_updatesWidget(t *testing.T) {
+func TestNewGenericTemplate_updatesWidget(t *testing.T) {
 	setup()
 
-	widget := template.updatesWidget()
+	widget := template.UpdatesWidget()
 
 	if widget.WidgetType() != "table" {
 		t.Fatal(`Expected widget type to be "table"`)

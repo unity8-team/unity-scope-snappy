@@ -1,11 +1,11 @@
-package store
+package humanize
 
 import (
 	"testing"
 )
 
-// Data for TestHumanizeBytes
-var humanizeBytesTests = []struct {
+// Data for TestBytes
+var bytesTests = []struct {
 	size              int64
 	expectedHumanized string
 }{
@@ -18,9 +18,9 @@ var humanizeBytesTests = []struct {
 	{1556925645, "1.6 GB"},
 }
 
-func TestHumanizeBytes(t *testing.T) {
-	for i, test := range humanizeBytesTests {
-		humanized := humanizeBytes(test.size)
+func TestBytes(t *testing.T) {
+	for i, test := range bytesTests {
+		humanized := Bytes(test.size)
 		if humanized != test.expectedHumanized {
 			t.Errorf("Test case %d: Got %s, expected %s", i, humanized, test.expectedHumanized)
 		}

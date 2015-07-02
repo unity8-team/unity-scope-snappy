@@ -1,4 +1,4 @@
-package store
+package templates
 
 import (
 	"launchpad.net/unity-scope-snappy/store/actions"
@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-// Test typical NewStorePackagePreviewTemplate usage.
-func TestNewStorePackagePreviewTemplate(t *testing.T) {
-	template, err := NewStorePackagePreviewTemplate(webdm.Package{
+// Test typical NewStoreTemplate usage.
+func TestNewStoreTemplate(t *testing.T) {
+	template, err := NewStoreTemplate(webdm.Package{
 		Id:     "package1",
 		Status: webdm.StatusNotInstalled,
 	})
@@ -22,8 +22,8 @@ func TestNewStorePackagePreviewTemplate(t *testing.T) {
 }
 
 // Make sure an error occurs if the package is installed
-func TestNewStorePackagePreviewTemplate_installed(t *testing.T) {
-	_, err := NewStorePackagePreviewTemplate(webdm.Package{
+func TestNewStoreTemplate_installed(t *testing.T) {
+	_, err := NewStoreTemplate(webdm.Package{
 		Status: webdm.StatusInstalled,
 	})
 
@@ -33,12 +33,12 @@ func TestNewStorePackagePreviewTemplate_installed(t *testing.T) {
 }
 
 // Test that the header widget conforms to the store design.
-func TestNewStorePackagePreviewTemplate_headerWidget(t *testing.T) {
-	template, _ := NewStorePackagePreviewTemplate(webdm.Package{
+func TestStoreTemplate_headerWidget(t *testing.T) {
+	template, _ := NewStoreTemplate(webdm.Package{
 		Status: webdm.StatusNotInstalled,
 	})
 
-	widget := template.headerWidget()
+	widget := template.HeaderWidget()
 
 	// Check generic attributes
 	value, ok := widget["attributes"]
@@ -63,12 +63,12 @@ func TestNewStorePackagePreviewTemplate_headerWidget(t *testing.T) {
 }
 
 // Test that the actions widget conforms to the store design.
-func TestNewStorePackagePreviewTemplate_actionsWidget(t *testing.T) {
-	template, _ := NewStorePackagePreviewTemplate(webdm.Package{
+func TestStoreTemplate_actionsWidget(t *testing.T) {
+	template, _ := NewStoreTemplate(webdm.Package{
 		Status: webdm.StatusNotInstalled,
 	})
 
-	widget := template.actionsWidget()
+	widget := template.ActionsWidget()
 
 	value, ok := widget["actions"]
 	if !ok {
@@ -102,15 +102,15 @@ func TestNewStorePackagePreviewTemplate_actionsWidget(t *testing.T) {
 }
 
 // Test that the updates widget conforms to the store design.
-func TestNewStorePackagePreviewTemplate_updatesWidget(t *testing.T) {
+func TestStoreTemplate_updatesWidget(t *testing.T) {
 	snap := webdm.Package{
 		Version:      "0.1",
 		DownloadSize: 123456,
 		Status:       webdm.StatusNotInstalled,
 	}
-	template, _ := NewStorePackagePreviewTemplate(snap)
+	template, _ := NewStoreTemplate(snap)
 
-	widget := template.updatesWidget()
+	widget := template.UpdatesWidget()
 
 	// Verify title
 	value, ok := widget["title"]

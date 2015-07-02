@@ -2,7 +2,7 @@ package actions
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/store/packages"
+	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
@@ -12,7 +12,7 @@ import (
 func TestInstallActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := new(packages.FakeManager)
+	packageManager := new(fakes.FakeManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -44,7 +44,7 @@ func TestInstallActionRunnerRun(t *testing.T) {
 func TestInstallActionRunnerRun_installationFailure(t *testing.T) {
 	actionRunner, _ := NewInstallRunner()
 
-	packageManager := &packages.FakeManager{FailInstall: true}
+	packageManager := &fakes.FakeManager{FailInstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

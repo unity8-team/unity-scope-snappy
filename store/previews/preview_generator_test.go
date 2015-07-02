@@ -1,7 +1,8 @@
-package store
+package previews
 
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/previews/packages"
 	"launchpad.net/unity-scope-snappy/store/progress"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"reflect"
@@ -14,11 +15,11 @@ var newPreviewTests = []struct {
 	scopeData *progress.Hack
 	expected  interface{}
 }{
-	{webdm.StatusUndefined, nil, &PackagePreview{}},
-	{webdm.StatusInstalled, nil, &PackagePreview{}},
-	{webdm.StatusNotInstalled, nil, &PackagePreview{}},
-	{webdm.StatusInstalling, nil, &PackagePreview{}},
-	{webdm.StatusUninstalling, nil, &PackagePreview{}},
+	{webdm.StatusUndefined, nil, &packages.Preview{}},
+	{webdm.StatusInstalled, nil, &packages.Preview{}},
+	{webdm.StatusNotInstalled, nil, &packages.Preview{}},
+	{webdm.StatusInstalling, nil, &packages.Preview{}},
+	{webdm.StatusUninstalling, nil, &packages.Preview{}},
 }
 
 // Test typical NewPreview usage.
@@ -50,20 +51,20 @@ var progressHackTests = []struct {
 	expectError bool
 }{
 	// Valid ProgressHacks
-	{webdm.StatusUndefined, &progress.Hack{webdm.StatusUndefined}, &PackagePreview{}, false},
-	{webdm.StatusNotInstalled, &progress.Hack{webdm.StatusUndefined}, &PackagePreview{}, false},
-	{webdm.StatusInstalled, &progress.Hack{webdm.StatusUndefined}, &PackagePreview{}, false},
-	{webdm.StatusInstalling, &progress.Hack{webdm.StatusUndefined}, &PackagePreview{}, false},
-	{webdm.StatusUninstalling, &progress.Hack{webdm.StatusUndefined}, &PackagePreview{}, false},
+	{webdm.StatusUndefined, &progress.Hack{webdm.StatusUndefined}, &packages.Preview{}, false},
+	{webdm.StatusNotInstalled, &progress.Hack{webdm.StatusUndefined}, &packages.Preview{}, false},
+	{webdm.StatusInstalled, &progress.Hack{webdm.StatusUndefined}, &packages.Preview{}, false},
+	{webdm.StatusInstalling, &progress.Hack{webdm.StatusUndefined}, &packages.Preview{}, false},
+	{webdm.StatusUninstalling, &progress.Hack{webdm.StatusUndefined}, &packages.Preview{}, false},
 
 	{webdm.StatusUndefined, &progress.Hack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 	{webdm.StatusNotInstalled, &progress.Hack{webdm.StatusInstalled}, &InstallingPreview{}, false},
-	{webdm.StatusInstalled, &progress.Hack{webdm.StatusInstalled}, &PackagePreview{}, false},
+	{webdm.StatusInstalled, &progress.Hack{webdm.StatusInstalled}, &packages.Preview{}, false},
 	{webdm.StatusInstalling, &progress.Hack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 	{webdm.StatusUninstalling, &progress.Hack{webdm.StatusInstalled}, &InstallingPreview{}, false},
 
 	{webdm.StatusUndefined, &progress.Hack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
-	{webdm.StatusNotInstalled, &progress.Hack{webdm.StatusNotInstalled}, &PackagePreview{}, false},
+	{webdm.StatusNotInstalled, &progress.Hack{webdm.StatusNotInstalled}, &packages.Preview{}, false},
 	{webdm.StatusInstalled, &progress.Hack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
 	{webdm.StatusInstalling, &progress.Hack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},
 	{webdm.StatusUninstalling, &progress.Hack{webdm.StatusNotInstalled}, &UninstallingPreview{}, false},

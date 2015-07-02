@@ -7,7 +7,7 @@ coverage_final="$(mktemp)"
 #
 # Parameters:
 # $1: Go path under test.
-# $2: Final coverage report.
+# $2: Final coverage file.
 function get_coverage
 {
 	local go_path=$1
@@ -24,23 +24,35 @@ function get_coverage
 	fi
 }
 
+# get_coverages accepts an array of Go packages and gets coverage for each,
+# placing the results in the requested file.
+#
+# Parameters:
+# $1: Final coverage file.
+# $2-$n: Set of Go packages.
+function get_coverages
+{
+	local coverage_final=$1
+
+	for go_package in "${@:2}"; do
+		get_coverage $go_package $coverage_final
+	done
+}
+
 # Setup final coverage file
 echo "mode: set" > $coverage_final
 
-# Add the store scope's coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/store" $coverage_final
-
-# Add the package manager's coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/store/packages" $coverage_final
-
-# Add the action runners' coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/store/actions" $coverage_final
-
-# Add webdm's coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/webdm" $coverage_final
-
-# Add progress daemon's coverage to the final coverage file
-get_coverage "launchpad.net/unity-scope-snappy/progress-daemon/daemon" $coverage_final
+get_coverages $coverage_final \
+	"launchpad.net/unity-scope-snappy/progress-daemon/daemon" \
+	"launchpad.net/unity-scope-snappy/store/actions" \
+	"launchpad.net/unity-scope-snappy/store/packages/fakes" \
+	"launchpad.net/unity-scope-snappy/store/previews" \
+	"launchpad.net/unity-scope-snappy/store/previews/humanize" \
+	"launchpad.net/unity-scope-snappy/store/previews/fakes" \
+	"launchpad.net/unity-scope-snappy/store/previews/packages" \
+	"launchpad.net/unity-scope-snappy/store/previews/packages/templates" \
+	"launchpad.net/unity-scope-snappy/store/utilities" \
+	"launchpad.net/unity-scope-snappy/webdm"
 
 if [ "$1" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml

@@ -1,4 +1,4 @@
-package store
+package templates
 
 import (
 	"launchpad.net/unity-scope-snappy/store/actions"
@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-// Test typical NewInstalledPackagePreviewTemplate usage.
-func TestNewInstalledPackagePreviewTemplate(t *testing.T) {
-	template, err := NewInstalledPackagePreviewTemplate(webdm.Package{
+// Test typical NewInstalledTemplate usage.
+func TestNewInstalledTemplate(t *testing.T) {
+	template, err := NewInstalledTemplate(webdm.Package{
 		Id:     "package1",
 		Status: webdm.StatusInstalled,
 	})
@@ -22,8 +22,8 @@ func TestNewInstalledPackagePreviewTemplate(t *testing.T) {
 }
 
 // Make sure an error occurs if the package is not installed
-func TestNewInstalledPackagePreviewTemplate_notInstalled(t *testing.T) {
-	_, err := NewInstalledPackagePreviewTemplate(webdm.Package{
+func TestNewInstalledTemplate_notInstalled(t *testing.T) {
+	_, err := NewInstalledTemplate(webdm.Package{
 		Status: webdm.StatusNotInstalled,
 	})
 
@@ -33,12 +33,12 @@ func TestNewInstalledPackagePreviewTemplate_notInstalled(t *testing.T) {
 }
 
 // Test that the actions widget conforms to the store design.
-func TestNewInstalledPackagePreviewTemplate_actionsWidget(t *testing.T) {
-	template, _ := NewInstalledPackagePreviewTemplate(webdm.Package{
+func TestInstalledTemplate_actionsWidget(t *testing.T) {
+	template, _ := NewInstalledTemplate(webdm.Package{
 		Status: webdm.StatusInstalled,
 	})
 
-	widget := template.actionsWidget()
+	widget := template.ActionsWidget()
 
 	value, ok := widget["actions"]
 	if !ok {
@@ -90,15 +90,15 @@ func TestNewInstalledPackagePreviewTemplate_actionsWidget(t *testing.T) {
 }
 
 // Test that the updates widget conforms to the store design.
-func TestNewInstalledPackagePreviewTemplate_updatesWidget(t *testing.T) {
+func TestTestInstalledTemplate_updatesWidget(t *testing.T) {
 	snap := webdm.Package{
 		Version:       "0.1",
 		InstalledSize: 123456,
 		Status:        webdm.StatusInstalled,
 	}
-	template, _ := NewInstalledPackagePreviewTemplate(snap)
+	template, _ := NewInstalledTemplate(snap)
 
-	widget := template.updatesWidget()
+	widget := template.UpdatesWidget()
 
 	// Verify title
 	value, ok := widget["title"]

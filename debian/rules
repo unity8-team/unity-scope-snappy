@@ -15,4 +15,4 @@ export PATH := ${GOPATH}/bin:${PATH}
 # Run the tests and also produce a Cobertura-compatible
 # coverage report.
 override_dh_auto_test:
-	dbus-test-runner -t $(CURDIR)/test_coverage.sh -p xml
+	dbus-test-runner -t $(CURDIR)/test_all.sh -p xml

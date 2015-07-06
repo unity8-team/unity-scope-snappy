@@ -3,7 +3,7 @@ package previews
 import (
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
-	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
+	"launchpad.net/unity-scope-snappy/store/previews/fakes"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -47,7 +47,7 @@ func TestUninstallingPreview_generate(t *testing.T) {
 			Type:          "oem",
 		})
 
-	receiver := new(interfaces.FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err != nil {
@@ -84,7 +84,7 @@ func TestUninstallingPreview_generate_uninstallFailed(t *testing.T) {
 			Message: "Unable to uninstall", // This indicates failure
 		})
 
-	receiver := new(interfaces.FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err != nil {
@@ -119,7 +119,7 @@ func TestUninstallingPreview_generate_notInstalled(t *testing.T) {
 		},
 	}
 
-	receiver := new(interfaces.FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err == nil {

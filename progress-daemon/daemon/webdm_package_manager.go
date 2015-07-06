@@ -82,7 +82,7 @@ func (manager *WebdmPackageManagerInterface) Install(packageId string) (dbus.Obj
 	err := manager.packageManager.Install(packageId)
 	if err != nil {
 		return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
-			[]interface{}{fmt.Sprintf(`Unable to install package "%d": %s`, packageId, err)})
+			[]interface{}{fmt.Sprintf(`Unable to install package "%s": %s`, packageId, err)})
 	}
 
 	operationId := manager.newOperationId()
@@ -106,7 +106,7 @@ func (manager *WebdmPackageManagerInterface) Uninstall(packageId string) (dbus.O
 	err := manager.packageManager.Uninstall(packageId)
 	if err != nil {
 		return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
-			[]interface{}{fmt.Sprintf(`Unable to uninstall package "%d": %s`, packageId, err)})
+			[]interface{}{fmt.Sprintf(`Unable to uninstall package "%s": %s`, packageId, err)})
 	}
 
 	operationId := manager.newOperationId()

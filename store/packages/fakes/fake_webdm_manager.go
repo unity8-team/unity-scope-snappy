@@ -21,7 +21,7 @@ type FakeWebdmManager struct {
 	FailUninstall            bool
 }
 
-func (manager *FakeWebdmManager) GetInstalledPackages() ([]webdm.Package, error) {
+func (manager *FakeWebdmManager) GetInstalledPackages(query string) ([]webdm.Package, error) {
 	manager.GetInstalledPackagesCalled = true
 
 	if manager.FailGetInstalledPackages {
@@ -34,7 +34,7 @@ func (manager *FakeWebdmManager) GetInstalledPackages() ([]webdm.Package, error)
 	return packages, nil
 }
 
-func (manager *FakeWebdmManager) GetStorePackages() ([]webdm.Package, error) {
+func (manager *FakeWebdmManager) GetStorePackages(query string) ([]webdm.Package, error) {
 	manager.GetStorePackagesCalled = true
 
 	if manager.FailGetStorePackages {

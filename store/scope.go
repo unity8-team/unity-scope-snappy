@@ -65,7 +65,7 @@ func (scope *Scope) SetScopeBase(base *scopes.ScopeBase) {
 func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
 	createDepartments(query, reply)
 
-	packages, err := utilities.GetPackageList(scope.webdmClient, query.DepartmentID())
+	packages, err := utilities.GetPackageList(scope.webdmClient, query.DepartmentID(), query.QueryString())
 	if err != nil {
 		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}

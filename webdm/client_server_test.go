@@ -112,8 +112,8 @@ func setupHandlers(t *testing.T) {
 				testMethod(t, request, "GET")
 
 				installedOnly := (request.FormValue("installed_only") == "true")
-
-				handlePackageListRequest(t, installedOnly, writer)
+				query := request.FormValue("q")
+				handlePackageListRequest(t, installedOnly, query, writer)
 				return
 			}
 
@@ -142,14 +142,18 @@ func setupHandlers(t *testing.T) {
 // Parameters:
 // t: Testing handle for any errors that occur.
 // installedOnly: Whether the list should only contain installed packages.
+// query: Search string.
 // writer: Response writer into which the response will be written.
-func handlePackageListRequest(t *testing.T, installedOnly bool, writer http.ResponseWriter) {
+func handlePackageListRequest(t *testing.T, installedOnly bool, query string, writer http.ResponseWriter) {
 	finishOperations()
 
 	// This is pretty inefficient, but fine for these small sets
 	packages := make([]Package, 0)
 	for _, thisPackage := range storePackages {
-		if !installedOnly || thisPackage.Installed() {
+		// This is really poor search support, but we'll only check the query
+		// against the package IDs for these tests.
+		if (!installedOnly || thisPackage.Installed()) &&
+			(query == "" || query == thisPackage.Id) {
 			packages = append(packages, thisPackage)
 		}
 	}
@@ -357,6 +361,28 @@ func runApiRequest(method string, path string, value interface{}) error {
 	}
 
 	return nil
+}
+
+// Test that the fake server's search functionality works.
+func TestFakeServer_search(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	var packages []Package
+	err := runApiRequest("GET", apiPackagesPath+"?q=package1", &packages)
+	if err != nil {
+		t.Fatalf("Unexpected error searching: %s", err)
+	}
+
+	if len(packages) != 1 {
+		t.Fatalf("Got %d results, expected 1", len(packages))
+	}
+
+	if packages[0].Id != "package1" {
+		t.Errorf(`Got package with ID "%s", expected package with id "package1"`,
+			packages[0].Id)
+	}
 }
 
 // Test that the fake server clears pending operations upon a query like the

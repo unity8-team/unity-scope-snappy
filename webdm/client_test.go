@@ -185,7 +185,7 @@ func TestDo_redirectLoop(t *testing.T) {
 // Test getting packages with an invalid URL
 func TestGetPackages_invalidUrl(t *testing.T) {
 	client.BaseUrl.Host = "%20"
-	_, err := client.getPackages(false)
+	_, err := client.getPackages("", false)
 	if err == nil {
 		t.Error("Expected error to be returned due to invalid URL")
 	}
@@ -197,7 +197,7 @@ func TestGetPackages_invalidResponse(t *testing.T) {
 	setupBroken()
 	defer teardown()
 
-	_, err := client.getPackages(false)
+	_, err := client.getPackages("", false)
 	if err == nil {
 		t.Error("Expected error to be returned due to broken server")
 	}
@@ -216,7 +216,7 @@ func TestGetInstalledPackages(t *testing.T) {
 		}
 	}
 
-	packages, err := client.GetInstalledPackages()
+	packages, err := client.GetInstalledPackages("")
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
@@ -233,13 +233,65 @@ func TestGetInstalledPackages(t *testing.T) {
 	}
 }
 
+// Test querying for only installed packages with a search parameter
+func TestGetInstalledPackages_search(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// Set all packages as "installed"
+	for index, _ := range storePackages {
+		storePackages[index].Status = StatusInstalled
+	}
+
+	packages, err := client.GetInstalledPackages("package1")
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	// Expect that only one package will be returned, since only one is
+	// installed.
+	if len(packages) != 1 {
+		// Get out now so we don't use a potentially invalid index later
+		t.Fatalf("Number of packages: %d, expected: 1", len(packages))
+	}
+
+	if packages[0].Id != "package1" {
+		t.Error("\"package1\" should have been the only package in response")
+	}
+}
+
+// Test querying for only installed packages with a search parameter that can't
+// be fulfilled.
+func TestGetInstalledPackages_searchFailure(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	// Set package1 as "installed"
+	for index, snap := range storePackages {
+		if snap.Id == "package1" {
+			storePackages[index].Status = StatusInstalled
+		}
+	}
+
+	packages, err := client.GetInstalledPackages("package2")
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if len(packages) > 0 {
+		t.Errorf("Got %d packages, expected none due to no search results", len(packages))
+	}
+}
+
 // Test querying for only installed packages with a server that returns an error
 func TestGetInstalledPackages_brokenServer(t *testing.T) {
 	// Run test server
 	setupBroken()
 	defer teardown()
 
-	_, err := client.GetInstalledPackages()
+	_, err := client.GetInstalledPackages("")
 	if err == nil {
 		t.Error("Expected error to be returned due to broken server")
 	}
@@ -251,7 +303,7 @@ func TestGetStorePackages(t *testing.T) {
 	setup(t)
 	defer teardown()
 
-	packages, err := client.GetStorePackages()
+	packages, err := client.GetStorePackages("")
 	if err != nil {
 		t.Error("Error: ", err)
 	}
@@ -284,13 +336,52 @@ func TestGetStorePackages(t *testing.T) {
 	}
 }
 
+// Test querying for store packages with a search parameter
+func TestGetStorePackages_search(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	packages, err := client.GetStorePackages("package1")
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	// Expect that only one package will be returned due to query
+	if len(packages) != 1 {
+		// Get out now so we don't use a potentially invalid index later
+		t.Fatalf("Number of packages: %d, expected: 1", len(packages))
+	}
+
+	if packages[0].Id != "package1" {
+		t.Error("\"package1\" should have been the only package in response")
+	}
+}
+
+// Test querying for store packages with a search parameter that can't be
+// fulfilled.
+func TestGetStorePackages_searchFailure(t *testing.T) {
+	// Run test server
+	setup(t)
+	defer teardown()
+
+	packages, err := client.GetInstalledPackages("invalid")
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if len(packages) > 0 {
+		t.Errorf("Got %d packages, expected none due to no search results", len(packages))
+	}
+}
+
 // Test querying for all packages with a server that returns an error
 func TestGetStorePackages_brokenServer(t *testing.T) {
 	// Run test server
 	setupBroken()
 	defer teardown()
 
-	_, err := client.GetStorePackages()
+	_, err := client.GetStorePackages("")
 	if err == nil {
 		t.Error("Expected error to be returned due to broken server")
 	}

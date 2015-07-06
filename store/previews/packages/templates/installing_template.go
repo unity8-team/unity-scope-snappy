@@ -43,7 +43,7 @@ func NewInstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*Ins
 	return template, nil
 }
 
-// actionWidget is used to create a progress widget where the store actions
+// ActionsWidget is used to create a progress widget where the store actions
 // were.
 //
 // Returns:

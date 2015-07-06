@@ -33,7 +33,7 @@ func NewStoreTemplate(snap webdm.Package) (*StoreTemplate, error) {
 	return template, nil
 }
 
-// headerWidget is used to create a header widget for the snap, including the
+// HeaderWidget is used to create a header widget for the snap, including the
 // price of the package.
 //
 // Returns:
@@ -50,7 +50,7 @@ func (preview StoreTemplate) HeaderWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// actionWidget is used to create an action widget to install the snap.
+// ActionsWidget is used to create an action widget to install the snap.
 //
 // Returns:
 // - Action preview widget for the snap.
@@ -66,7 +66,7 @@ func (preview StoreTemplate) ActionsWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// updatesWidget is used to create a table widget holding snap information.
+// UpdatesWidget is used to create a table widget holding snap information.
 //
 // Returns:
 // - Table widget for the snap.

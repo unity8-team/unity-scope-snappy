@@ -7,8 +7,8 @@ import (
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
-// InstalledTemplate is a preview template for a package that is currently being
-// uninstalled. It's based upon the InstalledTemplate.
+// UninstallingTemplate is a preview template for a package that is currently
+// being uninstalled. It's based upon the InstalledTemplate.
 type UninstallingTemplate struct {
 	*InstalledTemplate
 	objectPath dbus.ObjectPath
@@ -43,7 +43,7 @@ func NewUninstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*U
 	return template, nil
 }
 
-// ActionWidget is used to create a progress widget where the store actions
+// ActionsWidget is used to create a progress widget where the store actions
 // were.
 //
 // Returns:

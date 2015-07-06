@@ -48,7 +48,7 @@ func (preview ConfirmUninstallPreview) textWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// actionWidget is used to create an action widget to refresh the progress.
+// actionsWidget is used to create an action widget to refresh the progress.
 //
 // Returns:
 // - Action preview widget for the progress.

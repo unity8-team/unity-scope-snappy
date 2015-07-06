@@ -2,12 +2,18 @@ package main
 
 import (
 	"flag"
+	"os"
+	"os/signal"
+	"syscall"
 	"launchpad.net/unity-scope-snappy/progress-daemon/daemon"
 	"log"
 )
 
 // main is the entry point of the daemon
 func main() {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
 	webdmAddressParameter := flag.String("webdm", "", "WebDM address[:port]")
 	flag.Parse()
 
@@ -26,5 +32,5 @@ func main() {
 		log.Printf("progress-daemon: Error running daemon: %s", err)
 	}
 
-	select {} // Block here so the daemon can run
+	<-signals // Block here so the daemon can run, exiting if a signal comes in.
 }

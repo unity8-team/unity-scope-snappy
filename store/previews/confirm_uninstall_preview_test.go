@@ -3,7 +3,7 @@ package previews
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/store/actions"
-	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
+	"launchpad.net/unity-scope-snappy/store/previews/fakes"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
@@ -28,7 +28,7 @@ func TestConfirmUninstallPreview_generate(t *testing.T) {
 	snap := webdm.Package{Name: "package1"}
 	preview := NewConfirmUninstallPreview(snap)
 
-	receiver := new(interfaces.FakeWidgetReceiver)
+	receiver := new(fakes.FakeWidgetReceiver)
 
 	err := preview.Generate(receiver)
 	if err != nil {

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
+	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
 	"launchpad.net/unity-scope-snappy/store/utilities"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"log"
-	"strconv"
 )
 
 // template for the grid layout of the search results.
@@ -30,6 +30,7 @@ const layout = `{
 // Scope is the struct representing the scope itself.
 type Scope struct {
 	webdmClient *webdm.Client
+	dbusClient  *packages.DbusManagerClient
 }
 
 // NewScope creates a new Scope using a specific WebDM API URL.
@@ -46,6 +47,12 @@ func NewScope(webdmApiUrl string) (*Scope, error) {
 	scope.webdmClient, err = webdm.NewClient(webdmApiUrl)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create WebDM client: %s", err)
+	}
+
+	scope.dbusClient = packages.NewDbusManagerClient()
+	err = scope.dbusClient.Connect()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to connect to dbus session bus: %s", err)
 	}
 
 	return scope, nil
@@ -111,26 +118,20 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 }
 
 func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
-	// Obtain the ID for this action from the string
-	intActionId, err := strconv.Atoi(actionId)
-	if err != nil {
-		return nil, scopeError(`unity-scope-snappy: Invalid action ID: "%s"`, actionId)
-	}
-
-	// Get the action runner corresponding to this action
-	actionRunner, err := actions.NewRunner(actions.ActionId(intActionId))
-	if err != nil {
-		return nil, scopeError(`unity-scope-snappy: Unable to handle action "%s": %s`, actionId, err)
-	}
-
 	// Obtain the ID for the specific package
 	var snapId string
-	err = result.Get("id", &snapId)
+	err := result.Get("id", &snapId)
 	if err != nil {
 		return nil, scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}
 
-	response, err := actionRunner.Run(scope.webdmClient, snapId)
+	// Get the action runner corresponding to this action
+	actionRunner, err := actions.NewRunner(actions.ActionId(actionId))
+	if err != nil {
+		return nil, scopeError(`unity-scope-snappy: Unable to handle action "%s": %s`, actionId, err)
+	}
+
+	response, err := actionRunner.Run(scope.dbusClient, snapId)
 	if err != nil {
 		err = scopeError(`unity-scope-snappy: Error handling action "%s": %s`, actionId, err)
 	}

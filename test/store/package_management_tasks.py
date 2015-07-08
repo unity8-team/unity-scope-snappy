@@ -23,11 +23,11 @@ def verifyInstalledPreview(test, preview, title, subtitle, mascot,
 				.data({
 					"actions": [
 						{
-							"id": 3,
+							"id": "open",
 							"label": "Open"
 						},
 						{
-							"id": 2,
+							"id": "uninstall",
 							"label": "Uninstall"
 						}
 					]
@@ -70,7 +70,7 @@ def verifyStorePreview(test, preview, title, subtitle, mascot,
 				.data({
 					"actions": [
 						{
-							"id": 1,
+							"id": "install",
 							"label": "Install",
 						}
 					]

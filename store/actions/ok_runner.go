@@ -26,6 +26,6 @@ func NewOkRunner() (*OkRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner OkRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner OkRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
 	return scopes.NewActivationResponse(scopes.ActivationShowPreview), nil
 }

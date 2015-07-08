@@ -7,7 +7,7 @@ import (
 
 // Test getPackageList for installed packages
 func TestGetPackageList_installed(t *testing.T) {
-	packageManager := &fakes.FakeManager{}
+	packageManager := &fakes.FakeWebdmManager{}
 
 	_, err := GetPackageList(packageManager, "installed")
 	if err != nil {
@@ -21,7 +21,7 @@ func TestGetPackageList_installed(t *testing.T) {
 
 // Test getPackageList failure getting installed packages
 func TestGetPackageList_installed_failure(t *testing.T) {
-	packageManager := &fakes.FakeManager{FailGetInstalledPackages: true}
+	packageManager := &fakes.FakeWebdmManager{FailGetInstalledPackages: true}
 
 	packages, err := GetPackageList(packageManager, "installed")
 	if err == nil {
@@ -35,7 +35,7 @@ func TestGetPackageList_installed_failure(t *testing.T) {
 
 // Test getPackageList for store packages
 func TestGetPackageList_store(t *testing.T) {
-	packageManager := &fakes.FakeManager{}
+	packageManager := &fakes.FakeWebdmManager{}
 
 	_, err := GetPackageList(packageManager, "")
 	if err != nil {
@@ -49,7 +49,7 @@ func TestGetPackageList_store(t *testing.T) {
 
 // Test getPackageList failure getting store packages
 func TestGetPackageList_store_failure(t *testing.T) {
-	packageManager := &fakes.FakeManager{FailGetStorePackages: true}
+	packageManager := &fakes.FakeWebdmManager{FailGetStorePackages: true}
 
 	packages, err := GetPackageList(packageManager, "")
 	if err == nil {

@@ -8,10 +8,10 @@ import (
 )
 
 // Test typical Run usage.
-func TestOkActionRunnerRun(t *testing.T) {
-	actionRunner, _ := NewOkRunner()
+func TestCancelUninstallRunner_run(t *testing.T) {
+	runner, _ := NewCancelUninstallRunner()
 
-	response, err := actionRunner.Run(&fakes.FakeDbusManager{}, "foo")
+	response, err := runner.Run(&fakes.FakeDbusManager{}, "foo")
 	if err != nil {
 		// Exit here so we don't dereference nil
 		t.Fatalf("Unexpected error when attempting to run: %s", err)

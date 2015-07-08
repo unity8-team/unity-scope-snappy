@@ -31,7 +31,7 @@ func NewRefreshUninstallingRunner() (*RefreshUninstallingRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview
 // - Error (nil if none)
-func (runner RefreshUninstallingRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner RefreshUninstallingRunner) Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error) {
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
 	// Tell the preview when to stop showing the refresh page

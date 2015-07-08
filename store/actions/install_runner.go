@@ -30,7 +30,7 @@ func NewInstallRunner() (*InstallRunner, error) {
 // Return:
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
-func (runner InstallRunner) Run(packageManager packages.Manager, snapId string) (*scopes.ActivationResponse, error) {
+func (runner InstallRunner) Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error) {
 	err := packageManager.Install(snapId)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to install package with ID "%s": %s`, snapId, err)

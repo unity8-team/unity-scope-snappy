@@ -12,7 +12,7 @@ import (
 func TestUninstallActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewUninstallRunner()
 
-	packageManager := new(fakes.FakeManager)
+	packageManager := new(fakes.FakeWebdmManager)
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err != nil {
@@ -44,7 +44,7 @@ func TestUninstallActionRunnerRun(t *testing.T) {
 func TestUninstallActionRunnerRun_uninstallationFailure(t *testing.T) {
 	actionRunner, _ := NewUninstallRunner()
 
-	packageManager := &fakes.FakeManager{FailUninstall: true}
+	packageManager := &fakes.FakeWebdmManager{FailUninstall: true}
 
 	response, err := actionRunner.Run(packageManager, "foo")
 	if err == nil {

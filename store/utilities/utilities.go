@@ -15,7 +15,7 @@ import (
 // Returns:
 // - List of WebDM Package structs
 // - Error (nil if none)
-func GetPackageList(packageManager packages.Manager, department string) ([]webdm.Package, error) {
+func GetPackageList(packageManager packages.WebdmManager, department string) ([]webdm.Package, error) {
 	var packages []webdm.Package
 	var err error
 

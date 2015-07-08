@@ -22,9 +22,19 @@ The Snappy Scope is still being developed. Currently, it can do the following:
 How to use
 ----------
 
-Setup up your GOPATH and then:
+Setup up your GOPATH and then install the Snappy Scope:
 
     $ go get launchpad.net/unity-scope-snappy
+
+
+Now run the package management dbus daemon (required for installing/uninstalling
+packages):
+
+    $ $GOPATH/bin/progress-daemon
+
+
+Finally, run the scope itself:
+
     $ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/scope.ini
 
 Note that the information shown in the scope is retrieved from WebDM. By default

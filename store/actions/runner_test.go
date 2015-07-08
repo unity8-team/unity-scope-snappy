@@ -12,7 +12,11 @@ var newRunnerTests = []struct {
 }{
 	{ActionInstall, &InstallRunner{}},
 	{ActionUninstall, &UninstallRunner{}},
+	{ActionUninstallConfirm, &ConfirmUninstallRunner{}},
+	{ActionUninstallCancel, &CancelUninstallRunner{}},
 	{ActionOpen, &OpenRunner{}},
+	{ActionFinished, &FinishedRunner{}},
+	{ActionFailed, &FailedRunner{}},
 
 	// Temporary actions for manual refresh
 	{ActionRefreshInstalling, &RefreshInstallingRunner{}},

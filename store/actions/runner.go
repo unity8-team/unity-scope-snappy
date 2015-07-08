@@ -6,24 +6,30 @@ import (
 	"launchpad.net/unity-scope-snappy/store/packages"
 )
 
-type ActionId int
+type ActionId string
 
 // All possible actions in this scope
 const (
-	ActionInstall ActionId = iota + 1
-	ActionUninstall
-	ActionOpen
+	ActionInstall          ActionId = "install"
+	ActionUninstall                 = "uninstall"
+	ActionUninstallConfirm          = "uninstall_confirm"
+	ActionUninstallCancel           = "uninstall_cancel"
+	ActionOpen                      = "open"
 
 	// Temporary actions for manual refresh
-	ActionRefreshInstalling
-	ActionRefreshUninstalling
-	ActionOk
+	ActionRefreshInstalling   = "refresh_install"
+	ActionRefreshUninstalling = "refresh_uninstall"
+	ActionOk                  = "ok"
+
+	// Actions from the progress widget
+	ActionFinished = "finished"
+	ActionFailed   = "failed"
 )
 
 // Runner is an interface to be implemented by the action handlers throughout
 // the scope.
 type Runner interface {
-	Run(packageManager packages.WebdmManager, snapId string) (*scopes.ActivationResponse, error)
+	Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error)
 }
 
 // NewRunner is a factory for getting the correct Runner for a given ActionId.
@@ -36,6 +42,10 @@ func NewRunner(actionId ActionId) (Runner, error) {
 		return NewInstallRunner()
 	case ActionUninstall:
 		return NewUninstallRunner()
+	case ActionUninstallConfirm:
+		return NewConfirmUninstallRunner()
+	case ActionUninstallCancel:
+		return NewCancelUninstallRunner()
 	case ActionOpen:
 		return NewOpenRunner()
 	case ActionRefreshInstalling:
@@ -44,7 +54,13 @@ func NewRunner(actionId ActionId) (Runner, error) {
 		return NewRefreshUninstallingRunner()
 	case ActionOk:
 		return NewOkRunner()
+
+	// Actions from the progress widget
+	case ActionFinished:
+		return NewFinishedRunner()
+	case ActionFailed:
+		return NewFailedRunner()
 	default:
-		return nil, fmt.Errorf(`Unsupported action ID: "%d"`, actionId)
+		return nil, fmt.Errorf(`Unsupported action ID: "%s"`, actionId)
 	}
 }

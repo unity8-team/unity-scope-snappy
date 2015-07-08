@@ -9,6 +9,9 @@ Build-Depends: dbus-test-runner,
                golang-go.tools,
                libunity-scopes-dev,
                pkg-config,
+               python3,
+               python3-fixtures,
+               python3-scope-harness,
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/unity-scope-snappy
 Vcs-Bzr: lp:unity-scope-snappy

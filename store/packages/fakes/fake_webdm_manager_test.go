@@ -5,8 +5,8 @@ import (
 )
 
 // Test typical GetInstalledPackages usage.
-func TestGetInstalledPackages(t *testing.T) {
-	manager := &FakeManager{}
+func TestFakeWebdmManager_GetInstalledPackages(t *testing.T) {
+	manager := &FakeWebdmManager{}
 
 	packages, err := manager.GetInstalledPackages()
 	if err != nil {
@@ -16,22 +16,30 @@ func TestGetInstalledPackages(t *testing.T) {
 	if len(packages) < 1 {
 		t.Errorf("Got %d packages, expected at least 1", len(packages))
 	}
+
+	if !manager.GetInstalledPackagesCalled {
+		t.Error("Expected GetInstalledPackagesCalled to have been set")
+	}
 }
 
 // Test that requesting an error in GetInstalledPackages actually results in an
 // error.
-func TestGetInstalledPackages_failureRequest(t *testing.T) {
-	manager := &FakeManager{FailGetInstalledPackages: true}
+func TestFakeWebdmManager_GetInstalledPackages_failureRequest(t *testing.T) {
+	manager := &FakeWebdmManager{FailGetInstalledPackages: true}
 
 	_, err := manager.GetInstalledPackages()
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}
+
+	if !manager.GetInstalledPackagesCalled {
+		t.Error("Expected GetInstalledPackagesCalled to have been set")
+	}
 }
 
 // Test typical GetStorePackages usage.
-func TestGetStorePackages(t *testing.T) {
-	manager := &FakeManager{}
+func TestFakeWebdmManager_GetStorePackages(t *testing.T) {
+	manager := &FakeWebdmManager{}
 
 	packages, err := manager.GetStorePackages()
 	if err != nil {
@@ -41,22 +49,30 @@ func TestGetStorePackages(t *testing.T) {
 	if len(packages) < 1 {
 		t.Errorf("Got %d packages, expected at least 1", len(packages))
 	}
+
+	if !manager.GetStorePackagesCalled {
+		t.Error("Expected GetStorePackagesCalled to have been set")
+	}
 }
 
 // Test that requesting an error in GetStorePackages actually results in an
 // error.
-func TestGetStorePackages_failureRequest(t *testing.T) {
-	manager := &FakeManager{FailGetStorePackages: true}
+func TestFakeWebdmManager_GetStorePackages_failureRequest(t *testing.T) {
+	manager := &FakeWebdmManager{FailGetStorePackages: true}
 
 	_, err := manager.GetStorePackages()
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}
+
+	if !manager.GetStorePackagesCalled {
+		t.Error("Expected GetStorePackagesCalled to have been set")
+	}
 }
 
 // Test typical Query usage.
-func TestQuery(t *testing.T) {
-	manager := &FakeManager{}
+func TestFakeWebdmManager_Query(t *testing.T) {
+	manager := &FakeWebdmManager{}
 
 	snap, err := manager.Query("foo")
 	if err != nil {
@@ -66,54 +82,78 @@ func TestQuery(t *testing.T) {
 	if snap == nil {
 		t.Error("Snap was unexpectedly nil")
 	}
+
+	if !manager.QueryCalled {
+		t.Error("Expected QueryCalled to have been set")
+	}
 }
 
 // Test that requesting an error in Query actually results in an error.
-func TestQuery_failureRequest(t *testing.T) {
-	manager := &FakeManager{FailQuery: true}
+func TestFakeWebdmManager_Query_failureRequest(t *testing.T) {
+	manager := &FakeWebdmManager{FailQuery: true}
 
 	_, err := manager.Query("foo")
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}
+
+	if !manager.QueryCalled {
+		t.Error("Expected QueryCalled to have been set")
+	}
 }
 
 // Test typical Install usage.
-func TestInstall(t *testing.T) {
-	manager := &FakeManager{}
+func TestFakeWebdmManager_Install(t *testing.T) {
+	manager := &FakeWebdmManager{}
 
 	err := manager.Install("foo")
 	if err != nil {
 		t.Fatalf("Unexpected error while installing: %s", err)
 	}
+
+	if !manager.InstallCalled {
+		t.Error("Expected InstallCalled to have been set")
+	}
 }
 
 // Test that requesting an error in Install actually results in an error.
-func TestInstall_failureRequest(t *testing.T) {
-	manager := &FakeManager{FailInstall: true}
+func TestFakeWebdmManager_Install_failureRequest(t *testing.T) {
+	manager := &FakeWebdmManager{FailInstall: true}
 
 	err := manager.Install("foo")
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}
+
+	if !manager.InstallCalled {
+		t.Error("Expected InstallCalled to have been set")
+	}
 }
 
 // Test typical Uninstall usage.
-func TestUninstall(t *testing.T) {
-	manager := &FakeManager{}
+func TestFakeWebdmManager_Uninstall(t *testing.T) {
+	manager := &FakeWebdmManager{}
 
 	err := manager.Uninstall("foo")
 	if err != nil {
 		t.Fatalf("Unexpected error while uninstalling: %s", err)
 	}
+
+	if !manager.UninstallCalled {
+		t.Error("Expected UninstallCalled to have been set")
+	}
 }
 
 // Test that requesting an error in Uninstall actually results in an error.
-func TestUninstall_failureRequest(t *testing.T) {
-	manager := &FakeManager{FailUninstall: true}
+func TestFakeWebdmManager_Uninstall_failureRequest(t *testing.T) {
+	manager := &FakeWebdmManager{FailUninstall: true}
 
 	err := manager.Uninstall("foo")
 	if err == nil {
 		t.Error("Expected an error due to failure request")
+	}
+
+	if !manager.UninstallCalled {
+		t.Error("Expected UninstallCalled to have been set")
 	}
 }

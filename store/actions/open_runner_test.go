@@ -9,9 +9,7 @@ import (
 func TestOpenActionRunnerRun(t *testing.T) {
 	actionRunner, _ := NewOpenRunner()
 
-	packageManager := new(fakes.FakeManager)
-
-	_, err := actionRunner.Run(packageManager, "foo")
+	_, err := actionRunner.Run(&fakes.FakeDbusManager{}, "foo")
 	if err == nil {
 		t.Error("Expected an error due to opening not being supported")
 	}

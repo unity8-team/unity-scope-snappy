@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	defaultDbusObject = "com.canonical.applications.WebdmPackageManager"
+	defaultDbusObject          = "com.canonical.applications.WebdmPackageManager"
 	defaultDbusObjectInterface = "com.canonical.applications.Download"
-	defaultInstallMethod = defaultDbusObjectInterface + ".Install"
-	defaultUninstallMethod = defaultDbusObjectInterface + ".Uninstall"
+	defaultInstallMethod       = defaultDbusObjectInterface + ".Install"
+	defaultUninstallMethod     = defaultDbusObjectInterface + ".Uninstall"
 )
 
 // DbusManagerClient is a DBus client for communicating with the WebDM Package

@@ -131,7 +131,7 @@ func TestNewGenericTemplate_updatesWidget(t *testing.T) {
 	widget := template.UpdatesWidget()
 
 	if widget.WidgetType() != "table" {
-		t.Fatal(`Expected widget type to be "table"`)
+		t.Fatal(`Widget type was "%s", expected "table"`, widget.WidgetType())
 	}
 
 	// Verify title
@@ -140,7 +140,7 @@ func TestNewGenericTemplate_updatesWidget(t *testing.T) {
 		t.Error("Expected updates table to include a title")
 	}
 	if value != "Updates" {
-		t.Error(`Expected updates table's title to be "Updates"`)
+		t.Error(`Updates table's title was "%s", expected "Updates"`, value)
 	}
 
 	// Verify version
@@ -164,9 +164,9 @@ func TestNewGenericTemplate_updatesWidget(t *testing.T) {
 	}
 
 	if versionRow[0] != "Version number" {
-		t.Error(`Expected first column to be "Version number"`)
+		t.Errorf(`First column was "%s", expected "Version number"`, versionRow[0])
 	}
 	if versionRow[1] != webdmPackage.Version {
-		t.Error(`Expeced second column to be "%s"`, webdmPackage.Version)
+		t.Errorf(`Second column was "%s", expected "%s"`, versionRow[1], webdmPackage.Version)
 	}
 }

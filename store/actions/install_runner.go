@@ -3,9 +3,8 @@ package actions
 import (
 	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/packages"
-	"launchpad.net/unity-scope-snappy/store/progress"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // InstallRunner is an action Runner to handle the installation of a specific
@@ -31,15 +30,19 @@ func NewInstallRunner() (*InstallRunner, error) {
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
 func (runner InstallRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
-	_, err := packageManager.Install(snapId)
+	objectPath, err := packageManager.Install(snapId)
 	if err != nil {
 		return nil, fmt.Errorf(`Unable to install package with ID "%s": %s`, snapId, err)
 	}
 
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
-	// Tell the preview when to stop showing the refresh page
-	response.SetScopeData(progress.Hack{webdm.StatusInstalled})
+	metadata := operation.Metadata{
+		InstallRequested: true,
+		ObjectPath:       objectPath,
+	}
+
+	response.SetScopeData(metadata)
 
 	return response, nil
 }

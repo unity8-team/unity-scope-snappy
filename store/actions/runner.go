@@ -16,11 +16,6 @@ const (
 	ActionUninstallCancel           = "uninstall_cancel"
 	ActionOpen                      = "open"
 
-	// Temporary actions for manual refresh
-	ActionRefreshInstalling   = "refresh_install"
-	ActionRefreshUninstalling = "refresh_uninstall"
-	ActionOk                  = "ok"
-
 	// Actions from the progress widget
 	ActionFinished = "finished"
 	ActionFailed   = "failed"
@@ -48,12 +43,6 @@ func NewRunner(actionId ActionId) (Runner, error) {
 		return NewCancelUninstallRunner()
 	case ActionOpen:
 		return NewOpenRunner()
-	case ActionRefreshInstalling:
-		return NewRefreshInstallingRunner()
-	case ActionRefreshUninstalling:
-		return NewRefreshUninstallingRunner()
-	case ActionOk:
-		return NewOkRunner()
 
 	// Actions from the progress widget
 	case ActionFinished:

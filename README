@@ -24,7 +24,7 @@ How to use
 
 Setup up your GOPATH and then install the Snappy Scope:
 
-    $ go get launchpad.net/unity-scope-snappy
+    $ go get launchpad.net/unity-scope-snappy/store
 
 
 Now run the package management dbus daemon (required for installing/uninstalling
@@ -35,13 +35,13 @@ packages):
 
 Finally, run the scope itself:
 
-    $ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/scope.ini
+    $ unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/store/store.ini
 
 Note that the information shown in the scope is retrieved from WebDM. By default
 the scope will use "http://webdm.local:4200", but you can change that with the
 WEBDM_URL environment variable:
 
-    $ WEBDM_URL=http://address:port unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/scope.ini
+    $ WEBDM_URL=http://address:port unity-scope-tool $GOPATH/src/launchpad.net/unity-scope-snappy/store/store.ini
 
 
 External Dependencies

@@ -39,24 +39,34 @@ function get_coverages
 	done
 }
 
+coverage_type=""
+
+while getopts ":t:" opt; do
+	case $opt in
+		t)
+			coverage_type=$OPTARG
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument." >&2
+			exit 1
+			;;
+	esac
+done
+
+shift $((OPTIND-1))
+
 # Setup final coverage file
 echo "mode: set" > $coverage_final
 
-get_coverages $coverage_final \
-	"launchpad.net/unity-scope-snappy/progress-daemon/daemon" \
-	"launchpad.net/unity-scope-snappy/store/actions" \
-	"launchpad.net/unity-scope-snappy/store/packages" \
-	"launchpad.net/unity-scope-snappy/store/packages/fakes" \
-	"launchpad.net/unity-scope-snappy/store/previews" \
-	"launchpad.net/unity-scope-snappy/store/previews/humanize" \
-	"launchpad.net/unity-scope-snappy/store/previews/fakes" \
-	"launchpad.net/unity-scope-snappy/store/previews/packages" \
-	"launchpad.net/unity-scope-snappy/store/previews/packages/templates" \
-	"launchpad.net/unity-scope-snappy/store/utilities" \
-	"launchpad.net/unity-scope-snappy/webdm"
+get_coverages $coverage_final $@
 
-if [ "$1" == "xml" ]; then
+echo "Cov type: $coverage_type"
+
+if [ "$coverage_type" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml
-elif [ "$1" == "html" ]; then
+elif [ "$coverage_type" == "html" ]; then
 	go tool cover -html=$coverage_final
 fi

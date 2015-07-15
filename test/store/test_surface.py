@@ -32,16 +32,16 @@ class TestInitialSurface(ScopeHarnessTestCase, fixtures.TestWithFixtures):
 		os.environ["WEBDM_URL"] = server.url
 
 		self.harness = ScopeHarness.new_from_scope_list(Parameters([
-			"{}/../../scope.ini".format(os.path.dirname(os.path.realpath(__file__)))
+			"{}/../../store/store.ini".format(os.path.dirname(os.path.realpath(__file__)))
 		]))
 		self.view = self.harness.results_view
-		self.view.active_scope = "scope"
+		self.view.active_scope = "store"
 		self.view.search_query = ""
 
 	def testScopeProperties(self):
 		"""Test the scope properties from the .ini file"""
 
-		self.assertEqual(self.view.scope_id, "scope")
+		self.assertEqual(self.view.scope_id, "store")
 		self.assertEqual(self.view.display_name, "Snappy Scope")
 		self.assertEqual(self.view.description, "A scope for the snappy store")
 

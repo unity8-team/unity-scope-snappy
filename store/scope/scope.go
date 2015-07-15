@@ -1,4 +1,4 @@
-package store
+package scope
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ type Scope struct {
 	dbusClient  *packages.DbusManagerClient
 }
 
-// NewScope creates a new Scope using a specific WebDM API URL.
+// New creates a new Scope using a specific WebDM API URL.
 //
 // Parameters:
 // webdmApiUrl: URL where WebDM is listening.
@@ -41,7 +41,7 @@ type Scope struct {
 // Returns:
 // - Pointer to scope (nil if error).
 // - Error (nil if none).
-func NewScope(webdmApiUrl string) (*Scope, error) {
+func New(webdmApiUrl string) (*Scope, error) {
 	scope := new(Scope)
 	var err error
 	scope.webdmClient, err = webdm.NewClient(webdmApiUrl)

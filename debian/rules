@@ -7,12 +7,22 @@ export DH_GOLANG_INSTALL_ALL := 1
 
 # Setup the paths so we can run gocov and gocov-xml.
 export GOPATH := $(CURDIR)/obj-$(DEB_BUILD_GNU_TYPE)
-export PATH := ${GOPATH}/bin:${PATH}
+export PATH := $(GOPATH)/bin:$(PATH)
+
+STORE_FILE_PATH := /usr/lib/$(DEB_HOST_MULTIARCH)/unity-scopes/snappy-store/store
 
 %:
 	dh $@ --buildsystem=golang --with=golang
 
-# Run the tests and also produce a Cobertura-compatible
-# coverage report.
-override_dh_auto_test:
-	dbus-test-runner -m 600 -t $(CURDIR)/test_all.sh -p xml
+# Run the tests and produce a Cobertura-compatible coverage report.
+override_dh_auto_test: debian/store.ini debian/com.canonical.applications.WebdmPackageManager.service
+	dbus-test-runner -m 600 -t make -p integration_tests
+	dbus-test-runner -m 600 -t make -p coverage_xml
+
+# Rewrite any *.in files to be compatible with multiarch.
+debian/%: debian/%.in
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' $< > $@
+
+# Rewrite the scope.ini file to point to the multiarch location.
+debian/store.ini: store/store.ini
+	sed 's|ScopeRunner.*|ScopeRunner = $(STORE_FILE_PATH) --runtime %R --scope %S|g' $< > $@

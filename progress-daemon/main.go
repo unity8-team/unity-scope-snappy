@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"launchpad.net/unity-scope-snappy/progress-daemon/daemon"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"launchpad.net/unity-scope-snappy/progress-daemon/daemon"
-	"log"
 )
 
 // main is the entry point of the daemon

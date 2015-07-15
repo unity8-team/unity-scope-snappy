@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: dbus-test-runner,
                debhelper (>= 9),
+               dh-exec (>=0.3),
                dh-golang,
                golang-go,
                golang-go.tools,
@@ -19,11 +20,24 @@ Vcs-Browser: http://bazaar.launchpad.net/~unity-api-team/unity-scope-snappy/trun
 
 Package: unity-scope-snappy
 Architecture: any
+Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
+         unity-scope-snappy-daemon (= ${binary:Version}),
 Built-Using: ${misc:Built-Using}
-Description: Install and launch snap packages
+Description: Install and launch snap packages.
  This scope gets the list of available snap packages from the Ubuntu Store, and
  lets the user see the details of each application or scope before installing.
  The details include screenshots, rating and reviews. It can also be used to
  launch installed applications.
+
+Package: unity-scope-snappy-daemon
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Built-Using: ${misc:Built-Using}
+Description: Manage the installation and uninstallation of snaps via DBus.
+ This DBus service exposes an interface to install and uninstall snap packages,
+ providing feedback signals during the operation that can be used to determine
+ progress.

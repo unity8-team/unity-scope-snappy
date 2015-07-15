@@ -30,6 +30,7 @@ FMT_LIST = $(foreach item, $(ALL_LIST), $(item)_fmt)
 
 all: install
 install: $(INSTALL_LIST)
+check: test
 test: go_tests integration_tests
 go_tests: $(TEST_LIST)
 fmt: $(FMT_LIST)
@@ -38,12 +39,12 @@ fmt: $(FMT_LIST)
 coverage:
 	./test_coverage.sh $(ABSOLUTE_PACKAGES_TO_TEST)
 
-.PHONY: coverage_html
-coverage_html:
+.PHONY: coverage.html
+coverage.html:
 	./test_coverage.sh -t html $(ABSOLUTE_PACKAGES_TO_TEST)
 
-.PHONY: coverage_xml
-coverage_xml:
+.PHONY: coverage.xml
+coverage.xml:
 	./test_coverage.sh -t xml $(ABSOLUTE_PACKAGES_TO_TEST)
 
 .PHONY: integration_tests

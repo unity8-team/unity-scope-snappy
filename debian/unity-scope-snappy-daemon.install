@@ -1,4 +1,4 @@
 #!/usr/bin/dh-exec
 
-usr/bin/progress-daemon usr/lib/${DEB_HOST_MULTIARCH}/unity-scope-snappy/
+usr/bin/package-management-daemon usr/lib/${DEB_HOST_MULTIARCH}/unity-scope-snappy/
 debian/com.canonical.applications.WebdmPackageManager.service usr/share/dbus-1/services/

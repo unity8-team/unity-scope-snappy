@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"launchpad.net/unity-scope-snappy/progress-daemon/daemon"
+	"launchpad.net/unity-scope-snappy/package-management-daemon/daemon"
 	"log"
 	"os"
 	"os/signal"
@@ -29,7 +29,7 @@ func main() {
 
 	err = daemon.Run()
 	if err != nil {
-		log.Printf("progress-daemon: Error running daemon: %s", err)
+		log.Printf("package-management-daemon: Error running daemon: %s", err)
 	}
 
 	<-signals // Block here so the daemon can run, exiting if a signal comes in.

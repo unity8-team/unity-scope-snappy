@@ -5,8 +5,8 @@ GOTEST=$(GOCMD) test
 GOFMT=gofmt -w
 
 TOP_PACKAGE := launchpad.net/unity-scope-snappy
-EXECUTABLES := store progress-daemon
-PACKAGES_TO_TEST := progress-daemon/daemon \
+EXECUTABLES := store package-management-daemon
+PACKAGES_TO_TEST := package-management-daemon/daemon \
                     store/actions \
                     store/packages \
                     store/packages/fakes \
@@ -48,7 +48,7 @@ coverage.xml:
 	./test_coverage.sh -t xml $(ABSOLUTE_PACKAGES_TO_TEST)
 
 .PHONY: integration_tests
-integration_tests:
+integration_tests: install
 	python3 -m unittest discover -s test
 
 $(BUILD_LIST): %_build: %_fmt

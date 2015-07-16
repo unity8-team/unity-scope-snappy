@@ -10,7 +10,7 @@ import (
 
 const (
 	// Where webdm is listening
-	DefaultApiUrl = "http://webdm.local:4200"
+	DefaultApiUrl = "http://localhost:4200"
 
 	// User-agent to use when communicating with webdm API
 	defaultUserAgent = "unity-scope-snappy"

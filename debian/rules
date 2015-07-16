@@ -15,7 +15,7 @@ STORE_FILE_PATH := /usr/lib/$(DEB_HOST_MULTIARCH)/unity-scopes/snappy-store/stor
 	dh $@ --buildsystem=golang --with=golang
 
 # Run the tests and produce a Cobertura-compatible coverage report.
-override_dh_auto_test: debian/store.ini debian/com.canonical.applications.WebdmPackageManager.service
+override_dh_auto_test: debian/snappy-store.ini debian/com.canonical.applications.WebdmPackageManager.service
 	dbus-test-runner -m 600 -t make -p integration_tests
 	dbus-test-runner -m 600 -t make -p coverage.xml
 
@@ -24,5 +24,5 @@ debian/%: debian/%.in
 	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' $< > $@
 
 # Rewrite the scope.ini file to point to the multiarch location.
-debian/store.ini: store/store.ini
+debian/snappy-store.ini: store/snappy-store.ini
 	sed 's|ScopeRunner.*|ScopeRunner = $(STORE_FILE_PATH) --runtime %R --scope %S|g' $< > $@

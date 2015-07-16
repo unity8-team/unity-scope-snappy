@@ -20,7 +20,7 @@ override_dh_auto_test: debian/snappy-store.ini debian/com.canonical.applications
 	dbus-test-runner -m 600 -t make -p coverage.xml
 
 # Rewrite any *.in files to be compatible with multiarch.
-debian/%: debian/%.in
+debian/%: data/%.in
 	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' $< > $@
 
 # Rewrite the scope.ini file to point to the multiarch location.

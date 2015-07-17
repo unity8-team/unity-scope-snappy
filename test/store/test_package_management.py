@@ -32,17 +32,17 @@ class TestPackageManagement(ScopeHarnessTestCase, fixtures.TestWithFixtures):
 		server = ServerFixture(FakeWebdmServer)
 		self.useFixture(server)
 
-		# Run the progress daemon to communicate with our fake server
-		self.daemon = subprocess.Popen(["progress-daemon",
+		# Run the package management daemon to communicate with our fake server
+		self.daemon = subprocess.Popen(["package-management-daemon",
 		                                "-webdm={}".format(server.url)])
 
 		os.environ["WEBDM_URL"] = server.url
 
 		self.harness = ScopeHarness.new_from_scope_list(Parameters([
-			"{}/../../scope.ini".format(THIS_FILE_PATH)
+			"{}/../../store/snappy-store.ini".format(THIS_FILE_PATH)
 		]))
 		self.view = self.harness.results_view
-		self.view.active_scope = "scope"
+		self.view.active_scope = "snappy-store"
 		self.view.search_query = ""
 
 	def tearDown(self):

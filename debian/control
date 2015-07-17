@@ -12,6 +12,7 @@ Build-Depends: dbus-test-runner,
                pkg-config,
                python3,
                python3-fixtures,
+               python3-requests,
                python3-scope-harness,
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/unity-scope-snappy

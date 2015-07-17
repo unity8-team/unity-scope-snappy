@@ -1,11 +1,9 @@
 package actions
 
 import (
-	"fmt"
 	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/packages"
-	"launchpad.net/unity-scope-snappy/store/progress"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // UninstallRunner is an action Runner to handle the uninstallation of a
@@ -31,15 +29,13 @@ func NewUninstallRunner() (*UninstallRunner, error) {
 // - Pointer to an ActivationResponse for showing the preview.
 // - Error (nil if none).
 func (runner UninstallRunner) Run(packageManager packages.DbusManager, snapId string) (*scopes.ActivationResponse, error) {
-	_, err := packageManager.Uninstall(snapId)
-	if err != nil {
-		return nil, fmt.Errorf(`Unable to uninstall package with ID "%s": %s`, snapId, err)
-	}
-
 	response := scopes.NewActivationResponse(scopes.ActivationShowPreview)
 
-	// Tell the preview when to stop showing the refresh page
-	response.SetScopeData(progress.Hack{webdm.StatusNotInstalled})
+	metadata := operation.Metadata{
+		UninstallRequested: true,
+	}
+
+	response.SetScopeData(metadata)
 
 	return response, nil
 }

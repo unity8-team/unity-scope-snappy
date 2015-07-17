@@ -16,7 +16,10 @@ def verifyInstalledPreview(test, preview, title, subtitle, mascot,
 				.data({
 					"title": title,
 					"subtitle": subtitle,
-					"mascot": mascot
+					"mascot": mascot,
+					"attributes": [
+						{"value": "✓ Installed"}
+					]
 				}))
 			.widget(PreviewWidgetMatcher("actions")
 				.type("actions")

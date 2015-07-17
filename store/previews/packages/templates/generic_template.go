@@ -17,7 +17,7 @@ func NewGenericTemplate(snap webdm.Package) *GenericTemplate {
 	return &GenericTemplate{snap: snap}
 }
 
-// headerWidget is used to create a header widget for the snap.
+// HeaderWidget is used to create a header widget for the snap.
 //
 // Returns:
 // - Header preview widget for the snap.
@@ -31,7 +31,7 @@ func (preview GenericTemplate) HeaderWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// actionsWidget is used to create an action widget for the snap. The widget
+// ActionsWidget is used to create an action widget for the snap. The widget
 // contains no actions.
 //
 // Returns:
@@ -42,7 +42,7 @@ func (preview GenericTemplate) ActionsWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// infoWidget is used to create a text widget holding the snap description.
+// InfoWidget is used to create a text widget holding the snap description.
 //
 // Returns:
 // - Text preview widget for the snap.
@@ -55,7 +55,7 @@ func (preview GenericTemplate) InfoWidget() scopes.PreviewWidget {
 	return widget
 }
 
-// updatesWidget is used to create a table widget holding snap version
+// UpdatesWidget is used to create a table widget holding snap version
 // information.
 //
 // Returns:

@@ -1,0 +1,5 @@
+#!/usr/bin/dh-exec
+
+usr/bin/store usr/lib/${DEB_HOST_MULTIARCH}/unity-scopes/snappy-store/
+debian/snappy-store.ini usr/lib/${DEB_HOST_MULTIARCH}/unity-scopes/snappy-store/
+data/snappy-store.png usr/share/unity/scopes/snappy-store/

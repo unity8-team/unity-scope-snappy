@@ -150,8 +150,7 @@ class FakeWebdmServer(http.server.HTTPServer):
 	def __init__(self, address, ignoreRequests=False):
 		self.ignoreRequests = ignoreRequests
 
-		manager = multiprocessing.Manager()
-		self.PACKAGES = manager.list()
+		self.PACKAGES = []
 		self.PACKAGES.append(Package(
 				id = "package1.canonical",
 				name = "package1",

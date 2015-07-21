@@ -1,6 +1,10 @@
-unity-scope-snappy (0.1) UNRELEASED; urgency=medium
+unity-scope-snappy (0.1.0-0ubuntu1) UNRELEASED; urgency=medium
 
   [ Kyle Fazzari ]
-  * Initial release
+  * Initial release:
+    - DBus daemon for installing/uninstalling packages via the WebDM API and
+      providing feedback.
+    - Scope can install/uninstall packages via DBus daemon and display progress.
+    - Scope shows all preview details provided by WebDM.
 
- -- Kyle Fazzari <kyle@canonical.com>  Thu, 21 May 2015 10:05:52 -0400
+ -- Kyle Fazzari <kyle@canonical.com>  Thu, 16 Jul 2015 09:26:39 -0400

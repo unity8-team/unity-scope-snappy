@@ -9,7 +9,7 @@ import (
 func TestGetPackageList_installed(t *testing.T) {
 	packageManager := &fakes.FakeWebdmManager{}
 
-	_, err := GetPackageList(packageManager, "installed")
+	_, err := GetPackageList(packageManager, "installed", "")
 	if err != nil {
 		t.Error("Unexpected error while getting installed package list")
 	}
@@ -23,7 +23,7 @@ func TestGetPackageList_installed(t *testing.T) {
 func TestGetPackageList_installed_failure(t *testing.T) {
 	packageManager := &fakes.FakeWebdmManager{FailGetInstalledPackages: true}
 
-	packages, err := GetPackageList(packageManager, "installed")
+	packages, err := GetPackageList(packageManager, "installed", "")
 	if err == nil {
 		t.Error("Expected an error getting installed package list")
 	}
@@ -37,7 +37,7 @@ func TestGetPackageList_installed_failure(t *testing.T) {
 func TestGetPackageList_store(t *testing.T) {
 	packageManager := &fakes.FakeWebdmManager{}
 
-	_, err := GetPackageList(packageManager, "")
+	_, err := GetPackageList(packageManager, "", "")
 	if err != nil {
 		t.Error("Unexpected error while getting store package list")
 	}
@@ -51,7 +51,7 @@ func TestGetPackageList_store(t *testing.T) {
 func TestGetPackageList_store_failure(t *testing.T) {
 	packageManager := &fakes.FakeWebdmManager{FailGetStorePackages: true}
 
-	packages, err := GetPackageList(packageManager, "")
+	packages, err := GetPackageList(packageManager, "", "")
 	if err == nil {
 		t.Error("Expected an error getting store package list")
 	}

@@ -63,11 +63,14 @@ func NewClient(apiUrl string) (*Client, error) {
 
 // GetInstalledPackages sends an API request for a list of installed packages.
 //
+// Parameters:
+// query: Search query for list.
+//
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client *Client) GetInstalledPackages() ([]Package, error) {
-	packages, err := client.getPackages(true)
+func (client *Client) GetInstalledPackages(query string) ([]Package, error) {
+	packages, err := client.getPackages(query, true)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting installed packages: %s", err)
 	}
@@ -78,11 +81,14 @@ func (client *Client) GetInstalledPackages() ([]Package, error) {
 // GetStorePackages sends an API request for a list of all packages in the
 // store (including installed packages).
 //
+// Parameters:
+// query: Search query for list.
+//
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (client *Client) GetStorePackages() ([]Package, error) {
-	packages, err := client.getPackages(false)
+func (client *Client) GetStorePackages(query string) ([]Package, error) {
+	packages, err := client.getPackages(query, false)
 	if err != nil {
 		return nil, fmt.Errorf("webdm: Error getting store packages: %s", err)
 	}
@@ -172,13 +178,16 @@ func (client *Client) Uninstall(packageId string) error {
 // getPackages sends a request to the API for a package list.
 //
 // Parameters:
+// query: Search query for list.
 // installedOnly: Whether the list should only contain installed packages.
 //
 // Returns:
 // - Slice of Package structs
 // - Error (nil if none)
-func (client *Client) getPackages(installedOnly bool) ([]Package, error) {
+func (client *Client) getPackages(query string, installedOnly bool) ([]Package, error) {
 	data := url.Values{}
+	data.Set("q", query)
+
 	if installedOnly {
 		data.Set("installed_only", "true")
 	}

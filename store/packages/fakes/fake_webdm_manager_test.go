@@ -8,7 +8,7 @@ import (
 func TestFakeWebdmManager_GetInstalledPackages(t *testing.T) {
 	manager := &FakeWebdmManager{}
 
-	packages, err := manager.GetInstalledPackages()
+	packages, err := manager.GetInstalledPackages("")
 	if err != nil {
 		t.Fatalf("Unexpected error while getting installed packages: %s", err)
 	}
@@ -27,7 +27,7 @@ func TestFakeWebdmManager_GetInstalledPackages(t *testing.T) {
 func TestFakeWebdmManager_GetInstalledPackages_failureRequest(t *testing.T) {
 	manager := &FakeWebdmManager{FailGetInstalledPackages: true}
 
-	_, err := manager.GetInstalledPackages()
+	_, err := manager.GetInstalledPackages("")
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}
@@ -41,7 +41,7 @@ func TestFakeWebdmManager_GetInstalledPackages_failureRequest(t *testing.T) {
 func TestFakeWebdmManager_GetStorePackages(t *testing.T) {
 	manager := &FakeWebdmManager{}
 
-	packages, err := manager.GetStorePackages()
+	packages, err := manager.GetStorePackages("")
 	if err != nil {
 		t.Fatalf("Unexpected error while getting store packages: %s", err)
 	}
@@ -60,7 +60,7 @@ func TestFakeWebdmManager_GetStorePackages(t *testing.T) {
 func TestFakeWebdmManager_GetStorePackages_failureRequest(t *testing.T) {
 	manager := &FakeWebdmManager{FailGetStorePackages: true}
 
-	_, err := manager.GetStorePackages()
+	_, err := manager.GetStorePackages("")
 	if err == nil {
 		t.Error("Expected an error due to failure request")
 	}

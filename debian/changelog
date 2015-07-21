@@ -1,4 +1,4 @@
-unity-scope-snappy (0.1.0-0ubuntu1) UNRELEASED; urgency=medium
+unity-scope-snappy (0.1.0+15.10.20150721-0ubuntu1) wily; urgency=medium
 
   [ Kyle Fazzari ]
   * Initial release:
@@ -6,5 +6,130 @@ unity-scope-snappy (0.1.0-0ubuntu1) UNRELEASED; urgency=medium
       providing feedback.
     - Scope can install/uninstall packages via DBus daemon and display progress.
     - Scope shows all preview details provided by WebDM.
+  * Add DBus client for communicating with progress daemon.
+  * Add DBus server.
+  * Add basic signal handling to progress daemon.
+  * Add integration tests for departments.
+  * Add integration tests for package management tasks.
+  * Add integration tests for package previews.
+  * Add integration tests for verifying the initial surface results.
+  * Add progress placeholder previews for manually refreshing.
+  * Add snap package size to previews.
+  * Add support for DBus WebdmPackageManager interface.
+  * Add support for searching.
+  * Change command-line flag for WebDM URL to an environment variable.
+  * Extract package manager into a separate package.
+  * Extract scope ActionRunners into their own package.
+  * Finish the progress daemon.
+  * Fix bug where an incorrect URL for WebDM resulted in a panic.
+  * Hook up DBus client to action runners.
+  * Refactor previews into separate packages to reduce clutter.
+  * Refactor the Snappy Scope to increase testability and extensibility.
+  * Update previews to include the progress widget instead of
+    placeholders.
+  * Vendor godbus for the progress daemon.
 
- -- Kyle Fazzari <kyle@canonical.com>  Thu, 16 Jul 2015 09:26:39 -0400
+  [ Alejandro J. Cura ]
+  * Merge lp:~kyrofa/unity-scope-snappy/better_webdm_test_coverage into
+    lp:unity-scope-snappy
+  * Merge lp:~kyrofa/unity-scope-snappy/install_snaps removed:
+    webdm/client_types.go added: webdm/client_server_test.go
+    webdm/package.go webdm/package_test.go
+  * Merged lp:~alecu/unity-scope-snappy/groundwork branch added: COPYING
+    README snappy-scope/ snappy-scope/main.go snappy-scope/snappy-
+    scope.ini webdm/ webdm/client.go
+  * Merged lp:~kyrofa/unity-scope-snappy/show_available_snaps
+  * Merging lp:~kyrofa/unity-scope-snappy/ci_integration added: debian/
+    debian/changelog debian/compat debian/control debian/copyright
+    debian/rules debian/source/ debian/source/format internal/
+    internal/github.com/ internal/github.com/AlekSi/
+    internal/github.com/AlekSi/gocov-xml/
+    internal/github.com/AlekSi/gocov-xml/LICENSE
+    internal/github.com/AlekSi/gocov-xml/Makefile
+    internal/github.com/AlekSi/gocov-xml/README.md
+    internal/github.com/AlekSi/gocov-xml/coverage-03.dtd
+    internal/github.com/AlekSi/gocov-xml/coverage-with-data.xml
+    internal/github.com/AlekSi/gocov-xml/gocov-xml.go
+    internal/github.com/axw/ internal/github.com/axw/gocov/
+    internal/github.com/axw/gocov/AUTHORS
+    internal/github.com/axw/gocov/LICENSE
+    internal/github.com/axw/gocov/README.md
+    internal/github.com/axw/gocov/gocov/
+    internal/github.com/axw/gocov/gocov.go
+    internal/github.com/axw/gocov/gocov/annotate.go
+    internal/github.com/axw/gocov/gocov/convert.go
+    internal/github.com/axw/gocov/gocov/main.go
+    internal/github.com/axw/gocov/gocov/report.go
+    internal/github.com/axw/gocov/gocov/test.go
+    internal/github.com/axw/gocov/gocov_test.go
+    internal/github.com/axw/gocov/gocovutil/
+    internal/github.com/axw/gocov/gocovutil/packages.go
+    internal/golang.org/ internal/golang.org/x/
+    internal/golang.org/x/tools/ internal/golang.org/x/tools/cover/
+    internal/golang.org/x/tools/cover/profile.go internal/launchpad.net/
+    internal/launchpad.net/go-unityscopes/ internal/launchpad.net/go-
+    unityscopes/v2/ internal/launchpad.net/go-unityscopes/v2/accounts.go
+    internal/launchpad.net/go-unityscopes/v2/activationresponse.cpp
+    internal/launchpad.net/go-unityscopes/v2/activationresponse.go
+    internal/launchpad.net/go-unityscopes/v2/activationresponse_test.go
+    internal/launchpad.net/go-unityscopes/v2/column_layout.cpp
+    internal/launchpad.net/go-unityscopes/v2/column_layout.go
+    internal/launchpad.net/go-unityscopes/v2/column_layout_test.go
+    internal/launchpad.net/go-unityscopes/v2/department.cpp
+    internal/launchpad.net/go-unityscopes/v2/department.go
+    internal/launchpad.net/go-unityscopes/v2/department_test.go
+    internal/launchpad.net/go-unityscopes/v2/doc.go
+    internal/launchpad.net/go-unityscopes/v2/export_test.go
+    internal/launchpad.net/go-unityscopes/v2/filters_base.go
+    internal/launchpad.net/go-unityscopes/v2/helpers.cpp
+    internal/launchpad.net/go-unityscopes/v2/helpers.h
+    internal/launchpad.net/go-unityscopes/v2/metadata.cpp
+    internal/launchpad.net/go-unityscopes/v2/metadata.go
+    internal/launchpad.net/go-unityscopes/v2/metadata_test.go
+    internal/launchpad.net/go-unityscopes/v2/option_selector_filter.go
+    internal/launchpad.net/go-
+    unityscopes/v2/option_selector_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/previewwidget.go
+    internal/launchpad.net/go-unityscopes/v2/previewwidget_test.go
+    internal/launchpad.net/go-unityscopes/v2/query.cpp
+    internal/launchpad.net/go-unityscopes/v2/query.go
+    internal/launchpad.net/go-unityscopes/v2/query_test.go
+    internal/launchpad.net/go-unityscopes/v2/radio_buttons_filter.go
+    internal/launchpad.net/go-
+    unityscopes/v2/radio_buttons_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/range_input_filter.go
+    internal/launchpad.net/go-unityscopes/v2/range_input_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/rating_filter.go
+    internal/launchpad.net/go-unityscopes/v2/rating_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/reply.cpp
+    internal/launchpad.net/go-unityscopes/v2/reply.go
+    internal/launchpad.net/go-unityscopes/v2/result.cpp
+    internal/launchpad.net/go-unityscopes/v2/result.go
+    internal/launchpad.net/go-unityscopes/v2/result_test.go
+    internal/launchpad.net/go-unityscopes/v2/scope.cpp
+    internal/launchpad.net/go-unityscopes/v2/scope.h
+    internal/launchpad.net/go-unityscopes/v2/shim.cpp
+    internal/launchpad.net/go-unityscopes/v2/shim.h
+    internal/launchpad.net/go-unityscopes/v2/smartptr_helper.h
+    internal/launchpad.net/go-unityscopes/v2/suite_test.go
+    internal/launchpad.net/go-unityscopes/v2/switch_filter.go
+    internal/launchpad.net/go-unityscopes/v2/switch_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/testing.cpp
+    internal/launchpad.net/go-unityscopes/v2/testing.go
+    internal/launchpad.net/go-unityscopes/v2/unityscope.go
+    internal/launchpad.net/go-unityscopes/v2/value_slider_filter.go
+    internal/launchpad.net/go-unityscopes/v2/value_slider_filter_test.go
+    internal/launchpad.net/go-unityscopes/v2/version.h
+    internal/vendor.json
+  * groundwork branch needs review first! removed: COPYING snappy-scope/
+    snappy-scope/main.go snappy-scope/snappy-scope.ini webdm/
+    webdm/client.go
+  * merge lp:~kyrofa/unity-scope-snappy/webdm_client_list_packages
+    added: webdm/client_test.go webdm/client_types.go
+  * merged lp:~alecu/unity-scope-snappy/unmarshall
+  * reverted groundwork branch, since it needs review
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 21 Jul 2015 17:47:01 +0000

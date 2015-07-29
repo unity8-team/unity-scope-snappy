@@ -63,8 +63,6 @@ echo "mode: set" > $coverage_final
 
 get_coverages $coverage_final $@
 
-echo "Cov type: $coverage_type"
-
 if [ "$coverage_type" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml
 elif [ "$coverage_type" == "html" ]; then

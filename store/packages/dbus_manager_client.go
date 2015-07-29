@@ -15,7 +15,7 @@ const (
 // DbusManagerClient is a DBus client for communicating with the WebDM Package
 // Manager DBus service.
 type DbusManagerClient struct {
-	connection *dbus.Conn // Connection to the dbus bus
+	connection DbusConnection // Connection to the dbus bus
 
 	dbusObject          string
 	dbusObjectInterface string

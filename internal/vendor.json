@@ -40,15 +40,15 @@
 			"canonical": "github.com/godbus/dbus",
 			"comment": "",
 			"local": "launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus",
-			"revision": "a5942dec6340eb0d57f43f2003c190ce06e43dea",
-			"revisionTime": "2015-05-11T12:46:22-07:00"
+			"revision": "25c3068a42a0b50b877953fb249dbcffc6bd1bca",
+			"revisionTime": "2015-07-29T16:15:27-07:00"
 		},
 		{
 			"canonical": "github.com/godbus/dbus/introspect",
 			"comment": "",
 			"local": "launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus/introspect",
-			"revision": "a5942dec6340eb0d57f43f2003c190ce06e43dea",
-			"revisionTime": "2015-05-11T12:46:22-07:00"
+			"revision": "25c3068a42a0b50b877953fb249dbcffc6bd1bca",
+			"revisionTime": "2015-07-29T16:15:27-07:00"
 		},
 		{
 			"canonical": "golang.org/x/tools/cover",

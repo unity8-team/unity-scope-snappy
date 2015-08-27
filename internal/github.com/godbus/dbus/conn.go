@@ -32,7 +32,7 @@ var ErrClosed = errors.New("dbus: connection closed by user")
 type Conn struct {
 	transport
 
-	busObj *Object
+	busObj BusObject
 	unixFD bool
 	uuid   string
 
@@ -46,7 +46,7 @@ type Conn struct {
 	calls    map[uint32]*Call
 	callsLck sync.RWMutex
 
-	handlers    map[ObjectPath]map[string]interface{}
+	handlers    map[ObjectPath]map[string]exportWithMapping
 	handlersLck sync.RWMutex
 
 	out    chan *Message
@@ -157,7 +157,7 @@ func newConn(tr transport) (*Conn, error) {
 	conn.transport = tr
 	conn.calls = make(map[uint32]*Call)
 	conn.out = make(chan *Message, 10)
-	conn.handlers = make(map[ObjectPath]map[string]interface{})
+	conn.handlers = make(map[ObjectPath]map[string]exportWithMapping)
 	conn.nextSerial = 1
 	conn.serialUsed = map[uint32]bool{0: true}
 	conn.busObj = conn.Object("org.freedesktop.DBus", "/org/freedesktop/DBus")
@@ -166,7 +166,7 @@ func newConn(tr transport) (*Conn, error) {
 
 // BusObject returns the object owned by the bus daemon which handles
 // administrative requests.
-func (conn *Conn) BusObject() *Object {
+func (conn *Conn) BusObject() BusObject {
 	return conn.busObj
 }
 
@@ -307,7 +307,10 @@ func (conn *Conn) inWorker() {
 					if member == "NameLost" {
 						// If we lost the name on the bus, remove it from our
 						// tracking list.
-						name, _ := msg.Body[0].(string)
+						name, ok := msg.Body[0].(string)
+						if !ok {
+							panic("Unable to read the lost name")
+						}
 						conn.namesLck.Lock()
 						for i, v := range conn.names {
 							if v == name {
@@ -319,7 +322,10 @@ func (conn *Conn) inWorker() {
 					} else if member == "NameAcquired" {
 						// If we acquired the name on the bus, add it to our
 						// tracking list.
-						name, _ := msg.Body[0].(string)
+						name, ok := msg.Body[0].(string)
+						if !ok {
+							panic("Unable to read the acquired name")
+						}
 						conn.namesLck.Lock()
 						conn.names = append(conn.names, name)
 						conn.namesLck.Unlock()
@@ -369,7 +375,7 @@ func (conn *Conn) Names() []string {
 }
 
 // Object returns the object identified by the given destination name and path.
-func (conn *Conn) Object(dest string, path ObjectPath) *Object {
+func (conn *Conn) Object(dest string, path ObjectPath) BusObject {
 	return &Object{conn, dest, path}
 }
 

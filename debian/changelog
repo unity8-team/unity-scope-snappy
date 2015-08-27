@@ -1,3 +1,16 @@
+unity-scope-snappy (0.1.0+15.10.20150827-0ubuntu1) wily; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Kyle Fazzari ]
+  * Add license information in file headers.
+  * Depend on golang-go.tools or newer golang-go which replaces it.
+  * Finish testing dbus client in store scope.
+  * Update godbus to include testability patch.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 27 Aug 2015 13:22:17 +0000
+
 unity-scope-snappy (0.1.0+15.10.20150721-0ubuntu2~gcc5.1) wily; urgency=medium
 
   * Rebuild for unity-scopes-api 1.0.

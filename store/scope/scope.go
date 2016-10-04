@@ -20,7 +20,7 @@ package scope
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
@@ -76,7 +76,7 @@ func New(webdmApiUrl string) (*Scope, error) {
 	return scope, nil
 }
 
-func (scope *Scope) SetScopeBase(base *scopes.ScopeBase) {
+func (scope Scope) SetScopeBase(base *scopes.ScopeBase) {
 	// Do nothing
 }
 

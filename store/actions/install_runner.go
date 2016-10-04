@@ -20,7 +20,7 @@ package actions
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/packages"
 )

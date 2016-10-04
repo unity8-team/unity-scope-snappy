@@ -20,7 +20,7 @@ package fakes
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // FakeDbusManager is a fake implementation of the DbusManager interface, for

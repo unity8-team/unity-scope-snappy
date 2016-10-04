@@ -2,7 +2,7 @@ package daemon
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"time"
 )

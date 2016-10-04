@@ -19,8 +19,8 @@
 package actions
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"github.com/godbus/dbus"
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/packages/fakes"
 	"testing"

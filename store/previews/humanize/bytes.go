@@ -19,7 +19,7 @@
 package humanize
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"regexp"
 )
 

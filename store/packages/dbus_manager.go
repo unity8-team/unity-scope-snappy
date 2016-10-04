@@ -19,7 +19,7 @@
 package packages
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // DbusManager is an interface to be implemented by any struct that supports

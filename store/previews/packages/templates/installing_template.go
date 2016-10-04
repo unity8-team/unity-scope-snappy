@@ -20,8 +20,8 @@ package templates
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"github.com/godbus/dbus"
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 

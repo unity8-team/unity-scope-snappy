@@ -2,7 +2,7 @@ package daemon
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // DbusServer satisfies the DbusWrapper interface for DBus communication within

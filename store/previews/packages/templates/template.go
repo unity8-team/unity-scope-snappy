@@ -19,7 +19,7 @@
 package templates
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/go-unityscopes/v2"
 )
 
 // Template is an interface to be implemented by structs which

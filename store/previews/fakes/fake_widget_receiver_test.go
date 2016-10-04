@@ -19,7 +19,7 @@
 package fakes
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/go-unityscopes/v2"
 	"reflect"
 	"testing"
 )

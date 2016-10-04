@@ -19,7 +19,7 @@
 package packages
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // DbusConnection is an interface of the DBus connection used by the DBus

@@ -19,7 +19,7 @@
 package mocks
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // MockBusObject is a mocked implementation of the dbus.BusObject interface, for

@@ -15,8 +15,7 @@ PACKAGES_TO_TEST := package-management-daemon/daemon \
                     store/previews/fakes \
                     store/previews/packages \
                     store/previews/packages/templates \
-                    store/utilities \
-                    webdm
+                    store/utilities
 
 ALL_LIST = $(EXECUTABLES) $(PACKAGES_TO_TEST)
 
@@ -49,7 +48,8 @@ coverage.xml:
 
 .PHONY: integration_tests
 integration_tests: install
-	python3 -m unittest discover -s test
+	echo "WARNING: integration tests disabled atm - bug #1630370"
+#	python3 -m unittest discover -s test
 
 $(BUILD_LIST): %_build: %_fmt
 	$(GOBUILD) $(TOP_PACKAGE)/$*

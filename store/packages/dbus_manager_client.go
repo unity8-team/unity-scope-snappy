@@ -20,7 +20,7 @@ package packages
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 const (

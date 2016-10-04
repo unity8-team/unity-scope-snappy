@@ -20,7 +20,7 @@ package templates
 
 import (
 	"fmt"
-	"launchpad.net/unity-scope-snappy/internal/launchpad.net/go-unityscopes/v2"
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/previews/humanize"
 	"launchpad.net/unity-scope-snappy/webdm"

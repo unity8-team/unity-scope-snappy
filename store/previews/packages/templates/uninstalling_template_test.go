@@ -19,7 +19,7 @@
 package templates
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )

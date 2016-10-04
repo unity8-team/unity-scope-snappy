@@ -19,7 +19,7 @@
 package operation
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 )
 
 // Metadata exists to persist state throughout scope calls, even if the scope is

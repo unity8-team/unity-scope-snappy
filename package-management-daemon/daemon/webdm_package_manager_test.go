@@ -1,7 +1,7 @@
 package daemon
 
 import (
-	"launchpad.net/unity-scope-snappy/internal/github.com/godbus/dbus"
+	"github.com/godbus/dbus"
 	"testing"
 	"time"
 )

@@ -1,0 +1,61 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "irOVQufDH3nJExsYR7Sbg3iDj7U=",
+			"path": "github.com/AlekSi/gocov-xml",
+			"revision": "d2f6da892a0d5e0b587526abf51349ad654ade51",
+			"revisionTime": "2013-09-03T17:40:06+04:00"
+		},
+		{
+			"checksumSHA1": "/XfMgYsMs7fv94SFD6rKtj7uR+M=",
+			"path": "github.com/axw/gocov",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"checksumSHA1": "JFCAqWbFArgsOEontAAV+JnsBeY=",
+			"path": "github.com/axw/gocov/gocov",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"checksumSHA1": "ms9JKYBjHnxRYsJRRkR8M/Zm81o=",
+			"path": "github.com/axw/gocov/gocovutil",
+			"revision": "3b045e0eb61013ff134e6752184febc47d119f3a",
+			"revisionTime": "2014-11-11T18:30:33+08:00"
+		},
+		{
+			"checksumSHA1": "wVSf1UQTGka3kJLXGuJgc1FciCc=",
+			"path": "github.com/dustin/go-humanize",
+			"revision": "c128122e0b9b93799aef8181a537e5d8fd7081d6",
+			"revisionTime": "2015-06-22T22:54:03-07:00"
+		},
+		{
+			"checksumSHA1": "xwPXMd4aT/5NFq02nHO+c3E6sUE=",
+			"path": "github.com/godbus/dbus",
+			"revision": "25c3068a42a0b50b877953fb249dbcffc6bd1bca",
+			"revisionTime": "2015-07-29T16:15:27-07:00"
+		},
+		{
+			"checksumSHA1": "K16jPs66ZqJ4i0gyK1HJDlbyhw4=",
+			"path": "github.com/godbus/dbus/introspect",
+			"revision": "25c3068a42a0b50b877953fb249dbcffc6bd1bca",
+			"revisionTime": "2015-07-29T16:15:27-07:00"
+		},
+		{
+			"checksumSHA1": "D6kd4vJPfoBDgNvV+Tw79pxLUq4=",
+			"path": "golang.org/x/tools/cover",
+			"revision": "af817890aa7b628234075a6cb01a3a435fb8317d",
+			"revisionTime": "2015-06-17T17:25:35-07:00"
+		},
+		{
+			"checksumSHA1": "wRxu5fLESE73JcO4A5B9BXaRBl8=",
+			"path": "launchpad.net/go-unityscopes/v2",
+			"revision": "74",
+			"revisionTime": "2016-10-03T20:26:39Z"
+		}
+	],
+	"rootPath": "launchpad.net/unity-scope-snappy"
+}

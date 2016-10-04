@@ -83,5 +83,5 @@ get_coverages $coverage_final $@
 if [ "$coverage_type" == "xml" ]; then
 	gocov convert $coverage_final | gocov-xml > coverage.xml
 elif [ "$coverage_type" == "html" ]; then
-	go tool cover -html=$coverage_final
+	go tool cover -html=$coverage_final -o coverage.html
 fi

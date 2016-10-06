@@ -21,7 +21,7 @@ var (
 	mux *http.ServeMux
 
 	// client is the webdm client being tested.
-	client *Client
+	webdmClient *Client
 
 	// server is a test HTTP server used to provide fake API responses.
 	server *httptest.Server
@@ -38,7 +38,7 @@ func fakeSetup() {
 	server = httptest.NewServer(mux)
 
 	// webdm client configured to use test server
-	client, _ = NewClient(server.URL)
+	webdmClient, _ = NewClient(server.URL)
 }
 
 // setup sets up a test HTTP server along with a webdm.Client that is configured

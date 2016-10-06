@@ -47,7 +47,7 @@ const layout = `{
 
 // Scope is the struct representing the scope itself.
 type Scope struct {
-	webdmClient *webdm.Client
+	webdmClient packages.WebdmManager
 	dbusClient  *packages.DbusManagerClient
 }
 
@@ -62,7 +62,7 @@ type Scope struct {
 func New(webdmApiUrl string) (*Scope, error) {
 	scope := new(Scope)
 	var err error
-	scope.webdmClient, err = webdm.NewClient(webdmApiUrl)
+	scope.webdmClient, err = webdm.NewSnapdClient()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create WebDM client: %s", err)
 	}

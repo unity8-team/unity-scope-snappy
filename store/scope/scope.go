@@ -20,13 +20,14 @@ package scope
 
 import (
 	"fmt"
+	"log"
+
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
 	"launchpad.net/unity-scope-snappy/store/utilities"
 	"launchpad.net/unity-scope-snappy/webdm"
-	"log"
 )
 
 // template for the grid layout of the search results.
@@ -117,7 +118,7 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 	// Need to query the API to make sure we have an up-to-date status,
 	// otherwise we can't refresh the state of the buttons after an install or
 	// uninstall action.
-	snap, err := scope.webdmClient.Query(snapId)
+	snap, err := scope.webdmClient.Query(result.Title())
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}

@@ -26,7 +26,6 @@ import (
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
-	"launchpad.net/unity-scope-snappy/store/utilities"
 	"launchpad.net/unity-scope-snappy/webdm"
 )
 
@@ -40,6 +39,7 @@ const layout = `{
 	"components": {
 		"title": "title",
 		"subtitle": "subtitle",
+        "attributes": { "field": "attributes", "max-count": 4 },
 		"art" : {
 			"field": "art",
             "aspect-ratio": 1.13,
@@ -84,22 +84,18 @@ func (scope Scope) SetScopeBase(base *scopes.ScopeBase) {
 }
 
 func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
-	createDepartments(query, reply)
-
-	packages, err := utilities.GetPackageList(scope.webdmClient, query.DepartmentID(), query.QueryString())
+	installedApps := scope.webdmClient.GetInstalledPackages()
+	available, err := scope.webdmClient.GetStorePackages(query.QueryString())
 	if err != nil {
 		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}
 
 	var category *scopes.Category
-	if query.DepartmentID() == "installed" {
-		category = reply.RegisterCategory("installed_packages", "Installed Packages", "", layout)
-	} else {
-		category = reply.RegisterCategory("store_packages", "Store Packages", "", layout)
-	}
+	category = reply.RegisterCategory("store_packages", "Store Packages", "", layout)
 
-	for _, thisPackage := range packages {
-		result := packageResult(category, thisPackage)
+	for _, thisPackage := range available {
+		_, ok := installedApps[thisPackage.Name]
+		result := packageResult(category, thisPackage, ok)
 
 		if reply.Push(result) != nil {
 			// If the push fails, the query was cancelled. No need to continue.
@@ -160,31 +156,6 @@ func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.Action
 	return response, err
 }
 
-// createDepartments is used to create a set of static departments for the scope.
-//
-// Parameters:
-// query: Query to be executed when the department is selected.
-// reply: Reply onto which the departments will be registered
-//
-// Returns:
-// - Error (nil if none)
-func createDepartments(query *scopes.CannedQuery, reply *scopes.SearchReply) error {
-	rootDepartment, err := scopes.NewDepartment("", query, "All Categories")
-	if err != nil {
-		return fmt.Errorf(`Unable to create "All Categories" department: %s`, err)
-	}
-
-	installedDepartment, err := scopes.NewDepartment("installed", query, "My Snaps")
-	if err != nil {
-		return fmt.Errorf(`Unable to create "My Snaps" department: %s`, err)
-	}
-
-	rootDepartment.SetSubdepartments([]*scopes.Department{installedDepartment})
-	reply.RegisterDepartments(rootDepartment)
-
-	return nil
-}
-
 // packageResult is used to create a scopes.CategorisedResult from a
 // webdm.Package.
 //
@@ -194,15 +165,32 @@ func createDepartments(query *scopes.CannedQuery, reply *scopes.SearchReply) err
 //
 // Returns:
 // - Pointer to scopes.CategorisedResult
-func packageResult(category *scopes.Category, snap webdm.Package) *scopes.CategorisedResult {
+func packageResult(category *scopes.Category, snap webdm.Package, installed bool) *scopes.CategorisedResult {
 	result := scopes.NewCategorisedResult(category)
 
 	result.SetTitle(snap.Name)
-	result.Set("subtitle", snap.Vendor)
-	result.SetURI("snappy:" + snap.Id)
 	result.SetArt(snap.IconUrl)
+	result.SetURI("snappy:" + snap.Id)
+	result.Set("subtitle", snap.Vendor)
 	result.Set("id", snap.Id)
+	var price string
+	if installed == true {
+		price = "✔ INSTALLED"
+	} else {
+		price = "FREE"
+	}
 
+	// This is a bit of a mess at the moment, need a better way to do this
+	attributes := make([]map[string]string, 0)
+	emptyValue := make(map[string]string, 0)
+	emptyValue["value"] = ""
+	priceValue := make(map[string]string, 0)
+	priceValue["value"] = price
+	attributes = append(attributes, priceValue)
+	attributes = append(attributes, emptyValue)
+	attributes = append(attributes, emptyValue)
+	attributes = append(attributes, emptyValue)
+	result.Set("attributes", attributes)
 	return result
 }
 

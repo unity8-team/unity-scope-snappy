@@ -15,7 +15,6 @@ PACKAGES_TO_TEST := package-management-daemon/daemon \
                     store/previews/fakes \
                     store/previews/packages \
                     store/previews/packages/templates \
-                    store/utilities \
 					webdm
 
 ALL_LIST = $(EXECUTABLES) $(PACKAGES_TO_TEST)

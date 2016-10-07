@@ -53,31 +53,17 @@ func NewSnapdClient() (*SnapdClient, error) {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (snapd *SnapdClient) GetInstalledPackages(query string) ([]Package, error) {
-	if query == "" {
-		query = "."
-	}
+func (snapd *SnapdClient) GetInstalledPackages() (map[string]struct{}) {
 	snaps, err := snapd.snapdClient.List(nil)
 	if err != nil {
-		return nil, fmt.Errorf("snapd: Error getting installed packages: %s", err)
+		fmt.Printf("snapd: Error getting installed packages: %s", err)
 	}
 
-	packages := make([]Package, 0)
+	packages := make(map[string]struct{}, 0)
 	for _, snap := range snaps {
-		snappkg := &Package{
-			Id:            snap.ID,
-			Name:          snap.Name,
-			Version:       snap.Version,
-			Type:          snap.Type,
-			IconUrl:       snap.Icon,
-			Description:   snap.Description,
-			DownloadSize:  snap.DownloadSize,
-			InstalledSize: snap.InstalledSize,
-			Vendor:        snap.Developer,
-		}
-		packages = append(packages, *snappkg)
+		packages[snap.Name] = struct{}{}
 	}
-	return packages, nil
+	return packages
 }
 
 // GetStorePackages sends an API request for a list of all packages in the

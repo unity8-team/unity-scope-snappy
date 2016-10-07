@@ -88,6 +88,9 @@ func (snapd *SnapdClient) GetStorePackages(query string) ([]Package, error) {
 
 	packages := make([]Package, 0)
 	for _, snap := range snaps {
+		if snap.Type != client.TypeApp {
+			continue
+		}
 		snappkg := &Package{
 			Id:            snap.ID,
 			Name:          snap.Name,
@@ -106,21 +109,12 @@ func (snapd *SnapdClient) GetStorePackages(query string) ([]Package, error) {
 
 func (snapd *SnapdClient) Query(snapName string) (*Package, error) {
 	// Check first if the snap in question is already installed
-	pkgs, err := snapd.snapdClient.List([]string{snapName})
+	pkg, _, err := snapd.snapdClient.Snap(snapName)
 	if err != nil {
-		return nil, fmt.Errorf("snapd: Error getting package: %s", err)
-	}
-
-	var pkg *client.Snap
-	if pkgs == nil {
-		// The snap we're looking for is not installed, find it in the store
 		pkg, _, err = snapd.snapdClient.FindOne(snapName)
 		if err != nil {
 			return nil, fmt.Errorf("snapd: Error getting package: %s", err)
 		}
-	} else {
-		// The snap we're looking for is installed, use the local snap's info
-		pkg = pkgs[0]
 	}
 
 	snap := new(Package)
@@ -133,6 +127,9 @@ func (snapd *SnapdClient) Query(snapName string) (*Package, error) {
 	snap.DownloadSize = pkg.DownloadSize
 	snap.InstalledSize = pkg.InstalledSize
 	snap.Vendor = pkg.Developer
+	if len(pkg.Apps) != 0 {
+		snap.URL = "appid://" + pkg.Name + "/" + pkg.Apps[0].Name + "/current-user-version"
+	}
 
 	if pkg.Status == client.StatusAvailable {
 		snap.Status = StatusNotInstalled

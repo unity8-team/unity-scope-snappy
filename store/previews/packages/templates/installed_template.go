@@ -29,6 +29,7 @@ import (
 // InstalledTemplate is a preview template for an installed package.
 type InstalledTemplate struct {
 	*GenericTemplate
+	result *scopes.Result
 }
 
 // NewInstalledTemplate creates a new InstalledTemplate.
@@ -39,13 +40,14 @@ type InstalledTemplate struct {
 // Returns:
 // - Pointer to new InstalledTemplate (nil if error)
 // - Error (nil if none)
-func NewInstalledTemplate(snap webdm.Package) (*InstalledTemplate, error) {
+func NewInstalledTemplate(snap webdm.Package, result *scopes.Result) (*InstalledTemplate, error) {
 	if !(snap.Installed() || snap.Uninstalling()) {
 		return nil, fmt.Errorf("Snap is not installed")
 	}
 
 	template := new(InstalledTemplate)
 	template.GenericTemplate = NewGenericTemplate(snap)
+	template.result = result
 
 	return template, nil
 }
@@ -75,6 +77,7 @@ func (preview InstalledTemplate) ActionsWidget() scopes.PreviewWidget {
 	openAction := make(map[string]interface{})
 	openAction["id"] = actions.ActionOpen
 	openAction["label"] = "Open"
+	openAction["uri"] = preview.result.URI()
 
 	uninstallAction := make(map[string]interface{})
 	uninstallAction["id"] = actions.ActionUninstall

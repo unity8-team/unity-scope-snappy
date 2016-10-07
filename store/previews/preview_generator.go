@@ -31,7 +31,7 @@ import (
 // Parameters:
 // snap: Snap to be represented by the preview.
 // metadata: Metadata to be used for informing the preview creation.
-func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (interfaces.PreviewGenerator, error) {
+func NewPreview(snap webdm.Package, result *scopes.Result, metadata *scopes.ActionMetadata) (interfaces.PreviewGenerator, error) {
 	var operationMetadata operation.Metadata
 
 	// This may fail, but the zero-value of OperationMetadata is fine
@@ -43,5 +43,5 @@ func NewPreview(snap webdm.Package, metadata *scopes.ActionMetadata) (interfaces
 		return NewConfirmUninstallPreview(snap), nil
 	}
 
-	return packages.NewPreview(snap, operationMetadata)
+	return packages.NewPreview(snap, result, operationMetadata)
 }

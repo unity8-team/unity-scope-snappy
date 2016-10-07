@@ -107,21 +107,29 @@ func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMeta
 }
 
 func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadata, reply *scopes.PreviewReply, cancelled <-chan bool) error {
-	var snapId string
-	err := result.Get("id", &snapId)
+	var snapName string
+	err := result.Get("name", &snapName)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
+	}
+
+	var installed bool
+	err = result.Get("installed", &installed)
+	if err != nil {
+		return scopeError(`unity-scoe-snappy: Unable to retrieve installed state for package "%s": %s`, snapName, err)
 	}
 
 	// Need to query the API to make sure we have an up-to-date status,
 	// otherwise we can't refresh the state of the buttons after an install or
 	// uninstall action.
-	snap, err := scope.webdmClient.Query(result.Title())
+	snap, err := scope.webdmClient.Query(snapName)
+
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	preview, err := previews.NewPreview(*snap, metadata)
+	result.SetURI(snap.URL)
+	preview, err := previews.NewPreview(*snap, result, metadata)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
 	}
@@ -168,11 +176,14 @@ func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.Action
 func packageResult(category *scopes.Category, snap webdm.Package, installed bool) *scopes.CategorisedResult {
 	result := scopes.NewCategorisedResult(category)
 
+	// NOTE: Title really needs to be title, not name, but snapd doesn't expose
 	result.SetTitle(snap.Name)
 	result.SetArt(snap.IconUrl)
 	result.SetURI("snappy:" + snap.Id)
 	result.Set("subtitle", snap.Vendor)
+	result.Set("name", snap.Name)
 	result.Set("id", snap.Id)
+	result.Set("installed", installed)
 	var price string
 	if installed == true {
 		price = "✔ INSTALLED"

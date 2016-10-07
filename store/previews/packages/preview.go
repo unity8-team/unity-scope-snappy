@@ -20,6 +20,8 @@ package packages
 
 import (
 	"fmt"
+
+	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
 	"launchpad.net/unity-scope-snappy/store/previews/packages/templates"
@@ -29,14 +31,16 @@ import (
 // Preview is a PreviewGenerator representing a given package.
 type Preview struct {
 	template templates.Template
+	result *scopes.Result
 }
 
 // NewPreview creates a new Preview for representing a given package.
 //
 // Parameters:
 // snap: Package to be represented by the preview.
-func NewPreview(snap webdm.Package, metadata operation.Metadata) (*Preview, error) {
+func NewPreview(snap webdm.Package, result *scopes.Result, metadata operation.Metadata) (*Preview, error) {
 	preview := new(Preview)
+	preview.result = result
 	var err error
 
 	if metadata.InstallRequested && !snap.Installed() {
@@ -50,10 +54,10 @@ func NewPreview(snap webdm.Package, metadata operation.Metadata) (*Preview, erro
 			return nil, fmt.Errorf("Uninstall requested, but package is installing")
 		}
 
-		preview.template, err = templates.NewUninstallingTemplate(snap, metadata.ObjectPath)
+		preview.template, err = templates.NewUninstallingTemplate(snap, result, metadata.ObjectPath)
 	} else {
 		if snap.Installed() {
-			preview.template, err = templates.NewInstalledTemplate(snap)
+			preview.template, err = templates.NewInstalledTemplate(snap, result)
 		} else {
 			preview.template, err = templates.NewStoreTemplate(snap)
 		}

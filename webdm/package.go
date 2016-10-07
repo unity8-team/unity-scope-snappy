@@ -26,6 +26,8 @@ type Package struct {
 	IconUrl     string `json:"icon"`
 	Type        string
 
+	URL         string
+
 	Progress float64
 	Status   Status
 

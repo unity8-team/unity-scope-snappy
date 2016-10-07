@@ -41,7 +41,7 @@ type UninstallingTemplate struct {
 // Returns:
 // - Pointer to new UninstallingTemplate (nil if error)
 // - Error (nil if none)
-func NewUninstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*UninstallingTemplate, error) {
+func NewUninstallingTemplate(snap webdm.Package, result *scopes.Result, objectPath dbus.ObjectPath) (*UninstallingTemplate, error) {
 	if snap.Installing() {
 		return nil, fmt.Errorf("Snap is currently being installed")
 	}
@@ -53,7 +53,7 @@ func NewUninstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*U
 	template := &UninstallingTemplate{objectPath: objectPath}
 
 	var err error
-	template.InstalledTemplate, err = NewInstalledTemplate(snap)
+	template.InstalledTemplate, err = NewInstalledTemplate(snap, result)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create installed template: %s", err)
 	}

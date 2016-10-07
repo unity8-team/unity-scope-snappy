@@ -39,11 +39,13 @@ const layout = `{
 	},
 	"components": {
 		"title": "title",
+		"subtitle": "subtitle",
 		"art" : {
-			"field": "art"
-		},
-		"subtitle": "subtitle"
-        }
+			"field": "art",
+            "aspect-ratio": 1.13,
+            "fallback": "image://theme/placeholder-app-icon"
+		}
+    }
 }`
 
 // Scope is the struct representing the scope itself.

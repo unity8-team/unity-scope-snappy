@@ -145,7 +145,7 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
 	// Obtain the ID for the specific package
 	var snapId string
-	err := result.Get("id", &snapId)
+	err := result.Get("name", &snapId)
 	if err != nil {
 		return nil, scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}

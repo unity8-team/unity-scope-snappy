@@ -35,6 +35,10 @@ type SnapdPackageManagerInterface struct {
 
 	baseObjectPath dbus.ObjectPath
 
+	clientConfig client.Config
+	client *client.Client
+
+	processingSignalName string
 	progressSignalName string
 	finishedSignalName string
 	errorSignalName    string
@@ -63,6 +67,9 @@ func NewSnapdPackageManagerInterface(dbusConnection DbusWrapper,
 
 	manager.baseObjectPath = baseObjectPath
 
+	manager.client = client.New(&manager.clientConfig)
+
+	manager.processingSignalName = interfaceName + ".processing"
 	manager.progressSignalName = interfaceName + ".progress"
 	manager.finishedSignalName = interfaceName + ".finished"
 	manager.errorSignalName = interfaceName + ".error"
@@ -81,8 +88,20 @@ func NewSnapdPackageManagerInterface(dbusConnection DbusWrapper,
 // - Object path over which the progress feedback will be provided.
 // - DBus error (nil if none)
 func (manager *SnapdPackageManagerInterface) Install(packageId string) (dbus.ObjectPath, *dbus.Error) {
-	return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
-		[]interface{}{"Not yet implemented"})
+	opts := &client.SnapOptions{}
+
+	var err error
+	var changeID string
+
+	changeID, err = manager.client.Install(packageId, opts)
+	if err != nil {
+		return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
+			[]interface{}{fmt.Sprintf("Error installing package '%s': %s",
+				packageId, err)})
+	}
+
+	go manager.wait(changeID)
+	return manager.getObjectPath(changeID), nil
 }
 
 // Uninstall requests that Snapd begin uninstallation of a specific package, and
@@ -96,10 +115,128 @@ func (manager *SnapdPackageManagerInterface) Install(packageId string) (dbus.Obj
 // - Object path over which the progress feedback will be provided.
 // - DBus error (nil if none)
 func (manager *SnapdPackageManagerInterface) Uninstall(packageId string) (dbus.ObjectPath, *dbus.Error) {
-	return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
-		[]interface{}{"Not yet implemented"})
+	opts := &client.SnapOptions{}
+
+	var err error
+	var changeID string
+
+	changeID, err = manager.client.Remove(packageId, opts)
+	if err != nil {
+		return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
+			[]interface{}{fmt.Sprintf("Error installing package '%s': %s",
+				packageId, err)})
+	}
+
+	go manager.wait(changeID)
+	return manager.getObjectPath(changeID), nil
 }
 
-func (manager *SnapdPackageManagerInterface) Query(packageId string) (*client.Snap, error) {
-	return nil, nil
+
+// operationObjectPath is used to generate an object path for a given operation.
+//
+// Parameters:
+// operationId: ID of the operation to be represented by this object path.
+//
+// Returns:
+// - New object path.
+func (manager *SnapdPackageManagerInterface) getObjectPath(changeID string) dbus.ObjectPath {
+	return dbus.ObjectPath(fmt.Sprintf("%s/%s",
+		manager.baseObjectPath, changeID))
+}
+
+// emitProgress emits the `progres` DBus signal.
+//
+// Parameters:
+// packageId: ID of the package whose progress is being emitted.
+// received: Received count.
+// total: Total count.
+func (manager *SnapdPackageManagerInterface) emitProgress(changeID string, received uint64, total uint64) {
+	manager.dbusConnection.Emit(manager.getObjectPath(changeID),
+		manager.progressSignalName, received, total)
+}
+
+// emitProcessing emits the `processing` DBus signal.
+//
+// Parameters:
+// packageId: ID of the package that is processing.
+func (manager *SnapdPackageManagerInterface) emitProcessing(changeID string) {
+	manager.dbusConnection.Emit(manager.getObjectPath(changeID),
+		manager.processingSignalName, "")
+}
+
+// emitFinished emits the `finished` DBus signal.
+//
+// Parameters:
+// packageId: ID of the package that just finished an operation.
+func (manager *SnapdPackageManagerInterface) emitFinished(changeID string) {
+	manager.dbusConnection.Emit(manager.getObjectPath(changeID),
+		manager.finishedSignalName, "")
+}
+
+// emitError emits the `error` DBus signal.
+//
+// Parameters:
+// packageId: ID of the package that encountered an error.
+// format: Format string of the error.
+// a...: List of values for the placeholders in the `format` string.
+func (manager *SnapdPackageManagerInterface) emitError(changeID string, format string, a ...interface{}) {
+	manager.dbusConnection.Emit(manager.getObjectPath(changeID),
+		manager.errorSignalName, fmt.Sprintf(format, a...))
+}
+
+func (manager *SnapdPackageManagerInterface) wait(changeID string) {
+	tMax := time.Time{}
+
+	var lastID string
+	for {
+		chg, err := manager.client.Change(changeID)
+		if err != nil {
+			// an error here means the server most likely went away
+			// XXX: it actually can be a bunch of other things; fix client to expose it better
+			now := time.Now()
+			if tMax.IsZero() {
+				tMax = now.Add(manager.pollPeriod * 5)
+			}
+			if now.After(tMax) {
+				manager.emitError(changeID, "Error talking to snapd: %s", err)
+				return
+			}
+			manager.emitProcessing(changeID)
+			time.Sleep(manager.pollPeriod)
+			continue
+		}
+		if !tMax.IsZero() {
+			manager.emitFinished(changeID)
+			tMax = time.Time{}
+		}
+
+		for _, t := range chg.Tasks {
+			switch {
+			case t.Status != "Doing":
+				continue
+			case t.Progress.Total == 1:
+				manager.emitProcessing(changeID)
+			case t.ID == lastID:
+				manager.emitProgress(changeID, uint64(t.Progress.Done), uint64(t.Progress.Total))
+			default:
+				lastID = t.ID
+			}
+			break
+		}
+
+		if chg.Ready {
+			if chg.Status == "Done" {
+				manager.emitFinished(changeID)
+			} else if chg.Err != "" {
+				manager.emitError(changeID, chg.Err)
+			}
+
+			return
+		}
+
+		// note this very purposely is not a ticker; we want
+		// to sleep 100ms between calls, not call once every
+		// 100ms.
+		time.Sleep(manager.pollPeriod)
+	}
 }

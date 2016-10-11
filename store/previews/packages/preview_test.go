@@ -48,7 +48,7 @@ func TestNewPreview_invalidMetadata(t *testing.T) {
 	for i, test := range invalidMetadataTests {
 		snap := webdm.Package{Status: test.status}
 
-		_, err := NewPreview(snap, test.metadata)
+		_, err := NewPreview(snap, nil, test.metadata)
 		if err == nil {
 			t.Errorf("Test case %d: Expected an error due to invalid metadata", i)
 		}
@@ -85,7 +85,7 @@ func TestNewPreview(t *testing.T) {
 	for i, test := range previewTests {
 		snap := webdm.Package{Status: test.status}
 
-		preview, err := NewPreview(snap, test.metadata)
+		preview, err := NewPreview(snap, nil, test.metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error: %s", i, err)
 			continue
@@ -113,7 +113,7 @@ func TestPreview_generate(t *testing.T) {
 			Status:       test.status,
 			DownloadSize: 123456,
 			Type:         "oem",
-		}, test.metadata)
+		}, nil, test.metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error while creating package preview: %s", i, err)
 			continue

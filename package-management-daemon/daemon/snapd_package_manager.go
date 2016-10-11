@@ -21,6 +21,7 @@ package daemon
 import (
 	"fmt"
 	"github.com/godbus/dbus"
+	"github.com/snapcore/snapd/client"
 	"time"
 )
 
@@ -97,4 +98,8 @@ func (manager *SnapdPackageManagerInterface) Install(packageId string) (dbus.Obj
 func (manager *SnapdPackageManagerInterface) Uninstall(packageId string) (dbus.ObjectPath, *dbus.Error) {
 	return "", dbus.NewError("org.freedesktop.DBus.Error.Failed",
 		[]interface{}{"Not yet implemented"})
+}
+
+func (manager *SnapdPackageManagerInterface) Query(packageId string) (*client.Snap, error) {
+	return nil, nil
 }

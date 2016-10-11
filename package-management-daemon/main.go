@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"launchpad.net/unity-scope-snappy/package-management-daemon/daemon"
 	"log"
 	"os"
@@ -14,17 +13,9 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
-	webdmAddressParameter := flag.String("webdm", "", "WebDM address[:port]")
-	flag.Parse()
-
-	daemon, err := daemon.New(*webdmAddressParameter)
+	daemon, err := daemon.New()
 	if err != nil {
-		if *webdmAddressParameter == "" {
-			log.Fatalf("Unable to create daemon: %s", err)
-		} else {
-			log.Fatalf(`Unable to create daemon with webdm API URL "%s": %s`, *webdmAddressParameter, err)
-		}
-
+		log.Fatalf("Unable to create daemon: %s", err)
 	}
 
 	err = daemon.Run()

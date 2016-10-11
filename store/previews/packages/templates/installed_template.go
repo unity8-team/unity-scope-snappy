@@ -74,16 +74,23 @@ func (preview InstalledTemplate) HeaderWidget() scopes.PreviewWidget {
 func (preview InstalledTemplate) ActionsWidget() scopes.PreviewWidget {
 	widget := preview.GenericTemplate.ActionsWidget()
 
-	openAction := make(map[string]interface{})
-	openAction["id"] = actions.ActionOpen
-	openAction["label"] = "Open"
-	openAction["uri"] = preview.result.URI()
+	previewActions := make([]interface{}, 0)
+
+	// Only show Open if we can get the URI
+	if preview.result != nil {
+		openAction := make(map[string]interface{})
+		openAction["id"] = actions.ActionOpen
+		openAction["label"] = "Open"
+		openAction["uri"] = preview.result.URI()
+		previewActions = append(previewActions, openAction)
+	}
 
 	uninstallAction := make(map[string]interface{})
 	uninstallAction["id"] = actions.ActionUninstall
 	uninstallAction["label"] = "Uninstall"
+	previewActions = append(previewActions, uninstallAction)
 
-	widget.AddAttributeValue("actions", []interface{}{openAction, uninstallAction})
+	widget.AddAttributeValue("actions", previewActions)
 
 	return widget
 }

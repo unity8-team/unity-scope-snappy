@@ -52,7 +52,7 @@ func TestNewPreview(t *testing.T) {
 
 		metadata.SetScopeData(test.scopeData)
 
-		preview, err := NewPreview(snap, metadata)
+		preview, err := NewPreview(snap, nil, metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error: %s", i, err)
 		}

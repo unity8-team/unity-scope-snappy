@@ -47,7 +47,7 @@ const (
 // Daemon represents the actual progress daemon.
 type Daemon struct {
 	server         DbusWrapper
-	packageManager *WebdmPackageManagerInterface
+	packageManager PackageManager
 }
 
 // New creates a new Daemon setup to poll WebDM at a specific URL.
@@ -58,7 +58,7 @@ type Daemon struct {
 // Returns:
 // - New daemon
 // - Error (nil if none)
-func New(webdmApiUrl string) (*Daemon, error) {
+func New() (*Daemon, error) {
 	daemon := new(Daemon)
 
 	daemon.server = new(DbusServer)
@@ -69,10 +69,10 @@ func New(webdmApiUrl string) (*Daemon, error) {
 	// apiUrl: WebDM API URL.
 
 	var err error
-	daemon.packageManager, err = NewWebdmPackageManagerInterface(daemon.server,
-		interfaceName, baseObjectPath, webdmApiUrl)
+	daemon.packageManager, err = NewSnapdPackageManagerInterface(daemon.server,
+		interfaceName, baseObjectPath)
 	if err != nil {
-		return nil, fmt.Errorf(`Unable to create package manager interface with API URL "%s"`, webdmApiUrl)
+		return nil, fmt.Errorf(`Unable to create package manager interface:"`, err)
 	}
 
 	return daemon, nil

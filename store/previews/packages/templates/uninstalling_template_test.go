@@ -39,7 +39,7 @@ var uninstallingTemplateTests = []struct {
 // Test typical NewUninstallingTemplate usage.
 func TestNewUninstallingTemplate(t *testing.T) {
 	for i, test := range uninstallingTemplateTests {
-		template, err := NewUninstallingTemplate(test.snap, "/foo/1")
+		template, err := NewUninstallingTemplate(test.snap, nil, "/foo/1")
 		if err == nil && test.expectError {
 			t.Errorf("Test case %d: Expected error due to incorrect status", i)
 		} else if err != nil {
@@ -58,7 +58,7 @@ func TestNewUninstallingTemplate(t *testing.T) {
 // Test that calling NewUninstallingTemplate with an invalid object path results
 // in an error.
 func TestNewUninstallingTemplate_invalidObjectPath(t *testing.T) {
-	_, err := NewUninstallingTemplate(webdm.Package{}, "invalid")
+	_, err := NewUninstallingTemplate(webdm.Package{}, nil, "invalid")
 	if err == nil {
 		t.Error("Expected an error due to invalid object path")
 	}
@@ -67,7 +67,7 @@ func TestNewUninstallingTemplate_invalidObjectPath(t *testing.T) {
 // Test that the actions widget conforms to the store design.
 func TestUninstallingTemplate_actionsWidget(t *testing.T) {
 	for i, test := range uninstallingTemplateTests {
-		template, err := NewUninstallingTemplate(test.snap, "/foo/1")
+		template, err := NewUninstallingTemplate(test.snap, nil, "/foo/1")
 		if err == nil && test.expectError {
 			t.Errorf("Test case %d: Expected error due to incorrect status", i)
 		} else if err != nil {

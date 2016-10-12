@@ -171,6 +171,14 @@ func (manager *SnapdPackageManagerInterface) emitProcessing(changeID string) {
 func (manager *SnapdPackageManagerInterface) emitFinished(changeID string) {
 	manager.dbusConnection.Emit(manager.getObjectPath(changeID),
 		manager.finishedSignalName, "")
+
+	// Refresh the apps scope and the snappy store scope
+	manager.dbusConnection.Emit("/com/canonical/unity/scopes",
+		"com.canonical.unity.scopes.InvalidateResults",
+		"clickscope")
+	manager.dbusConnection.Emit("/com/canonical/unity/scopes",
+		"com.canonical.unity.scopes.InvalidateResults",
+		"snappy-store")
 }
 
 // emitError emits the `error` DBus signal.
@@ -206,7 +214,6 @@ func (manager *SnapdPackageManagerInterface) wait(changeID string) {
 			continue
 		}
 		if !tMax.IsZero() {
-			manager.emitFinished(changeID)
 			tMax = time.Time{}
 		}
 

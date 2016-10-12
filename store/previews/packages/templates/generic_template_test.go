@@ -19,38 +19,37 @@
 package templates
 
 import (
-	"launchpad.net/unity-scope-snappy/webdm"
+	"github.com/snapcore/snapd/client"
 	"testing"
 )
 
 var (
-	webdmPackage *webdm.Package
-	template     *GenericTemplate
+	snap     *client.Snap
+	template *GenericTemplate
 )
 
 func setup() {
-	webdmPackage = &webdm.Package{
-		Id:           "package1",
+	snap = &client.Snap{
+		ID:           "package1",
 		Name:         "package1",
-		Origin:       "foo",
 		Version:      "0.1",
-		Vendor:       "bar",
+		Developer:    "bar",
 		Description:  "baz",
-		IconUrl:      "http://fake",
-		Status:       webdm.StatusNotInstalled,
+		Icon:         "http://fake",
+		Status:       client.StatusAvailable,
 		DownloadSize: 123456,
-		Type:         "oem",
+		Type:         "app",
 	}
 
-	template = NewGenericTemplate(*webdmPackage)
+	template = NewGenericTemplate(*snap)
 }
 
 // Test typical NewGenericTemplate usage.
 func TestNewGenericTemplate(t *testing.T) {
 	setup()
 
-	if template.snap.Id != "package1" {
-		t.Errorf(`Template snap's ID was "%s", expected "package1"`, template.snap.Id)
+	if template.snap.ID != "package1" {
+		t.Errorf(`Template snap's ID was "%s", expected "package1"`, template.snap.ID)
 	}
 }
 
@@ -137,8 +136,8 @@ func TestNewGenericTemplate_infoWidget(t *testing.T) {
 	if !ok {
 		t.Error("Expected info widget to include a description")
 	}
-	if value != webdmPackage.Description {
-		t.Errorf(`Got "%s" as the description, expected "%s"`, value, webdmPackage.Description)
+	if value != snap.Description {
+		t.Errorf(`Got "%s" as the description, expected "%s"`, value, snap.Description)
 	}
 }
 
@@ -184,7 +183,7 @@ func TestNewGenericTemplate_updatesWidget(t *testing.T) {
 	if versionRow[0] != "Version number" {
 		t.Errorf(`First column was "%s", expected "Version number"`, versionRow[0])
 	}
-	if versionRow[1] != webdmPackage.Version {
-		t.Errorf(`Second column was "%s", expected "%s"`, versionRow[1], webdmPackage.Version)
+	if versionRow[1] != snap.Version {
+		t.Errorf(`Second column was "%s", expected "%s"`, versionRow[1], snap.Version)
 	}
 }

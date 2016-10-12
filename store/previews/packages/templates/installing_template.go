@@ -21,8 +21,8 @@ package templates
 import (
 	"fmt"
 	"github.com/godbus/dbus"
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // InstallingTemplate is a preview template for a package that is currently
@@ -41,10 +41,7 @@ type InstallingTemplate struct {
 // Returns:
 // - Pointer to new InstallingTemplate (nil if error)
 // - Error (nil if none)
-func NewInstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*InstallingTemplate, error) {
-	if snap.Uninstalling() {
-		return nil, fmt.Errorf("Snap is currently being uninstalled")
-	}
+func NewInstallingTemplate(snap client.Snap, result *scopes.Result, objectPath dbus.ObjectPath) (*InstallingTemplate, error) {
 
 	if !objectPath.IsValid() {
 		return nil, fmt.Errorf(`Invalid object path: "%s"`, objectPath)
@@ -53,7 +50,7 @@ func NewInstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*Ins
 	template := &InstallingTemplate{objectPath: objectPath}
 
 	var err error
-	template.StoreTemplate, err = NewStoreTemplate(snap)
+	template.StoreTemplate, err = NewStoreTemplate(snap, result)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create store template: %s", err)
 	}

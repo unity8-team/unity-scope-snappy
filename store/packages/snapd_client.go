@@ -16,7 +16,7 @@
  * unity-scope-snappy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package webdm
+package packages
 
 import (
 	"fmt"
@@ -75,7 +75,7 @@ func (snapd *SnapdClient) GetInstalledPackages() (map[string]struct{}) {
 // Returns:
 // - Slice of Packags structs
 // - Error (nil of none)
-func (snapd *SnapdClient) GetStorePackages(query string) ([]Package, error) {
+func (snapd *SnapdClient) GetStorePackages(query string) ([]client.Snap, error) {
 	if query == "" {
 		query = "."
 	}
@@ -86,28 +86,17 @@ func (snapd *SnapdClient) GetStorePackages(query string) ([]Package, error) {
 		return nil, fmt.Errorf("snapd: Error getting store packages: %s", err)
 	}
 
-	packages := make([]Package, 0)
+	packages := make([]client.Snap, 0)
 	for _, snap := range snaps {
 		if snap.Type != client.TypeApp {
 			continue
 		}
-		snappkg := &Package{
-			Id:            snap.ID,
-			Name:          snap.Name,
-			Version:       snap.Version,
-			Type:          snap.Type,
-			IconUrl:       snap.Icon,
-			Description:   snap.Description,
-			DownloadSize:  snap.DownloadSize,
-			InstalledSize: snap.InstalledSize,
-			Vendor:        snap.Developer,
-		}
-		packages = append(packages, *snappkg)
+		packages = append(packages, *snap)
 	}
 	return packages, nil
 }
 
-func (snapd *SnapdClient) Query(snapName string) (*Package, error) {
+func (snapd *SnapdClient) Query(snapName string) (*client.Snap, error) {
 	// Check first if the snap in question is already installed
 	pkg, _, err := snapd.snapdClient.Snap(snapName)
 	if err != nil {
@@ -117,31 +106,7 @@ func (snapd *SnapdClient) Query(snapName string) (*Package, error) {
 		}
 	}
 
-	snap := new(Package)
-	snap.Id = pkg.ID
-	snap.Name = pkg.Name
-	snap.Version = pkg.Version
-	snap.Type = pkg.Type
-	snap.IconUrl = pkg.Icon
-	snap.Description = pkg.Description
-	snap.DownloadSize = pkg.DownloadSize
-	snap.InstalledSize = pkg.InstalledSize
-	snap.Vendor = pkg.Developer
-	if len(pkg.Apps) != 0 {
-		snap.URL = "appid://" + pkg.Name + "/" + pkg.Apps[0].Name + "/current-user-version"
-	}
-
-	if pkg.Status == client.StatusAvailable {
-		snap.Status = StatusNotInstalled
-	} else if pkg.Status == client.StatusInstalled {
-		snap.Status = StatusInstalled
-	} else if pkg.Status == client.StatusActive {
-		snap.Status = StatusInstalled
-	} else if pkg.Status == client.StatusRemoved {
-		snap.Status = StatusNotInstalled
-	}
-
-	return snap, nil
+	return pkg, nil
 }
 
 func (snapd *SnapdClient) Install(packageId string) error {

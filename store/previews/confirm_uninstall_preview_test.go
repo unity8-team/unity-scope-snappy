@@ -20,15 +20,16 @@ package previews
 
 import (
 	"fmt"
+
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/previews/fakes"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"testing"
 )
 
 // Test typical NewPackagePreview usage.
 func TestNewConfirmUninstallPreview(t *testing.T) {
-	snap := webdm.Package{Name: "package1"}
+	snap := client.Snap{Name: "package1"}
 
 	preview := NewConfirmUninstallPreview(snap)
 	if preview == nil {
@@ -43,7 +44,7 @@ func TestNewConfirmUninstallPreview(t *testing.T) {
 
 // Test typical Generate usage, and verify that it conforms to store design.
 func TestConfirmUninstallPreview_generate(t *testing.T) {
-	snap := webdm.Package{Name: "package1"}
+	snap := client.Snap{Name: "package1"}
 	preview := NewConfirmUninstallPreview(snap)
 
 	receiver := new(fakes.FakeWidgetReceiver)

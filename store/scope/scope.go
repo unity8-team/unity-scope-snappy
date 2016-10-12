@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Canonical Ltd.
+/* Copyright (C) 2015-2016 Canonical Ltd.
  *
  * This file is part of unity-scope-snappy.
  *
@@ -22,11 +22,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // template for the grid layout of the search results.
@@ -57,15 +57,14 @@ type Scope struct {
 // New creates a new Scope using a specific WebDM API URL.
 //
 // Parameters:
-// webdmApiUrl: URL where WebDM is listening.
 //
 // Returns:
 // - Pointer to scope (nil if error).
 // - Error (nil if none).
-func New(webdmApiUrl string) (*Scope, error) {
+func New() (*Scope, error) {
 	scope := new(Scope)
 	var err error
-	scope.webdmClient, err = webdm.NewSnapdClient()
+	scope.webdmClient, err = packages.NewSnapdClient()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create WebDM client: %s", err)
 	}
@@ -113,12 +112,6 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 		return scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}
 
-	var installed bool
-	err = result.Get("installed", &installed)
-	if err != nil {
-		return scopeError(`unity-scoe-snappy: Unable to retrieve installed state for package "%s": %s`, snapName, err)
-	}
-
 	// Need to query the API to make sure we have an up-to-date status,
 	// otherwise we can't refresh the state of the buttons after an install or
 	// uninstall action.
@@ -128,7 +121,6 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	result.SetURI(snap.URL)
 	preview, err := previews.NewPreview(*snap, result, metadata)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
@@ -165,24 +157,24 @@ func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.Action
 }
 
 // packageResult is used to create a scopes.CategorisedResult from a
-// webdm.Package.
+// client.Snap.
 //
 // Parameters:
 // category: Category in which the result will be created.
-// snap: webdm.Package representing snap.
+// snap: client.Snap representing snap.
 //
 // Returns:
 // - Pointer to scopes.CategorisedResult
-func packageResult(category *scopes.Category, snap webdm.Package, installed bool) *scopes.CategorisedResult {
+func packageResult(category *scopes.Category, snap client.Snap, installed bool) *scopes.CategorisedResult {
 	result := scopes.NewCategorisedResult(category)
 
 	// NOTE: Title really needs to be title, not name, but snapd doesn't expose
 	result.SetTitle(snap.Name)
-	result.SetArt(snap.IconUrl)
-	result.SetURI("snappy:" + snap.Id)
-	result.Set("subtitle", snap.Vendor)
+	result.SetArt(snap.Icon)
+	result.SetURI("snappy:" + snap.Name)
+	result.Set("subtitle", snap.Developer)
 	result.Set("name", snap.Name)
-	result.Set("id", snap.Id)
+	result.Set("id", snap.ID)
 	result.Set("installed", installed)
 	var price string
 	if installed == true {
@@ -190,7 +182,7 @@ func packageResult(category *scopes.Category, snap webdm.Package, installed bool
 	} else {
 		price = "FREE"
 	}
-
+	result.Set("price_area", price)
 	// This is a bit of a mess at the moment, need a better way to do this
 	attributes := make([]map[string]string, 0)
 	emptyValue := make(map[string]string, 0)

@@ -20,16 +20,17 @@ package templates
 
 import (
 	"fmt"
+
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/previews/humanize"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // InstalledTemplate is a preview template for an installed package.
 type InstalledTemplate struct {
 	*GenericTemplate
-	result *scopes.Result
+	snap client.Snap
 }
 
 // NewInstalledTemplate creates a new InstalledTemplate.
@@ -40,14 +41,10 @@ type InstalledTemplate struct {
 // Returns:
 // - Pointer to new InstalledTemplate (nil if error)
 // - Error (nil if none)
-func NewInstalledTemplate(snap webdm.Package, result *scopes.Result) (*InstalledTemplate, error) {
-	if !(snap.Installed() || snap.Uninstalling()) {
-		return nil, fmt.Errorf("Snap is not installed")
-	}
-
+func NewInstalledTemplate(snap client.Snap) (*InstalledTemplate, error) {
 	template := new(InstalledTemplate)
 	template.GenericTemplate = NewGenericTemplate(snap)
-	template.result = result
+	template.snap = snap
 
 	return template, nil
 }
@@ -61,7 +58,7 @@ func (preview InstalledTemplate) HeaderWidget() scopes.PreviewWidget {
 	widget := preview.GenericTemplate.HeaderWidget()
 
 	priceAttribute := make(map[string]interface{})
-	priceAttribute["value"] = "✓ Installed"
+	priceAttribute["value"] = "✔ INSTALLED"
 	widget.AddAttributeValue("attributes", []interface{}{priceAttribute})
 
 	return widget
@@ -77,11 +74,14 @@ func (preview InstalledTemplate) ActionsWidget() scopes.PreviewWidget {
 	previewActions := make([]interface{}, 0)
 
 	// Only show Open if we can get the URI
-	if preview.result != nil {
+	if len(preview.snap.Apps) != 0 {
+		uri := fmt.Sprintf("appid://%s/%s/current-user-version",
+			preview.snap.Name, preview.snap.Apps[0].Name)
+
 		openAction := make(map[string]interface{})
 		openAction["id"] = actions.ActionOpen
 		openAction["label"] = "Open"
-		openAction["uri"] = preview.result.URI()
+		openAction["uri"] = uri
 		previewActions = append(previewActions, openAction)
 	}
 

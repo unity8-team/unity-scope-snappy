@@ -17,7 +17,7 @@ STORE_FILE_PATH := /usr/lib/$(DEB_HOST_MULTIARCH)/unity-scopes/snappy-store/stor
 # Run the tests and produce a Cobertura-compatible coverage report.
 override_dh_auto_test: debian/snappy-store.ini debian/com.canonical.applications.WebdmPackageManager.service
 	dbus-test-runner -m 600 -t make -p integration_tests
-	dbus-test-runner -m 600 -t make -p coverage.xml
+	dbus-test-runner -m 600 -t make -p coverage
 
 # Rewrite any *.in files to be compatible with multiarch.
 debian/%: data/%.in

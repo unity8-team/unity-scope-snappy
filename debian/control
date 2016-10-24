@@ -22,7 +22,7 @@ Vcs-Bzr: lp:unity-scope-snappy
 Vcs-Browser: http://bazaar.launchpad.net/~unity-api-team/unity-scope-snappy/trunk/files
 
 Package: unity-scope-snappy
-Architecture: any
+Architecture: amd64 arm64 armhf i386
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
@@ -35,7 +35,7 @@ Description: Install and launch snap packages.
  launch installed applications.
 
 Package: unity-scope-snappy-daemon
-Architecture: any
+Architecture: amd64 arm64 armhf i386
 Multi-Arch: foreign
 Depends: ${misc:Depends},
          ${shlibs:Depends},

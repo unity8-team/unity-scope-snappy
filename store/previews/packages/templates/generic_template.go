@@ -19,19 +19,19 @@
 package templates
 
 import (
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // GenericTemplate is a Template implementation that doesn't contain any
 // conditionals depending on package information. It's meant to be embedded in
 // other structs and further specialized.
 type GenericTemplate struct {
-	snap webdm.Package
+	snap client.Snap
 }
 
 // NewGenericTemplate creates a new GenericTemplate.
-func NewGenericTemplate(snap webdm.Package) *GenericTemplate {
+func NewGenericTemplate(snap client.Snap) *GenericTemplate {
 	return &GenericTemplate{snap: snap}
 }
 

@@ -19,10 +19,13 @@
 package main
 
 import (
-	"launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/store/scope"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
+
+	"launchpad.net/go-unityscopes/v2"
+	"launchpad.net/unity-scope-snappy/store/scope"
 )
 
 // main is the entry point of the scope.
@@ -30,7 +33,23 @@ import (
 // Supported environment variables:
 // - WEBDM_URL: address[:port] on which WebDM is listening
 func main() {
-	scope, err := scope.New(os.Getenv("WEBDM_URL"))
+
+	// TODO: HACK HACK HACK: Work around for bug #1630370
+	// ("runtime error: cgo argument has Go pointer to Go pointer"")
+	if os.Getenv("GODEBUG") != "cgocheck=0" {
+		cmd := exec.Command(os.Args[0], os.Args[1:]...)
+		env := os.Environ()
+		env = append(env, "GODEBUG=cgocheck=0")
+		cmd.Env = env
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err := cmd.Run()
+		fmt.Println(err)
+		os.Exit(0)
+	}
+
+	scope, err := scope.New()
 	if err != nil {
 		log.Printf("unity-scope-snappy: Unable to create scope: %s", err)
 		return

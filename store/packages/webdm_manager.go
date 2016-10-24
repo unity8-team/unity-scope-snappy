@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Canonical Ltd.
+/* Copyright (C) 2015-2016 Canonical Ltd.
  *
  * This file is part of unity-scope-snappy.
  *
@@ -19,15 +19,15 @@
 package packages
 
 import (
-	"launchpad.net/unity-scope-snappy/webdm"
+	"github.com/snapcore/snapd/client"
 )
 
 // WebdmManager is an interface to be implemented by any struct that supports
 // the type of package management needed by this scope.
 type WebdmManager interface {
-	GetInstalledPackages(query string) ([]webdm.Package, error)
-	GetStorePackages(query string) ([]webdm.Package, error)
-	Query(packageId string) (*webdm.Package, error)
+	GetInstalledPackages() (map[string]struct{})
+	GetStorePackages(query string) ([]client.Snap, error)
+	Query(packageId string) (*client.Snap, error)
 	Install(packageId string) error
 	Uninstall(packageId string) error
 }

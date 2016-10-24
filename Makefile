@@ -14,8 +14,7 @@ PACKAGES_TO_TEST := package-management-daemon/daemon \
                     store/previews/humanize \
                     store/previews/fakes \
                     store/previews/packages \
-                    store/previews/packages/templates \
-                    store/utilities
+                    store/previews/packages/templates
 
 ALL_LIST = $(EXECUTABLES) $(PACKAGES_TO_TEST)
 

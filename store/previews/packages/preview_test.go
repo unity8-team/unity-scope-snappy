@@ -19,10 +19,10 @@
 package packages
 
 import (
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/previews/fakes"
 	"launchpad.net/unity-scope-snappy/store/previews/packages/templates"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"reflect"
 	"testing"
 )
@@ -33,59 +33,36 @@ var (
 	uninstallMetadata = operation.Metadata{UninstallConfirmed: true, ObjectPath: "/foo/1"}
 )
 
-// Data for both TestNewPreview_invalidMetadata
-var invalidMetadataTests = []struct {
-	status   webdm.Status
-	metadata operation.Metadata
-}{
-	{webdm.StatusUninstalling, installMetadata},
-	{webdm.StatusInstalling, uninstallMetadata},
-	{webdm.StatusUndefined, uninstallMetadata},
-}
-
-// Test that calling NewPreview with invalid metadata results in an error.
-func TestNewPreview_invalidMetadata(t *testing.T) {
-	for i, test := range invalidMetadataTests {
-		snap := webdm.Package{Status: test.status}
-
-		_, err := NewPreview(snap, test.metadata)
-		if err == nil {
-			t.Errorf("Test case %d: Expected an error due to invalid metadata", i)
-		}
-	}
-}
-
 // Data for both TestNewPreview and TestPreview_generate.
 var previewTests = []struct {
-	status           webdm.Status
+	status           string
 	metadata         operation.Metadata
 	expectedTemplate interface{}
 }{
 	// No metadata
-	{webdm.StatusUndefined, emptyMetadata, &templates.StoreTemplate{}},
-	{webdm.StatusInstalled, emptyMetadata, &templates.InstalledTemplate{}},
-	{webdm.StatusNotInstalled, emptyMetadata, &templates.StoreTemplate{}},
-	{webdm.StatusInstalling, emptyMetadata, &templates.StoreTemplate{}},
-	{webdm.StatusUninstalling, emptyMetadata, &templates.StoreTemplate{}},
+	{client.StatusInstalled, emptyMetadata, &templates.InstalledTemplate{}},
+	{client.StatusAvailable, emptyMetadata, &templates.StoreTemplate{}},
+	{client.StatusRemoved, emptyMetadata, &templates.StoreTemplate{}},
+	{client.StatusActive, emptyMetadata, &templates.InstalledTemplate{}},
 
 	// Metadata requesting install
-	{webdm.StatusUndefined, installMetadata, &templates.InstallingTemplate{}},
-	{webdm.StatusInstalled, installMetadata, &templates.InstalledTemplate{}},
-	{webdm.StatusNotInstalled, installMetadata, &templates.InstallingTemplate{}},
-	{webdm.StatusInstalling, installMetadata, &templates.InstallingTemplate{}},
+	{client.StatusInstalled, installMetadata, &templates.InstalledTemplate{}},
+	{client.StatusAvailable, installMetadata, &templates.InstallingTemplate{}},
+	{client.StatusRemoved, installMetadata, &templates.InstallingTemplate{}},
 
 	// Metadata requesting uninstall
-	{webdm.StatusInstalled, uninstallMetadata, &templates.UninstallingTemplate{}},
-	{webdm.StatusNotInstalled, uninstallMetadata, &templates.StoreTemplate{}},
-	{webdm.StatusUninstalling, uninstallMetadata, &templates.UninstallingTemplate{}},
+	{client.StatusInstalled, uninstallMetadata, &templates.UninstallingTemplate{}},
+	{client.StatusActive, uninstallMetadata, &templates.UninstallingTemplate{}},
+	{client.StatusAvailable, uninstallMetadata, &templates.StoreTemplate{}},
+	{client.StatusRemoved, uninstallMetadata, &templates.StoreTemplate{}},
 }
 
 // Test typical NewPreview usage.
 func TestNewPreview(t *testing.T) {
 	for i, test := range previewTests {
-		snap := webdm.Package{Status: test.status}
+		snap := client.Snap{Status: test.status}
 
-		preview, err := NewPreview(snap, test.metadata)
+		preview, err := NewPreview(snap, nil, test.metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error: %s", i, err)
 			continue
@@ -102,18 +79,17 @@ func TestNewPreview(t *testing.T) {
 // Test typical Generate usage, and verify that it conforms to store design.
 func TestPreview_generate(t *testing.T) {
 	for i, test := range previewTests {
-		preview, err := NewPreview(webdm.Package{
-			Id:           "package1",
+		preview, err := NewPreview(client.Snap{
+			ID:           "package1",
 			Name:         "package1",
-			Origin:       "foo",
 			Version:      "0.1",
-			Vendor:       "bar",
+			Developer:    "bar",
 			Description:  "baz",
-			IconUrl:      "http://fake",
+			Icon:         "http://fake",
 			Status:       test.status,
 			DownloadSize: 123456,
-			Type:         "oem",
-		}, test.metadata)
+			Type:         "app",
+		}, nil, test.metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error while creating package preview: %s", i, err)
 			continue

@@ -21,8 +21,8 @@ package templates
 import (
 	"fmt"
 	"github.com/godbus/dbus"
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // UninstallingTemplate is a preview template for a package that is currently
@@ -41,10 +41,7 @@ type UninstallingTemplate struct {
 // Returns:
 // - Pointer to new UninstallingTemplate (nil if error)
 // - Error (nil if none)
-func NewUninstallingTemplate(snap webdm.Package, objectPath dbus.ObjectPath) (*UninstallingTemplate, error) {
-	if snap.Installing() {
-		return nil, fmt.Errorf("Snap is currently being installed")
-	}
+func NewUninstallingTemplate(snap client.Snap, objectPath dbus.ObjectPath) (*UninstallingTemplate, error) {
 
 	if !objectPath.IsValid() {
 		return nil, fmt.Errorf(`Invalid object path: "%s"`, objectPath)

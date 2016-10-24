@@ -20,23 +20,23 @@ package previews
 
 import (
 	"fmt"
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/previews/interfaces"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // ConfirmUninstallPreview is a PreviewGenerator meant to have the user
 // confirm a request to uninstall a package.
 type ConfirmUninstallPreview struct {
-	snap webdm.Package
+	snap client.Snap
 }
 
 // NewConfirmUninstallPreview creates a new ConfirmUninstallPreview.
 //
 // Parameters:
 // snap: Package which we're being asked to uninstall.
-func NewConfirmUninstallPreview(snap webdm.Package) *ConfirmUninstallPreview {
+func NewConfirmUninstallPreview(snap client.Snap) *ConfirmUninstallPreview {
 	return &ConfirmUninstallPreview{snap: snap}
 }
 

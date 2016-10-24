@@ -19,17 +19,17 @@
 package templates
 
 import (
-	"fmt"
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/previews/humanize"
-	"launchpad.net/unity-scope-snappy/webdm"
 )
 
 // StoreTemplate is a preview template for an in-store package
 // (i.e. not installed).
 type StoreTemplate struct {
 	*GenericTemplate
+	result *scopes.Result
 }
 
 // NewStoreTemplate creates a new StoreTemplate.
@@ -40,13 +40,10 @@ type StoreTemplate struct {
 // Returns:
 // - Pointer to new StoreTemplate (nil if error)
 // - Error (nil if none)
-func NewStoreTemplate(snap webdm.Package) (*StoreTemplate, error) {
-	if snap.Installed() {
-		return nil, fmt.Errorf("Snap is installed")
-	}
-
+func NewStoreTemplate(snap client.Snap, result *scopes.Result) (*StoreTemplate, error) {
 	template := new(StoreTemplate)
 	template.GenericTemplate = NewGenericTemplate(snap)
+	template.result = result
 
 	return template, nil
 }
@@ -62,7 +59,11 @@ func (preview StoreTemplate) HeaderWidget() scopes.PreviewWidget {
 	// WebDM doesn't provide any information about the cost of apps... so all
 	// the snaps are free!
 	priceAttribute := make(map[string]interface{})
-	priceAttribute["value"] = "FREE"
+	if preview.result != nil {
+		var price_area string
+		preview.result.Get("price_area", &price_area)
+		priceAttribute["value"] = price_area
+	}
 	widget.AddAttributeValue("attributes", []interface{}{priceAttribute})
 
 	return widget

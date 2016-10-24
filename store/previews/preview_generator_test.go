@@ -19,40 +19,38 @@
 package previews
 
 import (
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/operation"
 	"launchpad.net/unity-scope-snappy/store/previews/packages"
-	"launchpad.net/unity-scope-snappy/webdm"
 	"reflect"
 	"testing"
 )
 
 // Data for TestNewPreview.
 var newPreviewTests = []struct {
-	status    webdm.Status
+	status    string
 	scopeData *operation.Metadata
 	expected  interface{}
 }{
-	{webdm.StatusUndefined, nil, &packages.Preview{}},
-	{webdm.StatusInstalled, nil, &packages.Preview{}},
-	{webdm.StatusNotInstalled, nil, &packages.Preview{}},
-	{webdm.StatusInstalling, nil, &packages.Preview{}},
-	{webdm.StatusUninstalling, nil, &packages.Preview{}},
+	{client.StatusInstalled, nil, &packages.Preview{}},
+	{client.StatusAvailable, nil, &packages.Preview{}},
+	{client.StatusActive, nil, &packages.Preview{}},
+	{client.StatusRemoved, nil, &packages.Preview{}},
 
 	// Uninstallation confirmation test cases
-	{webdm.StatusUndefined, &operation.Metadata{UninstallRequested: true}, &ConfirmUninstallPreview{}},
-	{webdm.StatusInstalled, &operation.Metadata{UninstallRequested: true}, &ConfirmUninstallPreview{}},
+	{client.StatusInstalled, &operation.Metadata{UninstallRequested: true}, &ConfirmUninstallPreview{}},
 }
 
 // Test typical NewPreview usage.
 func TestNewPreview(t *testing.T) {
 	for i, test := range newPreviewTests {
-		snap := webdm.Package{Status: test.status}
+		snap := client.Snap{Status: test.status}
 		metadata := scopes.NewActionMetadata("us", "phone")
 
 		metadata.SetScopeData(test.scopeData)
 
-		preview, err := NewPreview(snap, metadata)
+		preview, err := NewPreview(snap, nil, metadata)
 		if err != nil {
 			t.Errorf("Test case %d: Unexpected error: %s", i, err)
 		}

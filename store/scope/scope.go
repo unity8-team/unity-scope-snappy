@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Canonical Ltd.
+/* Copyright (C) 2015-2016 Canonical Ltd.
  *
  * This file is part of unity-scope-snappy.
  *
@@ -20,13 +20,13 @@ package scope
 
 import (
 	"fmt"
+	"log"
+
+	"github.com/snapcore/snapd/client"
 	"launchpad.net/go-unityscopes/v2"
 	"launchpad.net/unity-scope-snappy/store/actions"
 	"launchpad.net/unity-scope-snappy/store/packages"
 	"launchpad.net/unity-scope-snappy/store/previews"
-	"launchpad.net/unity-scope-snappy/store/utilities"
-	"launchpad.net/unity-scope-snappy/webdm"
-	"log"
 )
 
 // template for the grid layout of the search results.
@@ -38,31 +38,33 @@ const layout = `{
 	},
 	"components": {
 		"title": "title",
+		"subtitle": "subtitle",
+        "attributes": { "field": "attributes", "max-count": 4 },
 		"art" : {
-			"field": "art"
-		},
-		"subtitle": "subtitle"
-        }
+			"field": "art",
+            "aspect-ratio": 1.13,
+            "fallback": "image://theme/placeholder-app-icon"
+		}
+    }
 }`
 
 // Scope is the struct representing the scope itself.
 type Scope struct {
-	webdmClient *webdm.Client
+	webdmClient packages.WebdmManager
 	dbusClient  *packages.DbusManagerClient
 }
 
 // New creates a new Scope using a specific WebDM API URL.
 //
 // Parameters:
-// webdmApiUrl: URL where WebDM is listening.
 //
 // Returns:
 // - Pointer to scope (nil if error).
 // - Error (nil if none).
-func New(webdmApiUrl string) (*Scope, error) {
+func New() (*Scope, error) {
 	scope := new(Scope)
 	var err error
-	scope.webdmClient, err = webdm.NewClient(webdmApiUrl)
+	scope.webdmClient, err = packages.NewSnapdClient()
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create WebDM client: %s", err)
 	}
@@ -81,22 +83,18 @@ func (scope Scope) SetScopeBase(base *scopes.ScopeBase) {
 }
 
 func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMetadata, reply *scopes.SearchReply, cancelled <-chan bool) error {
-	createDepartments(query, reply)
-
-	packages, err := utilities.GetPackageList(scope.webdmClient, query.DepartmentID(), query.QueryString())
+	installedApps := scope.webdmClient.GetInstalledPackages()
+	available, err := scope.webdmClient.GetStorePackages(query.QueryString())
 	if err != nil {
 		return scopeError("unity-scope-snappy: Unable to get package list: %s", err)
 	}
 
 	var category *scopes.Category
-	if query.DepartmentID() == "installed" {
-		category = reply.RegisterCategory("installed_packages", "Installed Packages", "", layout)
-	} else {
-		category = reply.RegisterCategory("store_packages", "Store Packages", "", layout)
-	}
+	category = reply.RegisterCategory("store_packages", "Store Packages", "", layout)
 
-	for _, thisPackage := range packages {
-		result := packageResult(category, thisPackage)
+	for _, thisPackage := range available {
+		_, ok := installedApps[thisPackage.Name]
+		result := packageResult(category, thisPackage, ok)
 
 		if reply.Push(result) != nil {
 			// If the push fails, the query was cancelled. No need to continue.
@@ -108,8 +106,8 @@ func (scope Scope) Search(query *scopes.CannedQuery, metadata *scopes.SearchMeta
 }
 
 func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadata, reply *scopes.PreviewReply, cancelled <-chan bool) error {
-	var snapId string
-	err := result.Get("id", &snapId)
+	var snapName string
+	err := result.Get("name", &snapName)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}
@@ -117,12 +115,13 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 	// Need to query the API to make sure we have an up-to-date status,
 	// otherwise we can't refresh the state of the buttons after an install or
 	// uninstall action.
-	snap, err := scope.webdmClient.Query(snapId)
+	snap, err := scope.webdmClient.Query(snapName)
+
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to query API for package "%s": %s`, result.Title(), err)
 	}
 
-	preview, err := previews.NewPreview(*snap, metadata)
+	preview, err := previews.NewPreview(*snap, result, metadata)
 	if err != nil {
 		return scopeError(`unity-scope-snappy: Unable to create preview for package "%s": %s`, result.Title(), err)
 	}
@@ -138,7 +137,7 @@ func (scope Scope) Preview(result *scopes.Result, metadata *scopes.ActionMetadat
 func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.ActionMetadata, widgetId, actionId string) (*scopes.ActivationResponse, error) {
 	// Obtain the ID for the specific package
 	var snapId string
-	err := result.Get("id", &snapId)
+	err := result.Get("name", &snapId)
 	if err != nil {
 		return nil, scopeError(`unity-scope-snappy: Unable to retrieve ID for package "%s": %s`, result.Title(), err)
 	}
@@ -157,49 +156,44 @@ func (scope *Scope) PerformAction(result *scopes.Result, metadata *scopes.Action
 	return response, err
 }
 
-// createDepartments is used to create a set of static departments for the scope.
-//
-// Parameters:
-// query: Query to be executed when the department is selected.
-// reply: Reply onto which the departments will be registered
-//
-// Returns:
-// - Error (nil if none)
-func createDepartments(query *scopes.CannedQuery, reply *scopes.SearchReply) error {
-	rootDepartment, err := scopes.NewDepartment("", query, "All Categories")
-	if err != nil {
-		return fmt.Errorf(`Unable to create "All Categories" department: %s`, err)
-	}
-
-	installedDepartment, err := scopes.NewDepartment("installed", query, "My Snaps")
-	if err != nil {
-		return fmt.Errorf(`Unable to create "My Snaps" department: %s`, err)
-	}
-
-	rootDepartment.SetSubdepartments([]*scopes.Department{installedDepartment})
-	reply.RegisterDepartments(rootDepartment)
-
-	return nil
-}
-
 // packageResult is used to create a scopes.CategorisedResult from a
-// webdm.Package.
+// client.Snap.
 //
 // Parameters:
 // category: Category in which the result will be created.
-// snap: webdm.Package representing snap.
+// snap: client.Snap representing snap.
 //
 // Returns:
 // - Pointer to scopes.CategorisedResult
-func packageResult(category *scopes.Category, snap webdm.Package) *scopes.CategorisedResult {
+func packageResult(category *scopes.Category, snap client.Snap, installed bool) *scopes.CategorisedResult {
 	result := scopes.NewCategorisedResult(category)
 
+	// NOTE: Title really needs to be title, not name, but snapd doesn't expose
 	result.SetTitle(snap.Name)
-	result.Set("subtitle", snap.Vendor)
-	result.SetURI("snappy:" + snap.Id)
-	result.SetArt(snap.IconUrl)
-	result.Set("id", snap.Id)
-
+	result.SetArt(snap.Icon)
+	result.SetURI("snappy:" + snap.Name)
+	result.Set("subtitle", snap.Developer)
+	result.Set("name", snap.Name)
+	result.Set("id", snap.ID)
+	result.Set("installed", installed)
+	var price string
+	if installed == true {
+		price = "✔ INSTALLED"
+	} else {
+		price = "FREE"
+	}
+	result.Set("price_area", price)
+	// This is a bit of a mess at the moment, need a better way to do this
+	attributes := make([]map[string]string, 0)
+	emptyValue := make(map[string]string, 0)
+	emptyValue["value"] = ""
+	priceValue := make(map[string]string, 0)
+	priceValue["value"] = price
+	attributes = append(attributes, priceValue)
+	attributes = append(attributes, emptyValue)
+	attributes = append(attributes, emptyValue)
+	attributes = append(attributes, emptyValue)
+	result.Set("attributes", attributes)
 	return result
 }
 

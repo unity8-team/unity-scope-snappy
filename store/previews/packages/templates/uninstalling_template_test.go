@@ -20,37 +20,29 @@ package templates
 
 import (
 	"github.com/godbus/dbus"
-	"launchpad.net/unity-scope-snappy/webdm"
+	"github.com/snapcore/snapd/client"
 	"testing"
 )
 
 // Data for UninstallingTemplate tests
 var uninstallingTemplateTests = []struct {
-	snap        webdm.Package
-	expectError bool
+	snap        client.Snap
 }{
-	{webdm.Package{Id: "package1", Status: webdm.StatusUndefined, Version: "0.1", DownloadSize: 123456}, true},
-	{webdm.Package{Id: "package1", Status: webdm.StatusInstalled, Version: "0.1", InstalledSize: 123456}, false},
-	{webdm.Package{Id: "package1", Status: webdm.StatusNotInstalled, Version: "0.1", DownloadSize: 123456}, true},
-	{webdm.Package{Id: "package1", Status: webdm.StatusInstalling, Version: "0.1", DownloadSize: 123456}, true},
-	{webdm.Package{Id: "package1", Status: webdm.StatusUninstalling, Version: "0.1", DownloadSize: 123456}, false},
+	{client.Snap{ID: "package1", Status: client.StatusInstalled, Version: "0.1", InstalledSize: 123456}},
+	{client.Snap{ID: "package1", Status: client.StatusActive, Version: "0.1", DownloadSize: 123456}},
 }
 
 // Test typical NewUninstallingTemplate usage.
 func TestNewUninstallingTemplate(t *testing.T) {
 	for i, test := range uninstallingTemplateTests {
 		template, err := NewUninstallingTemplate(test.snap, "/foo/1")
-		if err == nil && test.expectError {
-			t.Errorf("Test case %d: Expected error due to incorrect status", i)
-		} else if err != nil {
-			if !test.expectError {
-				t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
-			}
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
 			continue
 		}
 
-		if template.snap.Id != test.snap.Id {
-			t.Errorf(`Test case %d: Template snap's ID is "%s", expected "%s"`, i, template.snap.Id, test.snap.Id)
+		if template.snap.ID != test.snap.ID {
+			t.Errorf(`Test case %d: Template snap's ID is "%s", expected "%s"`, i, template.snap.ID, test.snap.ID)
 		}
 	}
 }
@@ -58,7 +50,7 @@ func TestNewUninstallingTemplate(t *testing.T) {
 // Test that calling NewUninstallingTemplate with an invalid object path results
 // in an error.
 func TestNewUninstallingTemplate_invalidObjectPath(t *testing.T) {
-	_, err := NewUninstallingTemplate(webdm.Package{}, "invalid")
+	_, err := NewUninstallingTemplate(client.Snap{}, "invalid")
 	if err == nil {
 		t.Error("Expected an error due to invalid object path")
 	}
@@ -68,12 +60,8 @@ func TestNewUninstallingTemplate_invalidObjectPath(t *testing.T) {
 func TestUninstallingTemplate_actionsWidget(t *testing.T) {
 	for i, test := range uninstallingTemplateTests {
 		template, err := NewUninstallingTemplate(test.snap, "/foo/1")
-		if err == nil && test.expectError {
-			t.Errorf("Test case %d: Expected error due to incorrect status", i)
-		} else if err != nil {
-			if !test.expectError {
-				t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
-			}
+		if err != nil {
+			t.Errorf("Test case %d: Unexpected error creating template: %s", i, err)
 			continue
 		}
 

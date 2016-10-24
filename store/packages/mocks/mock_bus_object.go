@@ -25,14 +25,14 @@ import (
 // MockBusObject is a mocked implementation of the dbus.BusObject interface, for
 // use within tests.
 type MockBusObject struct {
-	CallCalled bool
-	GoCalled bool
+	CallCalled        bool
+	GoCalled          bool
 	GetPropertyCalled bool
 	DestinationCalled bool
-	PathCalled bool
+	PathCalled        bool
 
 	Method string
-	Args []interface{}
+	Args   []interface{}
 }
 
 func (mock *MockBusObject) Call(method string, flags dbus.Flags, args ...interface{}) *dbus.Call {

@@ -6,8 +6,10 @@ Build-Depends: dbus-test-runner,
                debhelper (>= 9),
                dh-exec (>=0.3),
                dh-golang,
-               golang-go,
-               golang-go.tools [amd64 armhf i386] | golang-go (>= 2:1.5~rc1),
+               golang-github-snapcore-snapd-dev,
+               golang-golang-x-tools,
+               golang-launchpad-go-unityscopes-v2-dev,
+               golang-go (>= 1.6),
                libunity-scopes-dev,
                pkg-config,
                python3,
@@ -20,7 +22,7 @@ Vcs-Bzr: lp:unity-scope-snappy
 Vcs-Browser: http://bazaar.launchpad.net/~unity-api-team/unity-scope-snappy/trunk/files
 
 Package: unity-scope-snappy
-Architecture: any
+Architecture: amd64 arm64 armhf i386
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends},
@@ -33,7 +35,7 @@ Description: Install and launch snap packages.
  launch installed applications.
 
 Package: unity-scope-snappy-daemon
-Architecture: any
+Architecture: amd64 arm64 armhf i386
 Multi-Arch: foreign
 Depends: ${misc:Depends},
          ${shlibs:Depends},

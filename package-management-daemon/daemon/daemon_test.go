@@ -6,7 +6,7 @@ import (
 
 // Test typical New usage.
 func TestNew(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -20,17 +20,9 @@ func TestNew(t *testing.T) {
 	}
 }
 
-// Test that New fails if given an invalid API URL
-func TestNew_invalidUrl(t *testing.T) {
-	_, err := New(":")
-	if err == nil {
-		t.Error("Expected an error due to invalid API URL")
-	}
-}
-
 // Test typical Run usage.
 func TestDaemonRunStop(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -60,7 +52,7 @@ func TestDaemonRunStop(t *testing.T) {
 
 // Test dbus connection failure
 func TestRun_connectionFailure(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -76,7 +68,7 @@ func TestRun_connectionFailure(t *testing.T) {
 
 // Test dbus name request failure
 func TestRun_nameRequestFailure(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -92,7 +84,7 @@ func TestRun_nameRequestFailure(t *testing.T) {
 
 // Test dbus name already taken
 func TestRun_nameTaken(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -108,7 +100,7 @@ func TestRun_nameTaken(t *testing.T) {
 
 // Test dbus introspection export failure
 func TestRun_introspectionExportFailure(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}
@@ -127,7 +119,7 @@ func TestRun_introspectionExportFailure(t *testing.T) {
 
 // Test dbus package manager export failure
 func TestRun_packageManagerExportFailure(t *testing.T) {
-	daemon, err := New("")
+	daemon, err := New()
 	if err != nil {
 		t.Fatalf("Unexpected error when creating daemon: %s", err)
 	}

@@ -72,7 +72,7 @@ func TestStoreTemplate_headerWidget(t *testing.T) {
 			continue
 		}
 
-/* FIXME: Unable to test price attribute here as we get it from result
+		/* FIXME: Unable to test price attribute here as we get it from result
 		attribute := attributes[0].(map[string]interface{})
 		value, ok = attribute["value"]
 		if !ok {
@@ -82,7 +82,7 @@ func TestStoreTemplate_headerWidget(t *testing.T) {
 		if value != "FREE" {
 			t.Errorf(`Test case %d: Generic header attribute was "%s", expected "FREE"`, i, value)
 		}
-*/
+		*/
 	}
 }
 
@@ -126,6 +126,12 @@ func TestStoreTemplate_actionsWidget(t *testing.T) {
 		}
 		if value != "Install" {
 			t.Errorf(`Test case %d: Install action's label was "%s", expected "Install"`, i, value)
+		}
+
+		// Verify the widget is connected to online accounts
+		_, ok = widget["online_account_details"]
+		if !ok {
+			t.Errorf("Test case %d: Expected install widget to use online accounts.", i)
 		}
 	}
 }

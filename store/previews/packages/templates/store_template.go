@@ -81,6 +81,9 @@ func (preview StoreTemplate) ActionsWidget() scopes.PreviewWidget {
 	installAction["label"] = "Install"
 
 	widget.AddAttributeValue("actions", []interface{}{installAction})
+	scopes.RegisterAccountLoginWidget(&widget,
+		"ubuntuone", "ubuntuone", "ubuntuone",
+		scopes.PostLoginContinueActivation, scopes.PostLoginDoNothing)
 
 	return widget
 }

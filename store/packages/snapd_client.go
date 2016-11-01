@@ -88,7 +88,12 @@ func (snapd *SnapdClient) GetStorePackages(query string) ([]client.Snap, error) 
 
 	packages := make([]client.Snap, 0)
 	for _, snap := range snaps {
+		// Only show snaps that are of the "app" type.
 		if snap.Type != client.TypeApp {
+			continue
+		}
+		// Skip apps with prices, as we don't support purchases yet
+		if len(snap.Prices) != 0 {
 			continue
 		}
 		packages = append(packages, *snap)

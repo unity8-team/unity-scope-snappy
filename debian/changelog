@@ -1,3 +1,12 @@
+unity-scope-snappy (0.1.0+16.04.20161101.1-0ubuntu1) xenial; urgency=medium
+
+  [ Rodney Dawes ]
+  * Make Install button use online accounts API. (LP: #1637387)
+  * Update the scope .ini to match the old store scope. (LP: #1637392)
+  * Hide apps with prices for the time being. (LP: #1637393)
+
+ -- Marcus Tomlinson <marcus.tomlinson@canonical.com>  Tue, 01 Nov 2016 08:35:20 +0000
+
 unity-scope-snappy (0.1.0+16.04.20161024.1-0ubuntu1) xenial; urgency=medium
 
   [ Marcus Tomlinson, Rodney Dawes ]
